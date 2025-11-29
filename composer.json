@@ -1,0 +1,25 @@
+{
+    "name": "chubes/chubes-docs",
+    "description": "Documentation post type, codebase taxonomy, and REST API sync system for chubes.net",
+    "version": "0.1.0",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Chris Huber",
+            "homepage": "https://chubes.net"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "erusev/parsedown": "^1.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "ChubesDocs\\": "inc/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true
+    }
+}

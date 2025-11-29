@@ -1,0 +1,32 @@
+# WordPress Plugin .gitignore
+# See https://github.com/github/gitignore/blob/main/WordPress.gitignore
+
+# Core
+build/
+dist/
+*.log
+
+# Development
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Composer
+vendor/
+
+# Node.js (if used in future)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary files
+*.tmp
+*.temp

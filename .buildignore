@@ -1,0 +1,13 @@
+.git
+.git/
+.gitignore
+.buildignore
+.DS_Store
+build/
+dist/
+build.sh
+node_modules/
+*.log
+*.md
+.vscode/
+.idea/
