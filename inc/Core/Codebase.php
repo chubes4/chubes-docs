@@ -210,19 +210,106 @@ class Codebase {
 	/**
 	 * Resolve a hierarchical path to its deepest matching term
 	 *
-	 * @param string $path Path like 'wordpress-plugins/my-plugin'
-	 * @return WP_Term|null
+	 * @param string|array $path Path like 'wordpress-plugins/my-plugin' or array
+	 * @param bool $create_missing Whether to create missing terms
+	 * @param array $project_meta Meta to add to the project term if created
+	 * @param string|null $project_slug Explicit slug for the project term (depth 1)
+	 * @return array
 	 */
-	public static function resolve_path( $path ) {
-		$parts = array_filter( explode( '/', trim( $path, '/' ) ) );
-		if ( empty( $parts ) ) {
-			return null;
+	public static function resolve_path( $path, $create_missing = false, $project_meta = array(), $project_slug = null ) {
+		if ( is_string( $path ) ) {
+			$parts = array_filter( explode( '/', trim( $path, '/' ) ) );
+		} elseif ( is_array( $path ) ) {
+			$parts = array_values( array_filter( $path ) );
+		} else {
+			return array(
+				'success' => false,
+				'error'   => 'Invalid path format',
+			);
 		}
 
-		$target_slug = end( $parts );
-		$term = get_term_by( 'slug', $target_slug, self::TAXONOMY );
+		if ( empty( $parts ) ) {
+			return array(
+				'success' => false,
+				'error'   => 'Empty path',
+			);
+		}
 
-		return $term && ! is_wp_error( $term ) ? $term : null;
+		$parent_id = 0;
+		$terms     = array();
+
+		foreach ( $parts as $index => $part_name ) {
+			$is_project_level = ( $index === 1 ); // Depth 1 is project level (Category -> Project)
+			
+			// Determine slug
+			if ( $is_project_level && ! empty( $project_slug ) ) {
+				$slug = $project_slug;
+			} else {
+				$slug = sanitize_title( $part_name );
+			}
+
+			$found = false;
+			$term  = null;
+
+			// Try to find child of parent with this name or slug
+			$children = get_terms( array(
+				'taxonomy'   => self::TAXONOMY,
+				'parent'     => $parent_id,
+				'hide_empty' => false,
+				'slug'       => $slug,
+			) );
+			
+			if ( ! empty( $children ) && ! is_wp_error( $children ) ) {
+				$term = $children[0];
+				$found = true;
+			}
+
+			if ( ! $found ) {
+				if ( ! $create_missing ) {
+					return array(
+						'success' => false,
+						'error'   => "Term not found: {$part_name}",
+					);
+				}
+
+				$args = array(
+					'parent' => $parent_id,
+					'slug'   => $slug,
+				);
+
+				$new_term = wp_insert_term( $part_name, self::TAXONOMY, $args );
+
+				if ( is_wp_error( $new_term ) ) {
+					if ( isset( $new_term->error_data['term_exists'] ) ) {
+						$term_id = $new_term->error_data['term_exists'];
+						$term = get_term( $term_id, self::TAXONOMY );
+					} else {
+						return array(
+							'success' => false,
+							'error'   => "Failed to create term {$part_name}: " . $new_term->get_error_message(),
+						);
+					}
+				} else {
+					$term = get_term( $new_term['term_id'], self::TAXONOMY );
+					
+					// Add meta if this is project level
+					if ( $is_project_level && ! empty( $project_meta ) ) {
+						foreach ( $project_meta as $key => $value ) {
+							update_term_meta( $term->term_id, $key, $value );
+						}
+					}
+				}
+			}
+
+			$terms[]   = $term;
+			$parent_id = $term->term_id;
+		}
+
+		return array(
+			'success'      => true,
+			'leaf_term_id' => $parent_id,
+			'terms'        => $terms,
+		);
 	}
 
 	/**

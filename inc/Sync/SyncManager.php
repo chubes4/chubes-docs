@@ -10,15 +10,31 @@ class SyncManager {
 		string $source_file,
 		string $title,
 		string $content,
-		array $codebase_path,
+		int $project_term_id,
+		array $subpath = [],
 		string $excerpt = '',
 		bool $force = false
 	): array {
-		// Auto-detect and convert markdown to HTML
+		$project_term = get_term( $project_term_id, Codebase::TAXONOMY );
+		if ( ! $project_term || is_wp_error( $project_term ) ) {
+			return [
+				'success' => false,
+				'error'   => 'Invalid project term ID',
+			];
+		}
+		$project_slug = $project_term->slug;
+
 		if ( MarkdownProcessor::isMarkdown( $content ) ) {
-			$project_slug = isset( $codebase_path[1] ) ? sanitize_title( $codebase_path[1] ) : '';
-			$processor    = new MarkdownProcessor( $project_slug, $source_file );
-			$content      = $processor->process( $content );
+			$processor = new MarkdownProcessor( $project_slug, $source_file );
+			$content   = $processor->process( $content );
+		}
+
+		$leaf_term_id = self::resolve_subpath( $project_term_id, $subpath );
+		if ( is_wp_error( $leaf_term_id ) ) {
+			return [
+				'success' => false,
+				'error'   => $leaf_term_id->get_error_message(),
+			];
 		}
 
 		$new_hash         = self::compute_hash( $content );
@@ -28,7 +44,7 @@ class SyncManager {
 			$stored_hash = get_post_meta( $existing_post_id, '_sync_hash', true );
 
 			if ( ! $force && $stored_hash === $new_hash ) {
-				return array(
+				return [
 					'success'          => true,
 					'action'           => 'unchanged',
 					'post_id'          => $existing_post_id,
@@ -37,33 +53,28 @@ class SyncManager {
 					'previous_hash'    => $stored_hash,
 					'new_hash'         => $new_hash,
 					'changes_detected' => false,
-					'codebase_path'    => $codebase_path,
-				);
+				];
 			}
 
-			$result = wp_update_post( array(
+			$result = wp_update_post( [
 				'ID'           => $existing_post_id,
 				'post_title'   => $title,
 				'post_content' => $content,
 				'post_excerpt' => $excerpt,
-			), true );
+			], true );
 
 			if ( is_wp_error( $result ) ) {
-				return array(
+				return [
 					'success'     => false,
 					'error'       => $result->get_error_message(),
 					'source_file' => $source_file,
-				);
+				];
 			}
 
 			self::update_sync_meta( $existing_post_id, $source_file, $new_hash );
+			wp_set_object_terms( $existing_post_id, $leaf_term_id, Codebase::TAXONOMY );
 
-			$resolved = Codebase::resolve_path( $codebase_path, true );
-			if ( $resolved['success'] && $resolved['leaf_term_id'] ) {
-				wp_set_object_terms( $existing_post_id, $resolved['leaf_term_id'], Codebase::TAXONOMY );
-			}
-
-			return array(
+			return [
 				'success'          => true,
 				'action'           => 'updated',
 				'post_id'          => $existing_post_id,
@@ -72,34 +83,29 @@ class SyncManager {
 				'previous_hash'    => $stored_hash,
 				'new_hash'         => $new_hash,
 				'changes_detected' => true,
-				'codebase_path'    => $codebase_path,
-			);
+			];
 		}
 
-		$post_id = wp_insert_post( array(
+		$post_id = wp_insert_post( [
 			'post_type'    => 'documentation',
 			'post_title'   => $title,
 			'post_content' => $content,
 			'post_excerpt' => $excerpt,
 			'post_status'  => 'publish',
-		), true );
+		], true );
 
 		if ( is_wp_error( $post_id ) ) {
-			return array(
+			return [
 				'success'     => false,
 				'error'       => $post_id->get_error_message(),
 				'source_file' => $source_file,
-			);
+			];
 		}
 
 		self::update_sync_meta( $post_id, $source_file, $new_hash );
+		wp_set_object_terms( $post_id, $leaf_term_id, Codebase::TAXONOMY );
 
-		$resolved = Codebase::resolve_path( $codebase_path, true );
-		if ( $resolved['success'] && $resolved['leaf_term_id'] ) {
-			wp_set_object_terms( $post_id, $resolved['leaf_term_id'], Codebase::TAXONOMY );
-		}
-
-		return array(
+		return [
 			'success'          => true,
 			'action'           => 'created',
 			'post_id'          => $post_id,
@@ -108,8 +114,53 @@ class SyncManager {
 			'previous_hash'    => null,
 			'new_hash'         => $new_hash,
 			'changes_detected' => true,
-			'codebase_path'    => $codebase_path,
-		);
+		];
+	}
+
+	private static function resolve_subpath( int $parent_term_id, array $subpath ): int|\WP_Error {
+		if ( empty( $subpath ) ) {
+			return $parent_term_id;
+		}
+
+		$current_parent = $parent_term_id;
+
+		foreach ( $subpath as $part_name ) {
+			$slug = sanitize_title( $part_name );
+
+			$existing = get_terms( [
+				'taxonomy'   => Codebase::TAXONOMY,
+				'parent'     => $current_parent,
+				'slug'       => $slug,
+				'hide_empty' => false,
+				'number'     => 1,
+			] );
+
+			if ( ! empty( $existing ) && ! is_wp_error( $existing ) ) {
+				$current_parent = $existing[0]->term_id;
+				continue;
+			}
+
+			$result = wp_insert_term( $part_name, Codebase::TAXONOMY, [
+				'parent' => $current_parent,
+				'slug'   => $slug,
+			] );
+
+			if ( is_wp_error( $result ) ) {
+				if ( isset( $result->error_data['term_exists'] ) ) {
+					$term = get_term( $result->error_data['term_exists'], Codebase::TAXONOMY );
+					if ( $term && $term->parent === $current_parent ) {
+						$current_parent = $term->term_id;
+						continue;
+					}
+					return new \WP_Error( 'term_parent_mismatch', "Term '{$part_name}' exists but under wrong parent" );
+				}
+				return $result;
+			}
+
+			$current_parent = $result['term_id'];
+		}
+
+		return $current_parent;
 	}
 
 	public static function find_post_by_source( string $source_file ): ?int {

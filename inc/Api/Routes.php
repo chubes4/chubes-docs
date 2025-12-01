@@ -154,6 +154,30 @@ class Routes {
     }
 
     private static function register_sync_routes(): void {
+        register_rest_route(self::NAMESPACE, '/sync/setup', [
+            'methods'             => 'POST',
+            'callback'            => [SyncController::class, 'setup_project'],
+            'permission_callback' => [self::class, 'check_manage_terms_permission'],
+            'args'                => [
+                'project_slug' => [
+                    'type'     => 'string',
+                    'required' => true,
+                ],
+                'project_name' => [
+                    'type'     => 'string',
+                    'required' => true,
+                ],
+                'category_slug' => [
+                    'type'     => 'string',
+                    'required' => true,
+                ],
+                'category_name' => [
+                    'type'     => 'string',
+                    'required' => true,
+                ],
+            ],
+        ]);
+
         register_rest_route(self::NAMESPACE, '/sync/status', [
             'methods'             => 'GET',
             'callback'            => [SyncController::class, 'get_status'],
@@ -302,10 +326,14 @@ class Routes {
                 'type'     => 'string',
                 'required' => true,
             ],
-            'codebase_path' => [
-                'type'     => 'array',
+            'project_term_id' => [
+                'type'     => 'integer',
                 'required' => true,
-                'items'    => ['type' => 'string'],
+            ],
+            'subpath' => [
+                'type'    => 'array',
+                'default' => [],
+                'items'   => ['type' => 'string'],
             ],
             'excerpt' => [
                 'type' => 'string',

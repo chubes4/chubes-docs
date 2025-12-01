@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-12-01
+
+### Added
+- **New `/sync/setup` API endpoint** for automated project and category creation with proper hierarchy
+- **Enhanced sync system** with improved term handling using `project_term_id` and `subpath` parameters
+- **Complete rewrite of URL routing** for hierarchical `/docs/` URLs with better path resolution
+- **Enhanced path resolution** in `Codebase::resolve_path()` with term creation capabilities and better error handling
+- **New documentation files**: `docs/installation.md` and `docs/usage.md` with comprehensive setup and usage guides
+
+### Changed
+- **Refactored SyncController** to use new term structure instead of `codebase_path` arrays
+- **Updated API routes** to support new sync parameters and project setup functionality
+- **Improved RewriteRules** system for better hierarchical documentation URL handling
+- **Enhanced SyncManager** with better term resolution and subpath handling
+
+### Technical Details
+- Added `setup_project()` method to SyncController for automated taxonomy setup
+- Refactored `sync_post()` method to use `project_term_id` and `subpath` parameters
+- Complete rewrite of `RewriteRules::resolve_docs_path()` for better URL parsing
+- Enhanced `Codebase::resolve_path()` with creation capabilities and improved error handling
+- Added `resolve_subpath()` private method to SyncManager for nested term creation
+
+### Fixed
+- Improved error handling in sync operations with better validation
+- Enhanced term creation logic to prevent duplicate terms and maintain proper hierarchy
+- Better URL routing for nested documentation structures
+
 ## [0.2.0] - 2025-11-30
 
 ### Added
