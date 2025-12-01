@@ -37,32 +37,33 @@ chubes-docs/
 │       └── RelatedPosts.php # Related documentation logic
 └── assets/                 # Frontend assets
     ├── css/
-    │   ├── documentation.css
+    │   ├── archives.css
     │   └── related-posts.css
     └── (other frontend assets)
 ```
 
 ## Key Systems
 
-### REST API Layer
+### REST API Layer (v0.2.1)
 - **Controllers**: Handle CRUD operations for docs, codebase taxonomy, and sync operations
-- **Routes**: Centralized route registration under `chubes/v1` namespace
+- **Routes**: Centralized route registration under `chubes/v1` namespace with enhanced sync endpoints
 - **Authentication**: WordPress nonce verification and capability checks
+- **New Endpoints**: `/sync/setup` for project initialization, enhanced `/sync/doc` with `project_term_id`/`subpath` parameters
 
 ### Documentation Management
-- **Post Type Integration**: Extends theme's `documentation` post type
-- **Markdown Processing**: Converts markdown to HTML with internal link resolution
-- **Sync Capabilities**: External documentation source synchronization
+- **Post Type Integration**: Extends theme's `documentation` post type with hierarchical URL routing
+- **Markdown Processing**: Converts markdown to HTML with internal link resolution and taxonomy-aware URL generation
+- **Sync Capabilities**: External documentation source synchronization with automatic taxonomy term creation
 
 ### Codebase Integration
-- **Taxonomy Management**: Extends theme's `codebase` taxonomy functionality
-- **Repository Metadata**: GitHub and WordPress.org repository information
-- **Install Tracking**: Automatic WordPress.org install count fetching
+- **Taxonomy Management**: Extends theme's `codebase` taxonomy with hierarchical path resolution and automatic term creation
+- **Repository Metadata**: GitHub and WordPress.org repository information with auto-fetching capabilities
+- **Install Tracking**: Automatic WordPress.org install count fetching with daily updates
 
 ### Admin Interface
-- **Repository Fields**: Meta boxes for repository URLs, versions, and metadata
-- **Install Statistics**: Display of active install counts and trends
-- **Sync Management**: Interface for external data synchronization
+- **Repository Fields**: Meta boxes for repository URLs, versions, and metadata with validation
+- **Install Statistics**: Display of active install counts and trends with historical data
+- **Sync Management**: Interface for external data synchronization with status monitoring
 
 ## Development Commands
 
@@ -86,23 +87,49 @@ The build script creates a production-ready WordPress plugin package:
 4. Creates ZIP file in `build/` directory
 5. Restores development dependencies
 
+## Development Workflow
+
+### Local Development Setup
+1. Clone repository and run `composer install`
+2. Use testing-grounds.local (multisite WordPress installation)
+3. Activate plugin and test with Chubes theme
+4. Use `./build.sh` for production builds
+
+### Code Standards
+- PSR-4 autoloading for all classes
+- WordPress coding standards for PHP
+- Single responsibility principle for class design
+- Comprehensive error handling and input validation
+
+### Testing Strategy
+- Manual testing on multisite WordPress installation
+- API endpoint testing with curl/Postman
+- Integration testing with Chubes theme
+- Build validation with production ZIP creation
+
 ## API Endpoints
 
 All endpoints use the `chubes/v1` namespace:
 
 ### Documentation
-- `GET /docs` - List documentation posts
-- `POST /docs` - Create documentation
+- `GET /docs` - List documentation posts (with filters: codebase, status, per_page, page, search)
+- `POST /docs` - Create documentation (with title, content, excerpt, status, codebase_path, meta)
 - `GET /docs/{id}` - Get specific documentation
 - `PUT /docs/{id}` - Update documentation
-- `DELETE /docs/{id}` - Delete documentation
+- `DELETE /docs/{id}` - Delete documentation (with force parameter)
 
 ### Codebase
-- `GET /codebase` - List codebase taxonomy terms
-- `POST /codebase` - Create codebase terms
+- `GET /codebase` - List codebase taxonomy terms (with parent, hide_empty)
+- `GET /codebase/tree` - Get hierarchical codebase tree
+- `POST /codebase/resolve` - Resolve or create taxonomy path (with path, create_missing, project_meta)
+- `GET /codebase/{id}` - Get specific taxonomy term
+- `PUT /codebase/{id}` - Update taxonomy term (name, description, meta)
 
 ### Sync
-- `POST /sync/doc` - Sync documentation from external sources
+- `POST /sync/setup` - Setup project and category (project_slug, project_name, category_slug, category_name)
+- `GET /sync/status` - Get sync status (with project filter)
+- `POST /sync/doc` - Sync documentation from external sources (source_file, title, content, project_term_id, filesize, timestamp, subpath, excerpt, force)
+- `POST /sync/batch` - Batch sync multiple documents
 
 ## Dependencies
 

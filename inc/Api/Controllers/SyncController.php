@@ -108,7 +108,7 @@ class SyncController {
                 'post_id'        => $post->ID,
                 'title'          => $post->post_title,
                 'source_file'    => get_post_meta($post->ID, '_sync_source_file', true),
-                'sync_hash'      => get_post_meta($post->ID, '_sync_hash', true),
+                'sync_filesize'  => get_post_meta($post->ID, '_sync_filesize', true),
                 'sync_timestamp' => get_post_meta($post->ID, '_sync_timestamp', true),
                 'status'         => 'synced',
             ];
@@ -128,6 +128,8 @@ class SyncController {
         $title = sanitize_text_field(wp_unslash($request->get_param('title')));
         $content = wp_kses_post(wp_unslash($request->get_param('content')));
         $project_term_id = absint($request->get_param('project_term_id'));
+        $filesize = absint($request->get_param('filesize'));
+        $timestamp = sanitize_text_field(wp_unslash($request->get_param('timestamp')));
         $subpath = $request->get_param('subpath') ?? [];
         $excerpt = sanitize_textarea_field(wp_unslash($request->get_param('excerpt') ?? ''));
         $force = (bool) $request->get_param('force');
@@ -137,7 +139,7 @@ class SyncController {
             return new WP_Error('invalid_project_term', 'Project term not found', ['status' => 400]);
         }
 
-        $result = SyncManager::sync_post($source_file, $title, $content, $project_term_id, $subpath, $excerpt, $force);
+        $result = SyncManager::sync_post($source_file, $title, $content, $project_term_id, $filesize, $timestamp, $subpath, $excerpt, $force);
 
         if (!$result['success']) {
             return new WP_Error('sync_failed', $result['error'] ?? 'Sync failed', ['status' => 500]);
@@ -164,11 +166,13 @@ class SyncController {
             $title = sanitize_text_field(wp_unslash($doc['title'] ?? ''));
             $content = wp_kses_post(wp_unslash($doc['content'] ?? ''));
             $project_term_id = absint($doc['project_term_id'] ?? 0);
+            $filesize = absint($doc['filesize'] ?? 0);
+            $timestamp = sanitize_text_field(wp_unslash($doc['timestamp'] ?? ''));
             $subpath = $doc['subpath'] ?? [];
             $excerpt = sanitize_textarea_field(wp_unslash($doc['excerpt'] ?? ''));
             $force = (bool) ($doc['force'] ?? false);
 
-            if (empty($source_file) || empty($title) || empty($content) || empty($project_term_id)) {
+            if (empty($source_file) || empty($title) || empty($content) || empty($project_term_id) || empty($filesize) || empty($timestamp)) {
                 $results[] = [
                     'source_file' => $source_file,
                     'success'     => false,
@@ -178,7 +182,7 @@ class SyncController {
                 continue;
             }
 
-            $result = SyncManager::sync_post($source_file, $title, $content, $project_term_id, $subpath, $excerpt, $force);
+            $result = SyncManager::sync_post($source_file, $title, $content, $project_term_id, $filesize, $timestamp, $subpath, $excerpt, $force);
             $results[] = $result;
 
             if ($result['success']) {

@@ -330,6 +330,14 @@ class Routes {
                 'type'     => 'integer',
                 'required' => true,
             ],
+            'filesize' => [
+                'type'     => 'integer',
+                'required' => true,
+            ],
+            'timestamp' => [
+                'type'     => 'string',
+                'required' => true,
+            ],
             'subpath' => [
                 'type'    => 'array',
                 'default' => [],

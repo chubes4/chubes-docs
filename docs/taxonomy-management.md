@@ -1,0 +1,328 @@
+# Taxonomy Management
+
+This guide covers the `codebase` taxonomy system used to organize documentation in Chubes Docs.
+
+For API endpoint details, see the [API Reference](api-reference.md).
+
+## Overview
+
+The `codebase` taxonomy is a hierarchical system for categorizing documentation by project type and structure. It supports automatic term creation, path resolution, and repository metadata integration.
+
+## Taxonomy Structure
+
+### Hierarchy Levels
+
+```
+codebase/
+├── wordpress-plugins/
+│   ├── my-plugin/
+│   │   ├── api/
+│   │   ├── guides/
+│   │   └── examples/
+│   └── another-plugin/
+├── wordpress-themes/
+│   └── my-theme/
+├── php-libraries/
+└── discord-bots/
+```
+
+### Term Types
+
+- **Category Terms**: Top-level groupings (wordpress-plugins, wordpress-themes, etc.)
+- **Project Terms**: Specific projects within categories
+- **Subpath Terms**: Hierarchical organization within projects
+
+## Managing Taxonomy Terms
+
+### Creating Terms via API
+
+#### Manual Term Creation
+
+```bash
+# Create a category term
+curl -X POST /wp-json/chubes/v1/codebase \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "WordPress Plugins",
+    "slug": "wordpress-plugins",
+    "description": "Documentation for WordPress plugins"
+  }'
+```
+
+#### Path Resolution
+
+Automatically create hierarchical paths:
+
+```bash
+curl -X POST /wp-json/chubes/v1/codebase/resolve \
+  -H "Content-Type: application/json" \
+  -d '{
+    "path": ["wordpress-plugins", "my-plugin", "api", "endpoints"],
+    "create_missing": true,
+    "project_meta": {
+      "github_url": "https://github.com/user/my-plugin",
+      "wordpress_url": "https://wordpress.org/plugins/my-plugin",
+      "version": "1.0.0"
+    }
+  }'
+```
+
+This creates all missing terms in the hierarchy and associates metadata with the project term.
+
+### Updating Terms
+
+```bash
+curl -X PUT /wp-json/chubes/v1/codebase/{term_id} \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Updated Plugin Name",
+    "description": "New description",
+    "meta": {
+      "version": "2.0.0",
+      "last_updated": "2025-12-01"
+    }
+  }'
+```
+
+### Listing Terms
+
+```bash
+# Get all terms
+curl /wp-json/chubes/v1/codebase
+
+# Get hierarchical tree
+curl /wp-json/chubes/v1/codebase/tree
+
+# Filter by parent
+curl /wp-json/chubes/v1/codebase?parent=5
+
+# Hide empty terms
+curl /wp-json/chubes/v1/codebase?hide_empty=1
+```
+
+## Repository Metadata
+
+### Supported Metadata Fields
+
+- `github_url`: GitHub repository URL
+- `wordpress_url`: WordPress.org plugin/theme URL
+- `version`: Current version string
+- `installs`: Active install count (auto-fetched from WordPress.org API)
+- `last_updated`: Last update timestamp (ISO 8601 format)
+- `stars`: GitHub stars count (auto-fetched from GitHub API)
+- `forks`: GitHub forks count (auto-fetched from GitHub API)
+- `description`: Repository description (auto-fetched)
+- `language`: Primary programming language (auto-fetched)
+- `license`: Repository license (auto-fetched)
+
+### Automatic Fetching
+
+The plugin automatically fetches metadata from APIs:
+
+- **WordPress.org API**: Install counts, ratings, last updated
+- **GitHub API**: Stars, forks, description, language
+
+### Manual Metadata Updates
+
+```bash
+curl -X PUT /wp-json/chubes/v1/codebase/{project_term_id} \
+  -H "Content-Type: application/json" \
+  -d '{
+    "meta": {
+      "github_url": "https://github.com/user/repo",
+      "wordpress_url": "https://wordpress.org/plugins/repo",
+      "version": "1.5.0",
+      "description": "Custom repository description"
+    }
+  }'
+```
+
+## Integration with Documentation
+
+### Assigning Taxonomy to Posts
+
+When creating documentation via API:
+
+```bash
+curl -X POST /wp-json/chubes/v1/docs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "API Documentation",
+    "content": "# API Docs...",
+    "codebase_path": ["wordpress-plugins", "my-plugin", "api"]
+  }'
+```
+
+The `codebase_path` parameter automatically resolves to the appropriate taxonomy terms.
+
+### Sync System Integration
+
+The sync system uses taxonomy paths for organization:
+
+```bash
+curl -X POST /wp-json/chubes/v1/sync/doc \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Installation Guide",
+    "content": "# Installation...",
+    "project_term_id": 123,
+    "filesize": 2048,
+    "timestamp": "2025-12-01T10:00:00Z",
+    "subpath": ["guides", "installation"]
+  }'
+```
+
+## URL Structure
+
+### Taxonomy URLs
+
+Terms generate URLs following the pattern:
+- `/codebase/wordpress-plugins/` - Category archive
+- `/codebase/wordpress-plugins/my-plugin/` - Project archive
+- `/codebase/wordpress-plugins/my-plugin/api/` - Subpath archive
+
+### Documentation URLs
+
+Documentation posts use hierarchical URLs:
+- `/docs/wordpress-plugins/my-plugin/readme/` - Project README
+- `/docs/wordpress-plugins/my-plugin/api/endpoints/` - API docs
+
+## Admin Interface
+
+### Repository Fields
+
+The admin interface provides meta boxes for:
+
+- **GitHub URL**: Repository link
+- **WordPress.org URL**: Plugin/theme directory link
+- **Version**: Current version string
+- **Install Count**: Display of active installs (read-only, auto-updated)
+
+### Install Tracking
+
+The `InstallTracker` class automatically:
+
+- Fetches install counts from WordPress.org API
+- Updates term metadata daily
+- Displays statistics in admin interface
+- Provides trending data
+
+## Best Practices
+
+### Naming Conventions
+
+- Use lowercase slugs with hyphens: `my-wordpress-plugin`
+- Keep category names consistent: `wordpress-plugins`, `php-libraries`
+- Use descriptive project names: `advanced-custom-fields`, not `acf`
+
+### Hierarchy Organization
+
+- **Categories**: Group by technology/platform
+- **Projects**: One term per repository
+- **Subpaths**: Logical content organization
+  - `api/` - API reference
+  - `guides/` - User guides
+  - `examples/` - Code examples
+  - `changelog/` - Version history
+
+### Metadata Management
+
+- Always include repository URLs for auto-fetching
+- Keep version numbers current
+- Use consistent metadata field names
+- Regularly update project information
+
+### Performance Considerations
+
+- Limit deep hierarchies (max 4-5 levels)
+- Use `hide_empty=1` for display queries
+- Cache taxonomy queries when possible
+- Batch taxonomy operations
+
+## Troubleshooting
+
+### Common Issues
+
+**"Term not found"**
+- Check slug spelling and case sensitivity
+- Verify term exists with `GET /codebase/{id}`
+
+**"Path resolution failed"**
+- Ensure parent terms exist
+- Check for special characters in slugs
+- Verify hierarchy doesn't create loops
+
+**"Metadata not updating"**
+- Confirm repository URLs are valid
+- Check API rate limits
+- Verify term has proper permissions
+
+### Debug Queries
+
+Enable taxonomy debugging:
+
+```php
+// In wp-config.php
+define('WP_DEBUG', true);
+define('WP_DEBUG_LOG', true);
+
+// Check debug.log for taxonomy operations
+```
+
+### Cleanup Operations
+
+Remove unused terms:
+
+```bash
+# Find empty terms
+curl /wp-json/chubes/v1/codebase?hide_empty=0
+
+# Manual cleanup (use WordPress admin or custom script)
+```
+
+## Advanced Usage
+
+### Custom Metadata Fields
+
+Add custom fields to taxonomy terms:
+
+```php
+// Via PHP
+update_term_meta($term_id, 'custom_field', 'value');
+
+// Via API
+curl -X PUT /wp-json/chubes/v1/codebase/{id} \
+  -d '{"meta": {"custom_field": "value"}}'
+```
+
+### Taxonomy Queries
+
+Complex queries using WordPress functions:
+
+```php
+$args = array(
+  'taxonomy' => 'codebase',
+  'parent' => 0, // Top level only
+  'hide_empty' => false,
+  'meta_query' => array(
+    array(
+      'key' => 'github_url',
+      'value' => 'github.com',
+      'compare' => 'LIKE'
+    )
+  )
+);
+$terms = get_terms($args);
+```
+
+### Bulk Operations
+
+Update multiple terms:
+
+```bash
+# Get all project terms
+curl /wp-json/chubes/v1/codebase?hide_empty=0
+
+# Batch update metadata
+# (Implement custom endpoint or use multiple PUT requests)
+```

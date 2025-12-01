@@ -11,6 +11,8 @@ class SyncManager {
 		string $title,
 		string $content,
 		int $project_term_id,
+		int $filesize,
+		string $timestamp,
 		array $subpath = [],
 		string $excerpt = '',
 		bool $force = false
@@ -37,21 +39,19 @@ class SyncManager {
 			];
 		}
 
-		$new_hash         = self::compute_hash( $content );
 		$existing_post_id = self::find_post_by_source( $source_file );
 
 		if ( $existing_post_id ) {
-			$stored_hash = get_post_meta( $existing_post_id, '_sync_hash', true );
+			$stored_filesize = get_post_meta( $existing_post_id, '_sync_filesize', true );
+			$stored_timestamp = get_post_meta( $existing_post_id, '_sync_timestamp', true );
 
-			if ( ! $force && $stored_hash === $new_hash ) {
+			if ( ! $force && (string)$stored_filesize === (string)$filesize && $stored_timestamp === $timestamp ) {
 				return [
 					'success'          => true,
 					'action'           => 'unchanged',
 					'post_id'          => $existing_post_id,
 					'title'            => $title,
 					'source_file'      => $source_file,
-					'previous_hash'    => $stored_hash,
-					'new_hash'         => $new_hash,
 					'changes_detected' => false,
 				];
 			}
@@ -71,7 +71,7 @@ class SyncManager {
 				];
 			}
 
-			self::update_sync_meta( $existing_post_id, $source_file, $new_hash );
+			self::update_sync_meta( $existing_post_id, $source_file, $filesize, $timestamp );
 			wp_set_object_terms( $existing_post_id, $leaf_term_id, Codebase::TAXONOMY );
 
 			return [
@@ -80,8 +80,6 @@ class SyncManager {
 				'post_id'          => $existing_post_id,
 				'title'            => $title,
 				'source_file'      => $source_file,
-				'previous_hash'    => $stored_hash,
-				'new_hash'         => $new_hash,
 				'changes_detected' => true,
 			];
 		}
@@ -102,7 +100,7 @@ class SyncManager {
 			];
 		}
 
-		self::update_sync_meta( $post_id, $source_file, $new_hash );
+		self::update_sync_meta( $post_id, $source_file, $filesize, $timestamp );
 		wp_set_object_terms( $post_id, $leaf_term_id, Codebase::TAXONOMY );
 
 		return [
@@ -111,8 +109,6 @@ class SyncManager {
 			'post_id'          => $post_id,
 			'title'            => $title,
 			'source_file'      => $source_file,
-			'previous_hash'    => null,
-			'new_hash'         => $new_hash,
 			'changes_detected' => true,
 		];
 	}
@@ -179,27 +175,9 @@ class SyncManager {
 		return ! empty( $posts ) ? $posts[0]->ID : null;
 	}
 
-	public static function compute_hash( string $content ): string {
-		$normalized = trim( $content );
-		return hash( 'sha256', $normalized );
-	}
-
-	public static function needs_sync( int $post_id, string $new_hash ): bool {
-		$stored_hash = get_post_meta( $post_id, '_sync_hash', true );
-		return $stored_hash !== $new_hash;
-	}
-
-	public static function get_sync_meta( int $post_id ): array {
-		return array(
-			'source_file' => get_post_meta( $post_id, '_sync_source_file', true ),
-			'hash'        => get_post_meta( $post_id, '_sync_hash', true ),
-			'timestamp'   => get_post_meta( $post_id, '_sync_timestamp', true ),
-		);
-	}
-
-	public static function update_sync_meta( int $post_id, string $source_file, string $hash ): void {
+	public static function update_sync_meta( int $post_id, string $source_file, int $filesize, string $timestamp ): void {
 		update_post_meta( $post_id, '_sync_source_file', $source_file );
-		update_post_meta( $post_id, '_sync_hash', $hash );
-		update_post_meta( $post_id, '_sync_timestamp', gmdate( 'c' ) );
+		update_post_meta( $post_id, '_sync_filesize', $filesize );
+		update_post_meta( $post_id, '_sync_timestamp', $timestamp );
 	}
 }

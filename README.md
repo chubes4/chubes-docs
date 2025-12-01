@@ -2,9 +2,37 @@
 
 A WordPress plugin that provides REST API sync system and admin enhancements for chubes.net documentation.
 
+## Quick Start
+
+1. **Install the plugin** on your WordPress site with the Chubes theme
+2. **Set up a project**:
+   ```bash
+   curl -X POST /wp-json/chubes/v1/sync/setup \
+     -H "Content-Type: application/json" \
+     -d '{
+       "project_slug": "my-plugin",
+       "project_name": "My WordPress Plugin",
+       "category_slug": "wordpress-plugins",
+       "category_name": "WordPress Plugins"
+     }'
+   ```
+3. **Sync documentation**:
+   ```bash
+   curl -X POST /wp-json/chubes/v1/sync/doc \
+     -H "Content-Type: application/json" \
+     -d '{
+       "source_file": "README.md",
+       "title": "Getting Started",
+       "content": "# Getting Started\n\nInstallation instructions...",
+       "project_term_id": 123,
+       "subpath": "guides"
+     }'
+   ```
+
 ## Features
 
 - **REST API Endpoints**: Full CRUD operations for documentation posts and codebase taxonomy management
+- **Enhanced Sync System**: Project-based sync with `project_term_id` and `subpath` parameters (v0.2.0+)
 - **Codebase Integration**: GitHub and WordPress.org repository metadata tracking
 - **Install Tracking**: Automatic fetching of active install counts from WordPress.org API
 - **Markdown Processing**: Convert markdown content to HTML with internal link resolution
@@ -42,6 +70,7 @@ The plugin provides REST API endpoints under the `chubes/v1` namespace:
 - `PUT /wp-json/chubes/v1/codebase/{id}` - Update taxonomy term
 
 ### Sync
+- `POST /wp-json/chubes/v1/sync/setup` - Setup project and category
 - `GET /wp-json/chubes/v1/sync/status` - Get sync status
 - `POST /wp-json/chubes/v1/sync/doc` - Sync documentation from external sources
 - `POST /wp-json/chubes/v1/sync/batch` - Batch sync multiple documents
