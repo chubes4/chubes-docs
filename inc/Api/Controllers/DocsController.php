@@ -2,6 +2,7 @@
 
 namespace ChubesDocs\Api\Controllers;
 
+use ChubesDocs\Core\Codebase;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
@@ -21,7 +22,7 @@ class DocsController {
         if ($codebase) {
             $args['tax_query'] = [
                 [
-                    'taxonomy' => CHUBES_CODEBASE_TAXONOMY,
+                    'taxonomy' => Codebase::TAXONOMY,
                     'field'    => is_numeric($codebase) ? 'term_id' : 'slug',
                     'terms'    => $codebase,
                 ],
@@ -81,9 +82,9 @@ class DocsController {
 
         $codebase_path = $request->get_param('codebase_path');
         if (!empty($codebase_path) && is_array($codebase_path)) {
-            $resolved = chubes_resolve_codebase_path($codebase_path, true);
+            $resolved = Codebase::resolve_path($codebase_path, true);
             if ($resolved['success'] && $resolved['leaf_term_id']) {
-                wp_set_object_terms($post_id, $resolved['leaf_term_id'], CHUBES_CODEBASE_TAXONOMY);
+                wp_set_object_terms($post_id, $resolved['leaf_term_id'], Codebase::TAXONOMY);
             }
         }
 
@@ -139,9 +140,9 @@ class DocsController {
 
         $codebase_path = $request->get_param('codebase_path');
         if (!empty($codebase_path) && is_array($codebase_path)) {
-            $resolved = chubes_resolve_codebase_path($codebase_path, true);
+            $resolved = Codebase::resolve_path($codebase_path, true);
             if ($resolved['success'] && $resolved['leaf_term_id']) {
-                wp_set_object_terms($post_id, $resolved['leaf_term_id'], CHUBES_CODEBASE_TAXONOMY);
+                wp_set_object_terms($post_id, $resolved['leaf_term_id'], Codebase::TAXONOMY);
             }
         }
 
@@ -187,7 +188,7 @@ class DocsController {
     }
 
     private static function prepare_item(\WP_Post $post, bool $include_content = false): array {
-        $terms = get_the_terms($post->ID, CHUBES_CODEBASE_TAXONOMY);
+        $terms = get_the_terms($post->ID, Codebase::TAXONOMY);
         $codebase_data = self::prepare_codebase_data($terms ?: []);
 
         $item = [
@@ -223,9 +224,9 @@ class DocsController {
             ];
         }
 
-        $primary = chubes_get_codebase_primary_term($terms);
-        $project = chubes_get_codebase_project_term_from_terms($terms);
-        $category = chubes_get_codebase_top_level_term_from_terms($terms);
+        $primary = Codebase::get_primary_term($terms);
+        $project = Codebase::get_project_term($terms);
+        $category = Codebase::get_top_level_term($terms);
 
         return [
             'assigned_term'  => $primary ? [
@@ -243,8 +244,8 @@ class DocsController {
                 'slug' => $category->slug,
                 'name' => $category->name,
             ] : null,
-            'project_type'   => $primary ? chubes_get_codebase_project_type($primary) : '',
-            'hierarchy_path' => chubes_build_term_hierarchy_path($terms),
+            'project_type'   => $primary ? Codebase::get_project_type($primary) : '',
+            'hierarchy_path' => Codebase::build_term_hierarchy_path($terms),
         ];
     }
 }

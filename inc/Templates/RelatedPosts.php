@@ -8,13 +8,14 @@
 
 namespace ChubesDocs\Templates;
 
+use ChubesDocs\Core\Codebase;
+
 class RelatedPosts {
 
 	public static function init() {
 		add_filter( 'chubes_single_meta_label', [ self::class, 'filter_meta_label' ], 10, 2 );
 		add_filter( 'chubes_single_meta_date', [ self::class, 'filter_meta_date' ], 10, 3 );
 		add_action( 'chubes_single_after_content', [ self::class, 'render_related_posts' ], 10, 2 );
-		add_action( 'wp_enqueue_scripts', [ self::class, 'enqueue_assets' ] );
 	}
 
 	public static function filter_meta_label( $label, $post_type ) {
@@ -31,18 +32,7 @@ class RelatedPosts {
 		return $date;
 	}
 
-	public static function enqueue_assets() {
-		if ( ! is_singular( 'documentation' ) ) {
-			return;
-		}
 
-		wp_enqueue_style(
-			'chubes-docs-related',
-			CHUBES_DOCS_URL . 'assets/css/related-posts.css',
-			[],
-			filemtime( CHUBES_DOCS_PATH . 'assets/css/related-posts.css' )
-		);
-	}
 
 	public static function render_related_posts( $post_id, $post_type ) {
 		if ( $post_type !== 'documentation' ) {
@@ -55,9 +45,9 @@ class RelatedPosts {
 		$top_level_term = null;
 
 		if ( $terms && ! is_wp_error( $terms ) ) {
-			$project_term = chubes_get_codebase_project_term_from_terms( $terms );
-			$top_level_term = chubes_get_codebase_top_level_term_from_terms( $terms );
-			$current_level_term = chubes_get_codebase_primary_term( $terms );
+			$project_term = Codebase::get_project_term( $terms );
+			$top_level_term = Codebase::get_top_level_term( $terms );
+			$current_level_term = Codebase::get_primary_term( $terms );
 		}
 
 		$related_posts = self::get_related_documentation( $post_id, 3 );

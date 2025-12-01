@@ -2,6 +2,7 @@
 
 namespace ChubesDocs\Api\Controllers;
 
+use ChubesDocs\Core\Codebase;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
@@ -20,7 +21,7 @@ class SyncController {
             );
         }
 
-        $term = get_term_by( 'slug', sanitize_text_field( $project ), CHUBES_CODEBASE_TAXONOMY );
+        $term = get_term_by( 'slug', sanitize_text_field( $project ), Codebase::TAXONOMY );
 
         if ( ! $term ) {
             return new WP_Error(
@@ -42,7 +43,7 @@ class SyncController {
             ],
             'tax_query'      => [
                 [
-                    'taxonomy'         => CHUBES_CODEBASE_TAXONOMY,
+                    'taxonomy'         => Codebase::TAXONOMY,
                     'field'            => 'term_id',
                     'terms'            => $term->term_id,
                     'include_children' => true,

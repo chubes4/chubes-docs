@@ -2,6 +2,8 @@
 
 namespace ChubesDocs\Fields;
 
+use ChubesDocs\Core\Codebase;
+
 class RepositoryFields {
 
     public static function init(): void {
@@ -27,8 +29,8 @@ class RepositoryFields {
     }
 
     public static function edit_fields(\WP_Term $term): void {
-        $github_url = chubes_get_codebase_github_url($term->term_id);
-        $wp_url = chubes_get_codebase_wp_url($term->term_id);
+        $github_url = Codebase::get_github_url($term->term_id);
+        $wp_url = Codebase::get_wp_url($term->term_id);
         ?>
         <tr class="form-field">
             <th scope="row"><label for="codebase_github_url"><?php esc_html_e('GitHub URL', 'chubes-docs'); ?></label></th>

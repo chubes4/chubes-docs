@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Chubes Docs
  * Description: REST API sync system and admin enhancements for chubes.net documentation. Requires the Chubes theme.
- * Version: 0.1.0
+ * Version: 0.2.0
  * Author: Chris Huber
  * Author URI: https://chubes.net
  * License: GPL v2 or later
@@ -15,16 +15,29 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CHUBES_DOCS_VERSION', '0.1.0' );
+define( 'CHUBES_DOCS_VERSION', '0.2.0' );
 define( 'CHUBES_DOCS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CHUBES_DOCS_URL', plugin_dir_url( __FILE__ ) );
 
 require_once CHUBES_DOCS_PATH . 'vendor/autoload.php';
 
 use ChubesDocs\Api\Routes;
+use ChubesDocs\Core\Assets;
+use ChubesDocs\Core\Documentation;
+use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\RewriteRules;
+use ChubesDocs\Core\Breadcrumbs;
 use ChubesDocs\Fields\RepositoryFields;
 use ChubesDocs\Fields\InstallTracker;
 use ChubesDocs\Templates\RelatedPosts;
+use ChubesDocs\Templates\Archive;
+use ChubesDocs\Templates\CodebaseCard;
+use ChubesDocs\Templates\Homepage;
+
+Documentation::init();
+Codebase::init();
+RewriteRules::init();
+Assets::init();
 
 add_action( 'chubes_codebase_registered', function() {
 	RepositoryFields::init();
@@ -33,6 +46,9 @@ add_action( 'chubes_codebase_registered', function() {
 
 add_action( 'init', function() {
 	RelatedPosts::init();
+	Breadcrumbs::init();
+	Archive::init();
+	Homepage::init();
 } );
 
 add_action( 'rest_api_init', function() {
@@ -44,6 +60,11 @@ add_filter( 'html_to_blocks_supported_post_types', function( $post_types ) {
 	return $post_types;
 } );
 
+add_filter( 'chubes_search_post_types', function( $post_types ) {
+	$post_types[] = 'documentation';
+	return $post_types;
+} );
+
 register_activation_hook( __FILE__, function() {
 	flush_rewrite_rules();
 } );
@@ -51,3 +72,27 @@ register_activation_hook( __FILE__, function() {
 register_deactivation_hook( __FILE__, function() {
 	flush_rewrite_rules();
 } );
+
+/**
+ * Global wrapper for Codebase::get_repository_info()
+ *
+ * Provides theme templates with access to repository metadata (GitHub URL, WP.org URL, installs)
+ * for a given codebase term without requiring direct class access.
+ *
+ * @param WP_Term|array $term_or_terms Single term object or array of term objects
+ * @return array Repository info with github_url, wp_url, and installs keys
+ */
+function chubes_get_repository_info( $term_or_terms ) {
+	return Codebase::get_repository_info( $term_or_terms );
+}
+
+/**
+ * Generate URL for viewing content of specific type for a codebase project
+ *
+ * @param string  $post_type The post type
+ * @param WP_Term $term      The project term
+ * @return string The URL to view this content type for this project
+ */
+function chubes_generate_content_type_url( $post_type, $term ) {
+	return CodebaseCard::generate_content_type_url( $post_type, $term );
+}

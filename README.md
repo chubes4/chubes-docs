@@ -27,13 +27,24 @@ A WordPress plugin that provides REST API sync system and admin enhancements for
 
 The plugin provides REST API endpoints under the `chubes/v1` namespace:
 
+### Documentation
 - `GET /wp-json/chubes/v1/docs` - List documentation posts
 - `POST /wp-json/chubes/v1/docs` - Create new documentation
 - `GET /wp-json/chubes/v1/docs/{id}` - Get specific documentation
 - `PUT /wp-json/chubes/v1/docs/{id}` - Update documentation
 - `DELETE /wp-json/chubes/v1/docs/{id}` - Delete documentation
+
+### Codebase Taxonomy
 - `GET /wp-json/chubes/v1/codebase` - List codebase taxonomy terms
+- `GET /wp-json/chubes/v1/codebase/tree` - Get hierarchical codebase tree
+- `POST /wp-json/chubes/v1/codebase/resolve` - Resolve or create taxonomy path
+- `GET /wp-json/chubes/v1/codebase/{id}` - Get specific taxonomy term
+- `PUT /wp-json/chubes/v1/codebase/{id}` - Update taxonomy term
+
+### Sync
+- `GET /wp-json/chubes/v1/sync/status` - Get sync status
 - `POST /wp-json/chubes/v1/sync/doc` - Sync documentation from external sources
+- `POST /wp-json/chubes/v1/sync/batch` - Batch sync multiple documents
 
 ## Development
 
@@ -48,6 +59,7 @@ This creates a production-ready ZIP file in the `build/` directory.
 ### Code Structure
 
 - `inc/Api/` - REST API controllers and routes
+- `inc/Core/` - Core plugin functionality (assets, breadcrumbs, codebase, documentation, rewrite rules)
 - `inc/Fields/` - Admin interface fields and install tracking
 - `inc/Sync/` - Markdown processing and sync management
 - `inc/Templates/` - Frontend template enhancements

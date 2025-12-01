@@ -2,6 +2,8 @@
 
 namespace ChubesDocs\Sync;
 
+use ChubesDocs\Core\Codebase;
+
 class SyncManager {
 
 	public static function sync_post(
@@ -56,9 +58,9 @@ class SyncManager {
 
 			self::update_sync_meta( $existing_post_id, $source_file, $new_hash );
 
-			$resolved = chubes_resolve_codebase_path( $codebase_path, true );
+			$resolved = Codebase::resolve_path( $codebase_path, true );
 			if ( $resolved['success'] && $resolved['leaf_term_id'] ) {
-				wp_set_object_terms( $existing_post_id, $resolved['leaf_term_id'], CHUBES_CODEBASE_TAXONOMY );
+				wp_set_object_terms( $existing_post_id, $resolved['leaf_term_id'], Codebase::TAXONOMY );
 			}
 
 			return array(
@@ -92,9 +94,9 @@ class SyncManager {
 
 		self::update_sync_meta( $post_id, $source_file, $new_hash );
 
-		$resolved = chubes_resolve_codebase_path( $codebase_path, true );
+		$resolved = Codebase::resolve_path( $codebase_path, true );
 		if ( $resolved['success'] && $resolved['leaf_term_id'] ) {
-			wp_set_object_terms( $post_id, $resolved['leaf_term_id'], CHUBES_CODEBASE_TAXONOMY );
+			wp_set_object_terms( $post_id, $resolved['leaf_term_id'], Codebase::TAXONOMY );
 		}
 
 		return array(

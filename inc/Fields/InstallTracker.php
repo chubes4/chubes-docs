@@ -2,6 +2,8 @@
 
 namespace ChubesDocs\Fields;
 
+use ChubesDocs\Core\Codebase;
+
 class InstallTracker {
 
     private const CACHE_EXPIRATION = DAY_IN_SECONDS;
@@ -16,7 +18,7 @@ class InstallTracker {
 
     public static function update_all_installs(): void {
         $terms = get_terms([
-            'taxonomy'   => CHUBES_CODEBASE_TAXONOMY,
+            'taxonomy'   => Codebase::TAXONOMY,
             'hide_empty' => false,
         ]);
 
@@ -25,7 +27,7 @@ class InstallTracker {
         }
 
         foreach ($terms as $term) {
-            $wp_url = chubes_get_codebase_wp_url($term->term_id);
+            $wp_url = Codebase::get_wp_url($term->term_id);
             if (!empty($wp_url)) {
                 self::fetch_and_store_installs($term->term_id, $wp_url);
             }
