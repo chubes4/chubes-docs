@@ -61,15 +61,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Refactored change detection logic from content hashing to metadata comparison
 - Added new API route parameters for enhanced sync validation
 
-## [0.3.0] - Unreleased
-
-### Planned Features
-- **Enhanced admin interface** with improved repository management
-- **Bulk taxonomy operations** for better performance
-- **Advanced sync filtering** and status reporting
-- **Integration improvements** with external documentation sources
-- **Performance optimizations** for large documentation sets
-
 ## [0.2.0] - 2025-11-30
 
 ### Added
