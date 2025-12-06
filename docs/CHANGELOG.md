@@ -36,6 +36,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Better URL routing for nested documentation structures
 - Updated API examples throughout documentation to use current parameter formats
 
+## [0.2.3] - 2025-12-05
+
+### Added
+- **Complete GitHub integration system** with automated repository synchronization
+- **Admin settings page** (`/wp-admin/edit.php?post_type=documentation&page=chubes-docs-settings`) for GitHub PAT configuration and sync management
+- **Enhanced codebase taxonomy columns** showing GitHub URLs, install counts, and sync status
+- **AJAX-powered sync operations** with real-time status updates in admin interface
+- **Cron-based automated sync** with configurable intervals (hourly/twice daily/daily)
+- **Sync notification system** with email alerts for sync completion and failures
+- **Admin JavaScript enhancements** (`admin-sync.js`) for improved user experience
+
+### Changed
+- **Enhanced RepositoryFields** with sync status display and improved form handling
+- **Updated Archive template** with better project statistics rendering
+- **Refined core classes** (Codebase, Documentation, RewriteRules) for GitHub integration
+- **Removed unreleased 0.3.0 section** from changelog to align with current versioning
+
+### Technical Details
+- Added `inc/Admin/` namespace with `SettingsPage`, `CodebaseColumns`, and `SyncAjax` classes
+- Added `inc/Sync/` namespace with `CronSync`, `GitHubClient`, `RepoSync`, and `SyncNotifier` classes
+- Implemented GitHub API client for repository data fetching and file tree operations
+- Added automated taxonomy term creation for hierarchical documentation organization
+- Enhanced error handling and status tracking throughout sync operations
+
+### Fixed
+- Improved admin interface responsiveness and user feedback
+- Better error handling in GitHub API communications
+- Enhanced validation for repository URLs and sync parameters
+
 ## [0.2.2] - 2025-12-01
 
 ### Added

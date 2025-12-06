@@ -71,7 +71,7 @@ class Documentation {
 			'publicly_queryable'  => true,
 			'capability_type'     => 'post',
 			'show_in_rest'        => true,
-			'rewrite'             => array( 'slug' => 'docs', 'with_front' => false ),
+			'rewrite'             => false,
 		);
 
 		$args = apply_filters( 'chubes_documentation_args', $args );

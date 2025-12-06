@@ -47,6 +47,71 @@ class RepositoryFields {
             </td>
         </tr>
         <?php
+        self::render_sync_status($term);
+    }
+
+    /**
+     * Render sync status info box on term edit page.
+     */
+    private static function render_sync_status(\WP_Term $term): void {
+        $status = get_term_meta($term->term_id, 'codebase_sync_status', true);
+        $last_sync = get_term_meta($term->term_id, 'codebase_last_sync_time', true);
+        $last_sha = get_term_meta($term->term_id, 'codebase_last_sync_sha', true);
+        $files_synced = get_term_meta($term->term_id, 'codebase_files_synced', true);
+        $error = get_term_meta($term->term_id, 'codebase_sync_error', true);
+        $github_url = Codebase::get_github_url($term->term_id);
+
+        if (empty($github_url)) {
+            return;
+        }
+        ?>
+        <tr class="form-field">
+            <th scope="row"><?php esc_html_e('Sync Status', 'chubes-docs'); ?></th>
+            <td>
+                <div class="chubes-sync-status-box" style="background: #f0f0f1; padding: 12px; border-radius: 4px;">
+                    <?php if ($status === 'success' && $last_sync): ?>
+                        <p style="margin: 0 0 8px;">
+                            <span class="dashicons dashicons-yes-alt" style="color: #00a32a;"></span>
+                            <strong><?php esc_html_e('Last sync:', 'chubes-docs'); ?></strong>
+                            <?php echo esc_html(human_time_diff($last_sync) . ' ' . __('ago', 'chubes-docs')); ?>
+                        </p>
+                        <?php if ($last_sha): ?>
+                            <p style="margin: 0 0 8px;">
+                                <strong><?php esc_html_e('Commit:', 'chubes-docs'); ?></strong>
+                                <code><?php echo esc_html(substr($last_sha, 0, 7)); ?></code>
+                            </p>
+                        <?php endif; ?>
+                        <?php if ($files_synced): ?>
+                            <p style="margin: 0;">
+                                <strong><?php esc_html_e('Files synced:', 'chubes-docs'); ?></strong>
+                                <?php echo esc_html($files_synced); ?>
+                            </p>
+                        <?php endif; ?>
+                    <?php elseif ($status === 'failed'): ?>
+                        <p style="margin: 0 0 8px;">
+                            <span class="dashicons dashicons-warning" style="color: #d63638;"></span>
+                            <strong><?php esc_html_e('Sync failed', 'chubes-docs'); ?></strong>
+                        </p>
+                        <?php if ($error): ?>
+                            <p style="margin: 0; color: #d63638;">
+                                <?php echo esc_html($error); ?>
+                            </p>
+                        <?php endif; ?>
+                    <?php elseif ($status === 'syncing'): ?>
+                        <p style="margin: 0;">
+                            <span class="dashicons dashicons-update" style="color: #2271b1;"></span>
+                            <strong><?php esc_html_e('Sync in progress...', 'chubes-docs'); ?></strong>
+                        </p>
+                    <?php else: ?>
+                        <p style="margin: 0;">
+                            <span class="dashicons dashicons-clock" style="color: #787c82;"></span>
+                            <?php esc_html_e('Never synced', 'chubes-docs'); ?>
+                        </p>
+                    <?php endif; ?>
+                </div>
+            </td>
+        </tr>
+        <?php
     }
 
     public static function save_fields(int $term_id): void {

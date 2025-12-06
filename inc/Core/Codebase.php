@@ -41,7 +41,7 @@ class Codebase {
 			'show_ui'           => true,
 			'show_admin_column' => true,
 			'query_var'         => true,
-			'rewrite'           => array( 'slug' => 'codebase', 'with_front' => false ),
+			'rewrite'           => false,
 			'show_in_rest'      => true,
 		);
 
@@ -351,7 +351,7 @@ class Codebase {
 	 * @return array
 	 */
 	public static function get_top_level_slugs() {
-		return array( 'wordpress-plugins', 'wordpress-themes', 'discord-bots', 'php-libraries' );
+		return [ 'wordpress-plugins', 'wordpress-themes', 'discord-bots', 'php-libraries' ];
 	}
 
 	/**

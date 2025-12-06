@@ -5,9 +5,9 @@
  * Provides hierarchical URL routing:
  * - /docs/ → Documentation post type archive (all projects grouped by category)
  * - /docs/{category}/ → Category archive (projects in that category)
- * - /docs/{project}/ → Project documentation listing
- * - /docs/{project}/{sub-hierarchy}/ → Nested term archives
- * - /docs/{project}/{sub-hierarchy}/{post-slug}/ → Documentation post
+ * - /docs/{category}/{project}/ → Project documentation listing
+ * - /docs/{category}/{project}/{sub-hierarchy}/ → Nested term archives
+ * - /docs/{category}/{project}/{sub-hierarchy}/{post-slug}/ → Documentation post
  */
 
 namespace ChubesDocs\Core;
@@ -24,6 +24,7 @@ class RewriteRules {
 		add_action( 'parse_request', [ __CLASS__, 'resolve_docs_path' ] );
 		add_filter( 'post_type_link', [ __CLASS__, 'filter_doc_permalink' ], 10, 2 );
 		add_filter( 'term_link', [ __CLASS__, 'filter_term_permalink' ], 10, 3 );
+		add_filter( 'post_type_archive_link', [ __CLASS__, 'filter_archive_permalink' ], 10, 2 );
 	}
 
 	/**
@@ -38,6 +39,13 @@ class RewriteRules {
 	 * Register rewrite rules for documentation URLs
 	 */
 	public static function register_rules() {
+		// /docs/ → documentation post type archive
+		add_rewrite_rule(
+			'^docs/?$',
+			'index.php?post_type=documentation',
+			'top'
+		);
+
 		$categories = Codebase::get_top_level_slugs();
 
 		// /docs/{category}/ → top-level category archive
@@ -60,6 +68,8 @@ class RewriteRules {
 	/**
 	 * Resolve the catch-all docs path to either a term archive or single post
 	 *
+	 * Walks the hierarchy linearly: category → project → sub-terms → post
+	 *
 	 * @param \WP $wp The WordPress environment instance
 	 */
 	public static function resolve_docs_path( $wp ) {
@@ -77,21 +87,20 @@ class RewriteRules {
 		$segments = array_values( $segments );
 		$first_slug = $segments[0];
 
-		// First segment must be a project (depth-1 term)
-		$project = self::find_project_term( $first_slug );
-		if ( ! $project ) {
+		// First segment must be a top-level category
+		$current_term = get_term_by( 'slug', $first_slug, Codebase::TAXONOMY );
+		if ( ! $current_term || is_wp_error( $current_term ) || $current_term->parent !== 0 ) {
 			return;
 		}
 
-		// Single segment - project archive
+		// Single segment - category archive
 		if ( count( $segments ) === 1 ) {
 			unset( $wp->query_vars['chubes_docs_path'] );
-			$wp->query_vars['codebase'] = $project->slug;
+			$wp->query_vars['codebase'] = $current_term->slug;
 			return;
 		}
 
-		// Walk remaining segments to find deepest matching term
-		$current_term = $project;
+		// Walk remaining segments down the hierarchy
 		$remaining_segments = array_slice( $segments, 1 );
 
 		foreach ( $remaining_segments as $index => $slug ) {
@@ -121,37 +130,6 @@ class RewriteRules {
 		// All segments matched terms - show deepest term archive
 		unset( $wp->query_vars['chubes_docs_path'] );
 		$wp->query_vars['codebase'] = $current_term->slug;
-	}
-
-	/**
-	 * Find a project-level term (depth 1) by slug
-	 *
-	 * @param string $slug The term slug
-	 * @return \WP_Term|null
-	 */
-	private static function find_project_term( $slug ) {
-		$categories = Codebase::get_top_level_slugs();
-
-		foreach ( $categories as $category_slug ) {
-			$category = get_term_by( 'slug', $category_slug, Codebase::TAXONOMY );
-			if ( ! $category || is_wp_error( $category ) ) {
-				continue;
-			}
-
-			$project = get_terms( [
-				'taxonomy'   => Codebase::TAXONOMY,
-				'slug'       => $slug,
-				'parent'     => $category->term_id,
-				'hide_empty' => false,
-				'number'     => 1,
-			] );
-
-			if ( ! empty( $project ) && ! is_wp_error( $project ) ) {
-				return $project[0];
-			}
-		}
-
-		return null;
 	}
 
 	/**
@@ -249,24 +227,34 @@ class RewriteRules {
 	}
 
 	/**
-	 * Build the docs URL path for a term (excludes top-level category)
+	 * Build the docs URL path for a term (full hierarchy including category)
 	 *
 	 * @param \WP_Term $term The codebase term
-	 * @return string Path like 'project/sub/subsub'
+	 * @return string Path like 'category/project/sub/subsub'
 	 */
 	public static function build_docs_term_path( $term ) {
 		$ancestors = Codebase::get_term_ancestors( $term );
 		$ancestors[] = $term;
 
-		// Remove the top-level category (first ancestor with parent = 0)
-		$filtered = array_filter( $ancestors, function( $t ) {
-			return $t->parent !== 0;
-		} );
-
 		$slugs = array_map( function( $t ) {
 			return $t->slug;
-		}, $filtered );
+		}, $ancestors );
 
 		return implode( '/', $slugs );
+	}
+
+	/**
+	 * Filter documentation archive permalink to use /docs/
+	 *
+	 * @param string $link      The archive permalink
+	 * @param string $post_type The post type slug
+	 * @return string
+	 */
+	public static function filter_archive_permalink( $link, $post_type ) {
+		if ( $post_type === Documentation::POST_TYPE ) {
+			return home_url( '/docs/' );
+		}
+
+		return $link;
 	}
 }

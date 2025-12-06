@@ -3,18 +3,19 @@
  * Archive Template Hooks
  * 
  * Hooks into theme's archive.php to render documentation and codebase content.
- * Provides all archive rendering for the documentation system.
+ * Provides hierarchical archive rendering for the documentation system.
  */
 
 namespace ChubesDocs\Templates;
 
 use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Documentation;
 
 class Archive {
 
 	public static function init() {
 		add_action( 'chubes_archive_header_after', [ self::class, 'render_header_extras' ] );
-		add_action( 'chubes_archive_content', [ self::class, 'render_content' ] );
+		add_filter( 'chubes_archive_content', [ self::class, 'filter_content' ], 10, 2 );
 		add_filter( 'get_the_archive_title', [ self::class, 'filter_archive_title' ], 15 );
 	}
 
@@ -70,41 +71,49 @@ class Archive {
 	}
 
 	/**
-	 * Render archive content based on context
+	 * Filter archive content for documentation and codebase contexts
 	 * 
-	 * Handles codebase taxonomy pages and documentation archive.
+	 * Returns custom HTML for codebase taxonomy and documentation archives.
+	 * Returns unmodified content for other archive types.
+	 *
+	 * @param string $content        The current archive content
+	 * @param mixed  $queried_object The queried object
+	 * @return string HTML content or unmodified content
 	 */
-	public static function render_content() {
+	public static function filter_content( $content, $queried_object ) {
 		if ( is_tax( 'codebase' ) ) {
+			ob_start();
 			self::render_codebase_content();
-			return;
+			return ob_get_clean();
 		}
 
 		if ( is_post_type_archive( 'documentation' ) ) {
+			ob_start();
 			self::render_documentation_archive();
-			return;
+			return ob_get_clean();
 		}
+
+		return $content;
 	}
 
 	/**
 	 * Render codebase taxonomy content
 	 * 
-	 * Parent terms: Grid of project cards
-	 * Child terms: Documentation list for the project
+	 * Category terms (depth 0): Grid of project cards
+	 * All other terms (depth 1+): Hierarchical documentation listing
 	 */
 	private static function render_codebase_content() {
 		$term = get_queried_object();
-		$is_category = ( $term->parent === 0 );
 
-		if ( $is_category ) {
+		if ( $term->parent === 0 ) {
 			self::render_category_content( $term );
 		} else {
-			self::render_project_content( $term );
+			self::render_term_content( $term );
 		}
 	}
 
 	/**
-	 * Render category page content (parent term)
+	 * Render category page content (depth 0 term)
 	 * 
 	 * Shows grid of project cards for all child terms.
 	 */
@@ -141,63 +150,225 @@ class Archive {
 	}
 
 	/**
-	 * Render project page content (child term)
+	 * Render term content with hierarchical grouping
 	 * 
-	 * Shows documentation list for the project.
+	 * Shows posts directly under the term at top (no header),
+	 * then child terms as sections with headers, recursively.
+	 *
+	 * @param \WP_Term $term The codebase term
 	 */
-	private static function render_project_content( $term ) {
-		$docs_query = new \WP_Query( [
-			'post_type'      => 'documentation',
+	private static function render_term_content( $term ) {
+		$direct_posts = self::get_direct_posts_for_term( $term );
+		$child_terms = self::get_sorted_child_terms( $term );
+		$has_content = $direct_posts->have_posts() || ! empty( $child_terms );
+
+		if ( ! $has_content ) {
+			self::render_no_content_message( $term );
+			return;
+		}
+
+		// Render posts directly under this term (no header)
+		if ( $direct_posts->have_posts() ) {
+			self::render_documentation_cards( $direct_posts );
+		}
+
+		// Render child term sections
+		foreach ( $child_terms as $child_term ) {
+			self::render_term_hierarchy_section( $child_term, 1 );
+		}
+	}
+
+	/**
+	 * Render a term section with header and recursive children
+	 *
+	 * @param \WP_Term $term  The codebase term
+	 * @param int      $depth The current depth level (1 = h3, 2 = h4, 3+ = h5)
+	 */
+	private static function render_term_hierarchy_section( $term, $depth ) {
+		$direct_posts = self::get_direct_posts_for_term( $term );
+		$child_terms = self::get_sorted_child_terms( $term );
+		$header_tag = self::get_header_tag( $depth );
+		?>
+
+		<section class="term-section depth-<?php echo esc_attr( $depth ); ?>">
+			<div class="term-section-header">
+				<<?php echo $header_tag; ?>><?php echo esc_html( $term->name ); ?></<?php echo $header_tag; ?>>
+				<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="btn secondary">View all →</a>
+			</div>
+
+			<?php if ( $term->description ) : ?>
+				<p class="term-description"><?php echo esc_html( $term->description ); ?></p>
+			<?php endif; ?>
+
+			<?php if ( $direct_posts->have_posts() ) : ?>
+				<?php self::render_documentation_cards( $direct_posts ); ?>
+			<?php endif; ?>
+
+			<?php foreach ( $child_terms as $child_term ) : ?>
+				<?php self::render_term_hierarchy_section( $child_term, $depth + 1 ); ?>
+			<?php endforeach; ?>
+		</section>
+		<?php
+	}
+
+	/**
+	 * Get the appropriate header tag for a given depth
+	 *
+	 * @param int $depth The depth level
+	 * @return string The header tag (h3, h4, or h5)
+	 */
+	private static function get_header_tag( $depth ) {
+		if ( $depth <= 1 ) {
+			return 'h3';
+		}
+		if ( $depth === 2 ) {
+			return 'h4';
+		}
+		return 'h5';
+	}
+
+	/**
+	 * Render documentation cards from a WP_Query
+	 *
+	 * @param \WP_Query $query The query with documentation posts
+	 */
+	private static function render_documentation_cards( $query ) {
+		?>
+		<div class="documentation-cards">
+			<?php while ( $query->have_posts() ) : $query->the_post(); ?>
+				<a href="<?php the_permalink(); ?>" class="documentation-card">
+					<div class="card-header">
+						<h4><?php the_title(); ?></h4>
+						<?php if ( has_excerpt() ) : ?>
+							<p class="card-description"><?php the_excerpt(); ?></p>
+						<?php endif; ?>
+					</div>
+					<div class="card-stats">
+						<span class="stat-item">Last updated: <?php echo get_the_modified_date(); ?></span>
+					</div>
+				</a>
+			<?php endwhile; ?>
+		</div>
+		<?php
+		wp_reset_postdata();
+	}
+
+	/**
+	 * Render no content message for a term
+	 *
+	 * @param \WP_Term $term The codebase term
+	 */
+	private static function render_no_content_message( $term ) {
+		$project_term = Codebase::get_project_term( [ $term ] );
+		$repo_info = $project_term ? Codebase::get_repository_info( $project_term ) : [];
+		?>
+		<div class="no-docs">
+			<p>Documentation for this section is coming soon.</p>
+			<?php if ( ! empty( $repo_info['github_url'] ) ) : ?>
+				<p>In the meantime, check out the <a href="<?php echo esc_url( $repo_info['github_url'] ); ?>" target="_blank">GitHub repository</a> for technical details.</p>
+			<?php endif; ?>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Get posts directly assigned to a term (not inherited from children)
+	 *
+	 * @param \WP_Term $term The codebase term
+	 * @return \WP_Query
+	 */
+	private static function get_direct_posts_for_term( $term ) {
+		return new \WP_Query( [
+			'post_type'      => Documentation::POST_TYPE,
 			'tax_query'      => [
 				[
-					'taxonomy' => 'codebase',
-					'field'    => 'term_id',
-					'terms'    => $term->term_id,
+					'taxonomy'         => Codebase::TAXONOMY,
+					'field'            => 'term_id',
+					'terms'            => $term->term_id,
+					'include_children' => false,
 				],
 			],
 			'posts_per_page' => -1,
 			'post_status'    => 'publish',
-			'orderby'        => 'menu_order',
-			'order'          => 'ASC',
+			'orderby'        => 'modified',
+			'order'          => 'DESC',
+		] );
+	}
+
+	/**
+	 * Get child terms sorted by most recently modified post
+	 *
+	 * @param \WP_Term $term The parent term
+	 * @return array Sorted array of WP_Term objects
+	 */
+	private static function get_sorted_child_terms( $term ) {
+		$children = get_terms( [
+			'taxonomy'   => Codebase::TAXONOMY,
+			'parent'     => $term->term_id,
+			'hide_empty' => false,
 		] );
 
-		?>
-		<h2>Documentation</h2>
+		if ( empty( $children ) || is_wp_error( $children ) ) {
+			return [];
+		}
 
-		<?php if ( $docs_query->have_posts() ) : ?>
-			<div class="documentation-cards">
-				<?php
-				while ( $docs_query->have_posts() ) :
-					$docs_query->the_post();
-					?>
-					<a href="<?php the_permalink(); ?>" class="documentation-card">
-						<div class="card-header">
-							<h3><?php the_title(); ?></h3>
-							<?php if ( has_excerpt() ) : ?>
-								<p class="card-description"><?php the_excerpt(); ?></p>
-							<?php endif; ?>
-						</div>
-						<div class="card-stats">
-							<span class="stat-item">Last updated: <?php echo get_the_modified_date(); ?></span>
-						</div>
-					</a>
-				<?php endwhile; ?>
-			</div>
-			<?php
-			wp_reset_postdata();
-		else :
-			$parent_term = get_term( $term->parent, 'codebase' );
-			$singular_type = $parent_term && ! is_wp_error( $parent_term ) ? rtrim( $parent_term->name, 's' ) : 'project';
-			$repo_info = Codebase::get_repository_info( $term );
-			?>
-			<div class="no-docs">
-				<p>Documentation for this <?php echo esc_html( strtolower( $singular_type ) ); ?> is coming soon.</p>
-				<?php if ( ! empty( $repo_info['github_url'] ) ) : ?>
-					<p>In the meantime, check out the <a href="<?php echo esc_url( $repo_info['github_url'] ); ?>" target="_blank">GitHub repository</a> for technical details.</p>
-				<?php endif; ?>
-			</div>
-		<?php endif; ?>
-		<?php
+		// Get latest modified date for each child term
+		$terms_with_dates = [];
+		foreach ( $children as $child ) {
+			$latest_date = self::get_term_latest_modified_date( $child );
+			$terms_with_dates[] = [
+				'term' => $child,
+				'date' => $latest_date,
+			];
+		}
+
+		// Sort by date DESC (most recent first), terms without posts go last
+		usort( $terms_with_dates, function( $a, $b ) {
+			if ( $a['date'] === null && $b['date'] === null ) {
+				return strcmp( $a['term']->name, $b['term']->name );
+			}
+			if ( $a['date'] === null ) {
+				return 1;
+			}
+			if ( $b['date'] === null ) {
+				return -1;
+			}
+			return strtotime( $b['date'] ) - strtotime( $a['date'] );
+		} );
+
+		return array_column( $terms_with_dates, 'term' );
+	}
+
+	/**
+	 * Get the most recent post modified date under a term (including children)
+	 *
+	 * @param \WP_Term $term The codebase term
+	 * @return string|null The modified date or null if no posts
+	 */
+	private static function get_term_latest_modified_date( $term ) {
+		$query = new \WP_Query( [
+			'post_type'      => Documentation::POST_TYPE,
+			'tax_query'      => [
+				[
+					'taxonomy'         => Codebase::TAXONOMY,
+					'field'            => 'term_id',
+					'terms'            => $term->term_id,
+					'include_children' => true,
+				],
+			],
+			'posts_per_page' => 1,
+			'post_status'    => 'publish',
+			'orderby'        => 'modified',
+			'order'          => 'DESC',
+			'fields'         => 'ids',
+		] );
+
+		if ( $query->have_posts() ) {
+			$post_id = $query->posts[0];
+			return get_post_field( 'post_modified', $post_id );
+		}
+
+		return null;
 	}
 
 	/**
