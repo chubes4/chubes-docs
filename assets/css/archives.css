@@ -109,9 +109,9 @@
 .project-stats,
 .card-stats {
     display: flex;
+    justify-content: center;
     gap: 15px;
     flex-wrap: wrap;
-    margin-bottom: 20px;
 }
 
 .stat-item {
