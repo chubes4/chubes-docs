@@ -320,7 +320,7 @@ class Codebase {
 	 */
 	public static function get_github_url( $term ) {
 		$term_id = is_object( $term ) ? $term->term_id : $term;
-		return get_term_meta( $term_id, 'github_url', true ) ?: null;
+		return get_term_meta( $term_id, 'codebase_github_url', true ) ?: null;
 	}
 
 	/**
@@ -331,7 +331,7 @@ class Codebase {
 	 */
 	public static function get_wp_url( $term ) {
 		$term_id = is_object( $term ) ? $term->term_id : $term;
-		return get_term_meta( $term_id, 'wp_url', true ) ?: null;
+		return get_term_meta( $term_id, 'codebase_wp_url', true ) ?: null;
 	}
 
 	/**
