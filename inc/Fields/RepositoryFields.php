@@ -108,6 +108,16 @@ class RepositoryFields {
                             <?php esc_html_e('Never synced', 'chubes-docs'); ?>
                         </p>
                     <?php endif; ?>
+
+                    <div class="chubes-term-actions" style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button type="button" class="button button-primary chubes-docs-term-sync" data-term-id="<?php echo esc_attr($term->term_id); ?>">
+                            <?php esc_html_e('Sync Now', 'chubes-docs'); ?>
+                        </button>
+                        <button type="button" class="button button-secondary chubes-docs-term-test" data-repo-url="<?php echo esc_attr($github_url); ?>">
+                            <?php esc_html_e('Test Connection', 'chubes-docs'); ?>
+                        </button>
+                    </div>
+                    <div id="chubes-docs-term-results" style="margin-top: 12px;"></div>
                 </div>
             </td>
         </tr>

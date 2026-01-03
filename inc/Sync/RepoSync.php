@@ -59,6 +59,12 @@ class RepoSync {
 		$repo  = $repo_info['repo'];
 
 		$new_sha = $this->github->get_latest_commit_sha( $owner, $repo, 'main' );
+		if ( is_wp_error( $new_sha ) ) {
+			$result['error'] = 'GitHub API: ' . $new_sha->get_error_message();
+			$this->update_sync_status( $term_id, 'failed', $result['error'] );
+			return $result;
+		}
+
 		if ( ! $new_sha ) {
 			$result['error'] = 'Failed to fetch latest commit from GitHub';
 			$this->update_sync_status( $term_id, 'failed', $result['error'] );

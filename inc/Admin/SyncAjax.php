@@ -13,11 +13,15 @@ class SyncAjax {
 
 	const ACTION_SYNC_ALL = 'chubes_docs_sync_all';
 	const ACTION_SYNC_TERM = 'chubes_docs_sync_term';
+	const ACTION_TEST_TOKEN = 'chubes_docs_test_token';
+	const ACTION_TEST_REPO = 'chubes_docs_test_repo';
 
 	public static function init(): void {
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'enqueue_scripts' ] );
 		add_action( 'wp_ajax_' . self::ACTION_SYNC_ALL, [ __CLASS__, 'handle_sync_all' ] );
 		add_action( 'wp_ajax_' . self::ACTION_SYNC_TERM, [ __CLASS__, 'handle_sync_term' ] );
+		add_action( 'wp_ajax_' . self::ACTION_TEST_TOKEN, [ __CLASS__, 'handle_test_token' ] );
+		add_action( 'wp_ajax_' . self::ACTION_TEST_REPO, [ __CLASS__, 'handle_test_repo' ] );
 	}
 
 	/**
@@ -26,29 +30,113 @@ class SyncAjax {
 	 * @param string $hook_suffix Admin page hook suffix.
 	 */
 	public static function enqueue_scripts( string $hook_suffix ): void {
-		if ( $hook_suffix !== 'documentation_page_chubes-docs-settings' ) {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
 			return;
 		}
+
+		$allowed_screens = [
+			'documentation_page_chubes-docs-settings',
+			'edit-codebase',
+		];
+
+		if ( ! in_array( $screen->id, $allowed_screens, true ) ) {
+			return;
+		}
+
+		wp_enqueue_style( 'wp-admin' );
 
 		wp_enqueue_script(
 			'chubes-docs-sync',
 			CHUBES_DOCS_URL . 'assets/js/admin-sync.js',
 			[],
-			CHUBES_DOCS_VERSION,
+			filemtime( CHUBES_DOCS_PATH . 'assets/js/admin-sync.js' ),
 			true
 		);
 
 		wp_localize_script( 'chubes-docs-sync', 'chubesDocsSync', [
-			'ajaxUrl'     => admin_url( 'admin-ajax.php' ),
-			'syncAllAction' => self::ACTION_SYNC_ALL,
-			'nonce'       => wp_create_nonce( self::ACTION_SYNC_ALL ),
-			'strings'     => [
-				'syncing'  => __( 'Syncing...', 'chubes-docs' ),
-				'success'  => __( 'Sync complete!', 'chubes-docs' ),
-				'error'    => __( 'Sync failed:', 'chubes-docs' ),
-				'noRepos'  => __( 'No repositories configured for sync.', 'chubes-docs' ),
+			'ajaxUrl'         => admin_url( 'admin-ajax.php' ),
+			'syncAllAction'   => self::ACTION_SYNC_ALL,
+			'syncTermAction'  => self::ACTION_SYNC_TERM,
+			'testTokenAction' => self::ACTION_TEST_TOKEN,
+			'testRepoAction'  => self::ACTION_TEST_REPO,
+			'nonce'           => wp_create_nonce( self::ACTION_SYNC_ALL ),
+			'strings'         => [
+				'syncing'     => __( 'Syncing...', 'chubes-docs' ),
+				'success'     => __( 'Sync complete!', 'chubes-docs' ),
+				'error'       => __( 'Sync failed:', 'chubes-docs' ),
+				'noRepos'     => __( 'No repositories configured for sync.', 'chubes-docs' ),
+				'testing'     => __( 'Testing connection...', 'chubes-docs' ),
+				'testingRepo' => __( 'Testing repository...', 'chubes-docs' ),
 			],
 		] );
+	}
+
+	/**
+	 * Handle token test request.
+	 */
+	public static function handle_test_token(): void {
+		check_ajax_referer( self::ACTION_SYNC_ALL, 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Permission denied.', 'chubes-docs' ) ] );
+		}
+
+		$pat = get_option( CronSync::OPTION_PAT );
+		if ( empty( $pat ) ) {
+			wp_send_json_error( [ 'message' => __( 'No token configured.', 'chubes-docs' ) ] );
+		}
+
+		$github = new \ChubesDocs\Sync\GitHubClient( $pat );
+		$diagnostics = $github->test_connection();
+
+		if ( is_wp_error( $diagnostics ) ) {
+			wp_send_json_error( [ 'message' => $diagnostics->get_error_message() ] );
+		}
+
+		wp_send_json_success( $diagnostics );
+	}
+
+	/**
+	 * Handle test specific repo request.
+	 */
+	public static function handle_test_repo(): void {
+		check_ajax_referer( self::ACTION_SYNC_ALL, 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Permission denied.', 'chubes-docs' ) ] );
+		}
+
+		$pat = get_option( CronSync::OPTION_PAT );
+		if ( empty( $pat ) ) {
+			wp_send_json_error( [ 'message' => __( 'No token configured.', 'chubes-docs' ) ] );
+		}
+
+		$repo_url = isset( $_POST['repo_url'] ) ? sanitize_text_field( wp_unslash( $_POST['repo_url'] ) ) : '';
+		if ( empty( $repo_url ) ) {
+			wp_send_json_error( [ 'message' => __( 'No repository URL provided.', 'chubes-docs' ) ] );
+		}
+
+		$parsed = \ChubesDocs\Sync\GitHubClient::parse_repo_url( $repo_url );
+		if ( ! $parsed ) {
+			wp_send_json_error( [ 'message' => __( 'Invalid GitHub URL format.', 'chubes-docs' ) ] );
+		}
+
+		$github = new \ChubesDocs\Sync\GitHubClient( $pat );
+		$result = $github->test_repo( $parsed['owner'], $parsed['repo'] );
+
+		if ( is_wp_error( $result ) ) {
+			$data = $result->get_error_data();
+			wp_send_json_error( [
+				'message'  => $result->get_error_message(),
+				'status'   => $data['status'] ?? 'unknown',
+				'sso_url'  => $data['sso_url'] ?? null,
+				'owner'    => $parsed['owner'],
+				'repo'     => $parsed['repo'],
+			] );
+		}
+
+		wp_send_json_success( $result );
 	}
 
 	/**

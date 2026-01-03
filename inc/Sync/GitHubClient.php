@@ -24,14 +24,18 @@ class GitHubClient {
 	 * @param string $owner Repository owner.
 	 * @param string $repo Repository name.
 	 * @param string $branch Branch name.
-	 * @return string|null Commit SHA or null on failure.
+	 * @return string|\WP_Error Commit SHA or WP_Error on failure.
 	 */
-	public function get_latest_commit_sha( string $owner, string $repo, string $branch = 'main' ): ?string {
+	public function get_latest_commit_sha( string $owner, string $repo, string $branch = 'main' ) {
 		$endpoint = "/repos/{$owner}/{$repo}/commits/{$branch}";
 		$response = $this->request( $endpoint );
 
-		if ( is_wp_error( $response ) || ! isset( $response['sha'] ) ) {
-			return null;
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( ! isset( $response['sha'] ) ) {
+			return new \WP_Error( 'github_missing_sha', 'Commit SHA missing from response' );
 		}
 
 		return $response['sha'];
@@ -191,6 +195,73 @@ class GitHubClient {
 	}
 
 	/**
+	 * Test the connection and return diagnostic info.
+	 *
+	 * @return array|\WP_Error Connection info or WP_Error.
+	 */
+	public function test_connection(): array|\WP_Error {
+		$response = $this->request_with_headers( '/user' );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$headers = $response['headers'];
+		$body = $response['body'];
+
+		$orgs_response = $this->request_with_headers( '/user/orgs' );
+		$orgs = [];
+		if ( ! is_wp_error( $orgs_response ) && is_array( $orgs_response['body'] ) ) {
+			foreach ( $orgs_response['body'] as $org ) {
+				$orgs[] = $org['login'] ?? 'unknown';
+			}
+		}
+
+		return [
+			'user'          => $body['login'] ?? 'unknown',
+			'scopes'        => array_map( 'trim', explode( ',', $headers['x-oauth-scopes'] ?? '' ) ),
+			'orgs'          => $orgs,
+			'saml_enforced' => isset( $headers['x-github-sso'] ),
+			'saml_message'  => $headers['x-github-sso'] ?? null,
+			'rate_limit'    => $headers['x-ratelimit-remaining'] ?? 'unknown',
+		];
+	}
+
+	/**
+	 * Test access to a specific repository.
+	 *
+	 * @param string $owner Repository owner.
+	 * @param string $repo Repository name.
+	 * @return array|\WP_Error Repository info or WP_Error with details.
+	 */
+	public function test_repo( string $owner, string $repo ): array|\WP_Error {
+		$response = $this->request_with_headers( "/repos/{$owner}/{$repo}" );
+
+		if ( is_wp_error( $response ) ) {
+			$data = $response->get_error_data();
+			return new \WP_Error(
+				$response->get_error_code(),
+				$response->get_error_message(),
+				[
+					'status'      => $data['status'] ?? 'unknown',
+					'headers'     => $data['headers'] ?? [],
+					'sso_url'     => $data['headers']['x-github-sso'] ?? null,
+				]
+			);
+		}
+
+		$body = $response['body'];
+
+		return [
+			'success'     => true,
+			'full_name'   => $body['full_name'] ?? "{$owner}/{$repo}",
+			'private'     => $body['private'] ?? false,
+			'default_branch' => $body['default_branch'] ?? 'main',
+			'permissions' => $body['permissions'] ?? [],
+		];
+	}
+
+	/**
 	 * Make an authenticated request to the GitHub API.
 	 *
 	 * @param string $endpoint API endpoint (relative to API_BASE).
@@ -198,6 +269,18 @@ class GitHubClient {
 	 * @return array|\WP_Error Response data or WP_Error on failure.
 	 */
 	private function request( string $endpoint, string $method = 'GET' ) {
+		$response = $this->request_with_headers( $endpoint, $method );
+		return is_wp_error( $response ) ? $response : $response['body'];
+	}
+
+	/**
+	 * Make an authenticated request and return both body and headers.
+	 *
+	 * @param string $endpoint API endpoint.
+	 * @param string $method HTTP method.
+	 * @return array|\WP_Error ['body' => ..., 'headers' => ...] or WP_Error.
+	 */
+	private function request_with_headers( string $endpoint, string $method = 'GET' ) {
 		$url = self::API_BASE . $endpoint;
 
 		$args = [
@@ -217,15 +300,26 @@ class GitHubClient {
 			return $response;
 		}
 
-		$code = wp_remote_retrieve_response_code( $response );
-		$body = wp_remote_retrieve_body( $response );
-		$data = json_decode( $body, true );
+		$code    = wp_remote_retrieve_response_code( $response );
+		$headers = wp_remote_retrieve_headers( $response )->getAll();
+		$body    = json_decode( wp_remote_retrieve_body( $response ), true );
 
 		if ( $code >= 400 ) {
-			$message = $data['message'] ?? "HTTP {$code}";
-			return new \WP_Error( 'github_api_error', $message, [ 'status' => $code ] );
+			$message = $body['message'] ?? "HTTP {$code}";
+
+			if ( $code === 404 && isset( $headers['x-github-sso'] ) ) {
+				$message .= ' (SAML SSO authorization required for this organization)';
+			}
+
+			return new \WP_Error( 'github_api_error', $message, [
+				'status'  => $code,
+				'headers' => $headers,
+			] );
 		}
 
-		return $data;
+		return [
+			'body'    => $body,
+			'headers' => $headers,
+		];
 	}
 }

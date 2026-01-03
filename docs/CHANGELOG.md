@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.6] - 2026-01-02
+
+### Added
+- **GitHub Connection Diagnostics**: New tools on the settings page to test the GitHub Personal Access Token and verify API permissions
+- **Individual Repository Testing**: Ability to test connectivity and permissions for specific repository URLs directly from the settings page
+- **On-demand Term Sync**: Added "Sync Now" and "Test Connection" buttons directly to the codebase term edit screen for immediate manual synchronization and troubleshooting
+
+### Changed
+- **Enhanced AJAX Sync Interface**: Improved admin-sync.js with modular event listeners and detailed diagnostic reporting
+- **Improved GitHub API Diagnostics**: `GitHubClient` now returns detailed diagnostic info including OAuth scopes, organization visibility, SAML SSO enforcement, and rate limit status
+- **Stricter GitHub API Error Handling**: Enhanced detection of SAML SSO requirements and missing commit SHAs with descriptive error messages
+- **Dynamic Asset Versioning**: Switched `admin-sync.js` to use `filemtime` for versioning to ensure immediate cache busting on updates
+
+### Fixed
+- **Improved Error Reporting in RepoSync**: Now correctly captures and displays specific GitHub API error messages when sync fails
+- **Admin Script Loading**: Restricted `admin-sync.js` to only load on documentation settings and codebase edit screens
+- **DOMContentLoaded logic**: Updated admin-sync.js to use standard DOMContentLoaded listener for better reliability
+
 ## [0.2.5] - 2026-01-02
 
 ### Fixed
