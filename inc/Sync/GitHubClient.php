@@ -184,9 +184,13 @@ class GitHubClient {
 
 		foreach ( $patterns as $pattern ) {
 			if ( preg_match( $pattern, $url, $matches ) ) {
+				$repo = $matches[2];
+				if ( str_ends_with( $repo, '.git' ) ) {
+					$repo = substr( $repo, 0, -4 );
+				}
 				return [
 					'owner' => $matches[1],
-					'repo'  => rtrim( $matches[2], '.git' ),
+					'repo'  => $repo,
 				];
 			}
 		}

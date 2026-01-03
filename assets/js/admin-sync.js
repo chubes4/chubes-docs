@@ -199,8 +199,9 @@ document.addEventListener( 'DOMContentLoaded', function() {
 						html += '</div>';
 						termResults.innerHTML = html;
 					} else {
+						const msg = response.data && response.data.message ? response.data.message : 'Unknown error';
 						let html = '<div style="background:#fcf0f1; border-left:4px solid #d63638; padding:10px; margin-top:10px;">';
-						html += '<p style="color:#d63638; margin:0;"><strong>' + chubesDocsSync.strings.error + '</strong> ' + response.data.message + '</p>';
+						html += '<p style="color:#d63638; margin:0;"><strong>' + chubesDocsSync.strings.error + '</strong> ' + msg + '</p>';
 						html += '</div>';
 						termResults.innerHTML = html;
 					}
@@ -254,11 +255,15 @@ document.addEventListener( 'DOMContentLoaded', function() {
 						html += '</div>';
 						termResults.innerHTML = html;
 					} else {
-						const d = response.data;
+						const d = response.data || {};
 						let html = '<div style="background:#fcf0f1; border-left:4px solid #d63638; padding:10px; margin-top:10px;">';
-						html += '<p style="color:#d63638; margin:0 0 8px;"><strong>Failed:</strong> ' + d.message + '</p>';
-						html += '<p><strong>Parsed as:</strong> <code>' + d.owner + '/' + d.repo + '</code></p>';
-						html += '<p><strong>HTTP Status:</strong> ' + d.status + '</p>';
+						html += '<p style="color:#d63638; margin:0 0 8px;"><strong>Failed:</strong> ' + ( d.message || 'Unknown error' ) + '</p>';
+						if ( d.owner && d.repo ) {
+							html += '<p><strong>Parsed as:</strong> <code>' + d.owner + '/' + d.repo + '</code></p>';
+						}
+						if ( d.status ) {
+							html += '<p><strong>HTTP Status:</strong> ' + d.status + '</p>';
+						}
 						if ( d.sso_url ) {
 							html += '<p style="color:#d63638;"><strong>SSO Required:</strong> <a href="' + d.sso_url + '" target="_blank">Authorize token for this organization</a></p>';
 						}
