@@ -3,12 +3,160 @@
 namespace ChubesDocs\Api\Controllers;
 
 use ChubesDocs\Core\Codebase;
+use ChubesDocs\Sync\CronSync;
+use ChubesDocs\Sync\GitHubClient;
+use ChubesDocs\Sync\SyncManager;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;
-use ChubesDocs\Sync\SyncManager;
 
 class SyncController {
+
+    /**
+     * Sync all codebases with GitHub URLs.
+     */
+    public static function sync_all( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+        $results = CronSync::run();
+
+        if ( ! $results['success'] && $results['error'] ) {
+            return new WP_Error( 'sync_failed', $results['error'], [ 'status' => 500 ] );
+        }
+
+        $summary = self::build_summary( $results['results'] );
+
+        return rest_ensure_response( $summary );
+    }
+
+    /**
+     * Sync a single codebase term.
+     */
+    public static function sync_term( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+        $term_id = $request->get_param( 'id' );
+        $force = (bool) $request->get_param( 'force' );
+
+        if ( ! $term_id ) {
+            return new WP_Error( 'invalid_term_id', 'Invalid term ID.', [ 'status' => 400 ] );
+        }
+
+        $result = CronSync::sync_term( $term_id, $force );
+
+        if ( ! $result['success'] && $result['error'] ) {
+            return new WP_Error( 'sync_failed', $result['error'], [ 'status' => 500 ] );
+        }
+
+        return rest_ensure_response( [
+            'added'   => count( $result['added'] ?? [] ),
+            'updated' => count( $result['updated'] ?? [] ),
+            'removed' => count( $result['removed'] ?? [] ),
+            'message' => sprintf(
+                'Added: %d, Updated: %d, Removed: %d',
+                count( $result['added'] ?? [] ),
+                count( $result['updated'] ?? [] ),
+                count( $result['removed'] ?? [] )
+            ),
+        ] );
+    }
+
+    /**
+     * Test GitHub token connection.
+     */
+    public static function test_token( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+        $pat = get_option( CronSync::OPTION_PAT );
+
+        if ( empty( $pat ) ) {
+            return new WP_Error( 'no_token', 'No token configured.', [ 'status' => 400 ] );
+        }
+
+        $github = new GitHubClient( $pat );
+        $diagnostics = $github->test_connection();
+
+        if ( is_wp_error( $diagnostics ) ) {
+            return new WP_Error( 'connection_failed', $diagnostics->get_error_message(), [ 'status' => 500 ] );
+        }
+
+        return rest_ensure_response( $diagnostics );
+    }
+
+    /**
+     * Test access to a specific repository.
+     */
+    public static function test_repo( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+        $pat = get_option( CronSync::OPTION_PAT );
+
+        if ( empty( $pat ) ) {
+            return new WP_Error( 'no_token', 'No token configured.', [ 'status' => 400 ] );
+        }
+
+        $repo_url = $request->get_param( 'repo_url' );
+
+        if ( empty( $repo_url ) ) {
+            return new WP_Error( 'no_repo_url', 'No repository URL provided.', [ 'status' => 400 ] );
+        }
+
+        $parsed = GitHubClient::parse_repo_url( $repo_url );
+
+        if ( ! $parsed ) {
+            return new WP_Error( 'invalid_url', 'Invalid GitHub URL format.', [ 'status' => 400 ] );
+        }
+
+        $github = new GitHubClient( $pat );
+        $result = $github->test_repo( $parsed['owner'], $parsed['repo'] );
+
+        if ( is_wp_error( $result ) ) {
+            $data = $result->get_error_data();
+            return new WP_Error(
+                'repo_test_failed',
+                $result->get_error_message(),
+                [
+                    'status'  => $data['status'] ?? 500,
+                    'owner'   => $parsed['owner'],
+                    'repo'    => $parsed['repo'],
+                    'sso_url' => $data['sso_url'] ?? null,
+                ]
+            );
+        }
+
+        return rest_ensure_response( $result );
+    }
+
+    /**
+     * Build summary from sync results.
+     */
+    private static function build_summary( array $results ): array {
+        $total_added = 0;
+        $total_updated = 0;
+        $total_removed = 0;
+        $repos_synced = 0;
+        $errors = [];
+
+        foreach ( $results as $term_id => $result ) {
+            if ( $result['success'] ) {
+                $repos_synced++;
+                $total_added += count( $result['added'] ?? [] );
+                $total_updated += count( $result['updated'] ?? [] );
+                $total_removed += count( $result['removed'] ?? [] );
+            } elseif ( ! empty( $result['error'] ) ) {
+                $term = get_term( $term_id );
+                $name = $term ? $term->name : "Term {$term_id}";
+                $errors[] = "{$name}: {$result['error']}";
+            }
+        }
+
+        return [
+            'repos_synced'  => $repos_synced,
+            'total_added'   => $total_added,
+            'total_updated' => $total_updated,
+            'total_removed' => $total_removed,
+            'errors'        => $errors,
+            'message'       => sprintf(
+                'Synced %d repos. Added: %d, Updated: %d, Removed: %d',
+                $repos_synced,
+                $total_added,
+                $total_updated,
+                $total_removed
+            ),
+        ];
+    }
 
     public static function setup_project(WP_REST_Request $request): WP_REST_Response|WP_Error {
         $project_slug = sanitize_title($request->get_param('project_slug'));

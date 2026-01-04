@@ -30,7 +30,47 @@ class Assets {
 	 * Handle all admin asset enqueues.
 	 */
 	public static function enqueue_admin_assets() {
-		// Admin assets can be added here in the future
+		self::enqueue_sync_assets();
+	}
+
+	/**
+	 * Enqueue sync-related admin assets.
+	 */
+	private static function enqueue_sync_assets() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
+			return;
+		}
+
+		$allowed_screens = [
+			'documentation_page_chubes-docs-settings',
+			'edit-codebase',
+		];
+
+		if ( ! in_array( $screen->id, $allowed_screens, true ) ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'chubes-docs-sync',
+			CHUBES_DOCS_URL . 'assets/js/admin-sync.js',
+			[],
+			filemtime( CHUBES_DOCS_PATH . 'assets/js/admin-sync.js' ),
+			true
+		);
+
+		wp_localize_script( 'chubes-docs-sync', 'chubesDocsSync', [
+			'restUrl' => rest_url( 'chubes/v1' ),
+			'nonce'   => wp_create_nonce( 'wp_rest' ),
+			'strings' => [
+				'syncing'     => __( 'Syncing...', 'chubes-docs' ),
+				'success'     => __( 'Sync complete!', 'chubes-docs' ),
+				'error'       => __( 'Sync failed:', 'chubes-docs' ),
+				'noRepos'     => __( 'No repositories configured for sync.', 'chubes-docs' ),
+				'testing'     => __( 'Testing connection...', 'chubes-docs' ),
+				'testingRepo' => __( 'Testing repository...', 'chubes-docs' ),
+			],
+		] );
 	}
 
 	/**

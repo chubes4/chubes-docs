@@ -163,17 +163,6 @@ class SettingsPage {
 			<?php esc_html_e( 'Test GitHub Connection', 'chubes-docs' ); ?>
 		</button>
 		<div id="chubes-docs-test-results" style="margin-top: 10px;"></div>
-
-		<div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #ccc;">
-			<label for="chubes-docs-test-repo-url"><strong><?php esc_html_e( 'Test Specific Repository:', 'chubes-docs' ); ?></strong></label>
-			<div style="display: flex; gap: 10px; margin-top: 5px;">
-				<input type="text" id="chubes-docs-test-repo-url" placeholder="https://github.com/owner/repo" style="flex: 1; max-width: 400px;" />
-				<button type="button" class="button button-secondary" id="chubes-docs-test-repo">
-					<?php esc_html_e( 'Test Repo', 'chubes-docs' ); ?>
-				</button>
-			</div>
-			<div id="chubes-docs-test-repo-results" style="margin-top: 10px;"></div>
-		</div>
 		<?php
 	}
 

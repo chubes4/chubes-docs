@@ -154,6 +154,48 @@ class Routes {
     }
 
     private static function register_sync_routes(): void {
+        register_rest_route(self::NAMESPACE, '/sync/all', [
+            'methods'             => 'POST',
+            'callback'            => [SyncController::class, 'sync_all'],
+            'permission_callback' => [self::class, 'check_manage_options_permission'],
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/sync/term/(?P<id>\d+)', [
+            'methods'             => 'POST',
+            'callback'            => [SyncController::class, 'sync_term'],
+            'permission_callback' => [self::class, 'check_manage_options_permission'],
+            'args'                => [
+                'id' => [
+                    'type'              => 'integer',
+                    'required'          => true,
+                    'sanitize_callback' => 'absint',
+                ],
+                'force' => [
+                    'type'    => 'boolean',
+                    'default' => false,
+                ],
+            ],
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/sync/test-token', [
+            'methods'             => 'GET',
+            'callback'            => [SyncController::class, 'test_token'],
+            'permission_callback' => [self::class, 'check_manage_options_permission'],
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/sync/test-repo', [
+            'methods'             => 'POST',
+            'callback'            => [SyncController::class, 'test_repo'],
+            'permission_callback' => [self::class, 'check_manage_options_permission'],
+            'args'                => [
+                'repo_url' => [
+                    'type'              => 'string',
+                    'required'          => true,
+                    'sanitize_callback' => 'sanitize_text_field',
+                ],
+            ],
+        ]);
+
         register_rest_route(self::NAMESPACE, '/sync/setup', [
             'methods'             => 'POST',
             'callback'            => [SyncController::class, 'setup_project'],
@@ -207,6 +249,10 @@ class Routes {
                 ],
             ],
         ]);
+    }
+
+    public static function check_manage_options_permission(): bool {
+        return current_user_can('manage_options');
     }
 
     public static function check_edit_permission(): bool {

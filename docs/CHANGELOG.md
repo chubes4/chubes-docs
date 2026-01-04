@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.8] - 2026-01-03
+
+### Added
+- **REST API Sync Endpoints**: New authenticated endpoints for all sync operations (`sync/all`, `sync/term`, `test-token`, `test-repo`).
+- **Unified Permission Callbacks**: Centralized REST API capability checks for admin operations.
+
+### Changed
+- **AJAX to REST Migration**: Completely replaced legacy WordPress AJAX handlers with modern REST API endpoints for manual sync operations.
+- **Architectural Refactor**: Consolidated sync logic into `SyncController`, reducing codebase complexity.
+- **Improved Asset Management**: Centralized admin JavaScript enqueuing in `inc/Core/Assets.php` with proper screen targeting.
+- **Settings UI Cleanup**: Streamlined the GitHub connection diagnostic interface.
+
+### Removed
+- **Legacy AJAX Handler**: Deleted `inc/Admin/SyncAjax.php` and its associated hooks.
+
 ## [0.2.7] - 2026-01-02
 
 ### Changed

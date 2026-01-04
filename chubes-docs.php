@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Chubes Docs
  * Description: REST API sync system and admin enhancements for chubes.net documentation. Requires the Chubes theme.
- * Version: 0.2.7
+ * Version: 0.2.8
  * Author: Chris Huber
  * Author URI: https://chubes.net
  * License: GPL v2 or later
@@ -15,7 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-define( 'CHUBES_DOCS_VERSION', '0.2.7' );
+define( 'CHUBES_DOCS_VERSION', '0.2.8' );
 define( 'CHUBES_DOCS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CHUBES_DOCS_URL', plugin_dir_url( __FILE__ ) );
 
@@ -36,7 +36,6 @@ use ChubesDocs\Templates\Homepage;
 use ChubesDocs\Sync\CronSync;
 use ChubesDocs\Admin\SettingsPage;
 use ChubesDocs\Admin\CodebaseColumns;
-use ChubesDocs\Admin\SyncAjax;
 
 Documentation::init();
 Codebase::init();
@@ -51,7 +50,6 @@ add_action( 'chubes_codebase_registered', function() {
 
 CronSync::init();
 SettingsPage::init();
-SyncAjax::init();
 
 add_action( 'init', function() {
 	RelatedPosts::init();
