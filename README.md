@@ -4,31 +4,27 @@ A WordPress plugin that provides REST API sync system and admin enhancements for
 
 ## Quick Start
 
-1. **Install the plugin** on your WordPress site with the Chubes theme
-2. **Set up a project**:
-   ```bash
-   curl -X POST /wp-json/chubes/v1/sync/setup \
-     -H "Content-Type: application/json" \
-     -d '{
-       "project_slug": "my-plugin",
-       "project_name": "My WordPress Plugin",
-       "category_slug": "wordpress-plugins",
-       "category_name": "WordPress Plugins"
-     }'
-   ```
-3. **Sync documentation**:
-   ```bash
-   curl -X POST /wp-json/chubes/v1/sync/doc \
-     -H "Content-Type: application/json" \
-     -d '{
-       "source_file": "README.md",
-       "title": "Getting Started",
-       "content": "# Getting Started\n\nInstallation instructions...",
-       "project_term_id": 123,
-       "subpath": "guides"
-     }'
-   ```
+See the docs in [`docs/`](docs/) for endpoint details and sync workflows:
 
+- [API Reference](docs/api-reference.md)
+- [Sync Guide](docs/sync-guide.md)
+- [GitHub Sync Diagnostics](docs/github-sync-diagnostics.md)
+
+> Note: `POST /sync/doc` requires `filesize` (int) and `timestamp` (string), and `subpath` is an array of strings.
+
+```bash
+curl -X POST /wp-json/chubes/v1/sync/doc \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source_file": "README.md",
+    "title": "Getting Started",
+    "content": "# Getting Started\n\nInstallation instructions...",
+    "project_term_id": 123,
+    "filesize": 1024,
+    "timestamp": "2026-01-11T00:00:00Z",
+    "subpath": ["guides"]
+  }'
+```
 ## Features
 
 - **REST API Endpoints**: Full CRUD operations for documentation posts and codebase taxonomy management
@@ -70,11 +66,14 @@ The plugin provides REST API endpoints under the `chubes/v1` namespace:
 - `PUT /wp-json/chubes/v1/codebase/{id}` - Update taxonomy term
 
 ### Sync
-- `POST /wp-json/chubes/v1/sync/setup` - Setup project and category
-- `GET /wp-json/chubes/v1/sync/status` - Get sync status
-- `POST /wp-json/chubes/v1/sync/doc` - Sync documentation from external sources
-- `POST /wp-json/chubes/v1/sync/batch` - Batch sync multiple documents
-
+- `POST /wp-json/chubes/v1/sync/setup` - Setup project + category terms
+- `GET /wp-json/chubes/v1/sync/status` - Get sync status for a project (requires `project`)
+- `POST /wp-json/chubes/v1/sync/doc` - Sync a single document
+- `POST /wp-json/chubes/v1/sync/batch` - Batch sync documents
+- `POST /wp-json/chubes/v1/sync/all` - Manually sync GitHub docs for all codebases with GitHub URLs
+- `POST /wp-json/chubes/v1/sync/term/{id}` - Manually sync GitHub docs for a single codebase term
+- `GET /wp-json/chubes/v1/sync/test-token` - GitHub token diagnostics
+- `POST /wp-json/chubes/v1/sync/test-repo` - GitHub repo diagnostics (`repo_url`)
 ## Development
 
 ### Building

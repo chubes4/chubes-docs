@@ -66,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Complete rewrite of URL routing** for hierarchical `/docs/` URLs with better path resolution
 - **Enhanced path resolution** in `Codebase::resolve_path()` with term creation capabilities and better error handling
 - **New documentation files**: `docs/troubleshooting.md`, `docs/migration-guide.md`, `docs/development.md` with comprehensive guides
-- **AGENTS.md** file with AI agent collaboration instructions
+- **CLAUDE.md** file with AI agent collaboration instructions
 
 ### Changed
 - **Refactored SyncController** to use new term structure instead of `codebase_path` arrays

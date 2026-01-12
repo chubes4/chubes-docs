@@ -1,6 +1,8 @@
 # Sync Guide
 
-This guide explains how to use the Chubes Docs synchronization system to import and manage documentation from external sources.
+This guide explains how to use the Chubes Docs synchronization system.
+
+For exact request/response shapes and permissions, see the [API Reference](api-reference.md).
 
 ## Overview
 
@@ -59,12 +61,12 @@ curl -X PUT /wp-json/chubes/v1/codebase/{project_term_id} \
   -d '{
     "meta": {
       "github_url": "https://github.com/username/my-plugin",
-      "wordpress_url": "https://wordpress.org/plugins/my-plugin",
-      "version": "1.0.0"
+      "wp_url": "https://wordpress.org/plugins/my-plugin"
     }
   }'
 ```
 
+> `PUT /codebase/{id}` only applies `meta.github_url` and `meta.wp_url` (stored as `codebase_github_url` and `codebase_wp_url`).
 ## Syncing Documentation
 
 ### Single Document Sync
@@ -132,12 +134,12 @@ curl -X POST /wp-json/chubes/v1/sync/batch \
 
 ### Automatic Subpath Resolution
 
-The sync system automatically creates taxonomy terms for subpaths within projects:
-
+The sync system assigns taxonomy based on `project_term_id` and `subpath`. Subpath segments are resolved under the project term (and created as needed by the sync manager).
 ```bash
-# This creates: wordpress-plugins/my-plugin/guides/installation
+# Assign under: wordpress-plugins/my-plugin/guides/installation
 curl -X POST /wp-json/chubes/v1/sync/doc \
   -d '{
+    "source_file": "docs/installation.md",
     "title": "Installation Guide",
     "content": "...",
     "project_term_id": 15,
@@ -224,6 +226,17 @@ Response:
 }
 ```
 
+## GitHub Diagnostics & Manual Sync
+
+These endpoints support validating GitHub access and manually running the GitHub-based sync.
+
+- `GET /wp-json/chubes/v1/sync/test-token` (requires `manage_options`)
+- `POST /wp-json/chubes/v1/sync/test-repo` with `{ "repo_url": "https://github.com/owner/repo" }` (requires `manage_options`)
+- `POST /wp-json/chubes/v1/sync/all` (requires `manage_options`)
+- `POST /wp-json/chubes/v1/sync/term/{id}` (requires `manage_options`)
+
+For response shapes and parameters, see [API Reference](api-reference.md) or [GitHub Sync Diagnostics](github-sync-diagnostics.md).
+
 ## Best Practices
 
 ### File Organization
@@ -285,7 +298,10 @@ define('WP_DEBUG_LOG', true);
 
 Check `/wp-content/debug.log` for detailed error information.
 
-## Integration Examples
+## Integration Examples (Non-authoritative)
+
+Examples below are illustrative only; rely on [API Reference](api-reference.md) for exact shapes.
+
 
 ### GitHub Actions Workflow
 
@@ -322,8 +338,10 @@ async function syncDocs() {
     source_file: file,
     title: path.parse(file).name.replace(/-/g, ' '),
     content: fs.readFileSync(path.join(docsDir, file), 'utf8'),
-    project_term_id: process.env.PROJECT_TERM_ID,
-    subpath: 'guides'
+    project_term_id: Number(process.env.PROJECT_TERM_ID),
+    filesize: fs.statSync(path.join(docsDir, file)).size,
+    timestamp: new Date().toISOString(),
+    subpath: ['guides']
   }));
 
   const response = await fetch('/wp-json/chubes/v1/sync/batch', {

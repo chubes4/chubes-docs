@@ -44,7 +44,7 @@ The plugin provides helper functions for theme integration:
 ```php
 // Get repository information for a codebase term
 $repo_info = chubes_get_repository_info($term_id);
-// Returns: array with github_url, wordpress_url, stars, installs, etc.
+// Returns: array with github_url, wp_url, installs, etc.
 
 // Generate content type URLs
 $content_url = chubes_generate_content_type_url('documentation', $post_id);

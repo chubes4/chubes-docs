@@ -10,7 +10,11 @@ This guide helps you diagnose and resolve common issues with the Chubes Docs plu
 
 **Solutions:**
 - Ensure you're using proper WordPress authentication (cookies or application passwords)
-- Verify user has appropriate capabilities (`edit_posts` for most operations, `manage_categories` for taxonomy operations)
+- Verify user has appropriate capabilities:
+  - `edit_posts` for `POST/PUT /docs`, `GET /sync/status`, and `POST /sync/doc` + `POST /sync/batch`
+  - `delete_posts` for `DELETE /docs/{id}`
+  - `manage_categories` for `POST /sync/setup`, `PUT /codebase/{id}`, and `POST /codebase/resolve` when `create_missing: true`
+  - `manage_options` for manual GitHub sync and diagnostics (`/sync/all`, `/sync/term/{id}`, `/sync/test-token`, `/sync/test-repo`)
 - Check that the REST API is enabled in WordPress settings
 - For external sync, ensure API credentials are configured correctly
 
@@ -26,44 +30,11 @@ This guide helps you diagnose and resolve common issues with the Chubes Docs plu
 
 **Debug command:**
 ```bash
-curl -X POST /wp-json/chubes/v1/sync/status \
-  -d '{"project": "your-project-slug"}'
+curl "/wp-json/chubes/v1/sync/status?project=your-project-slug"
 ```
 
-### Taxonomy Term Not Found
+If the request returns `403`, confirm the authenticated user has `edit_posts`.
 
-**Problem:** Operations fail with "taxonomy term not found" errors.
-
-**Solutions:**
-- Verify term exists in WordPress admin under Codebase taxonomy
-- Check term slug spelling and case sensitivity
-- Ensure parent terms exist for hierarchical operations
-- Use `/codebase/tree` endpoint to verify taxonomy structure
-
-### Content Not Updating
-
-**Problem:** Sync operations complete but content doesn't change.
-
-**Causes:**
-- Content hash hasn't changed (use `force: true` to override)
-- Timestamp is older than existing document
-- File size mismatch preventing updates
-- Permission issues preventing post updates
-
-**Force update:**
-```bash
-curl -X POST /wp-json/chubes/v1/sync/doc \
-  -H "Content-Type: application/json" \
-  -d '{
-    "source_file": "docs/README.md",
-    "title": "README",
-    "content": "Updated content...",
-    "project_term_id": 123,
-    "filesize": 1024,
-    "timestamp": "2025-12-01T12:00:00Z",
-    "force": true
-  }'
-```
 
 ### Markdown Processing Issues
 
@@ -209,5 +180,4 @@ If issues persist:
 - Test sync operations in a staging environment first
 - Monitor API usage and rate limits
 - Keep plugin and WordPress core updated
-- Use version control for documentation sources</content>
-<parameter name="filePath">/Users/chubes/Developer/chubes-net/chubes-docs/docs/troubleshooting.md
+- Use version control for documentation sources

@@ -7,6 +7,10 @@
 - Chubes theme (required for full functionality)
 - Composer (for dependency management)
 
+## Installation
+
+(Developer note: this repo’s installation process varies by environment; this page avoids step-by-step setup details.)
+
 ## Installation Steps
 
 1. **Install the Chubes theme** - This plugin requires the Chubes theme to be active for documentation features

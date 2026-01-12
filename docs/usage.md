@@ -36,9 +36,11 @@ Assign taxonomy terms to documentation posts for categorization and filtering.
 
 ## REST API
 
-### Endpoints
+For exact request/response shapes and permissions, see the [API Reference](api-reference.md).
 
-All endpoints use the `chubes/v1` namespace:
+### Endpoints (Summary)
+
+All endpoints use the `chubes/v1` namespace.
 
 #### Documentation
 - `GET /wp-json/chubes/v1/docs` - List documentation posts
@@ -55,11 +57,14 @@ All endpoints use the `chubes/v1` namespace:
 - `PUT /wp-json/chubes/v1/codebase/{id}` - Update taxonomy term
 
 #### Sync Operations
-- `POST /wp-json/chubes/v1/sync/setup` - Setup project and category
-- `GET /wp-json/chubes/v1/sync/status` - Get sync status
-- `POST /wp-json/chubes/v1/sync/doc` - Sync documentation from external sources
-- `POST /wp-json/chubes/v1/sync/batch` - Batch sync multiple documents
-
+- `POST /wp-json/chubes/v1/sync/setup` - Setup project + category terms
+- `GET /wp-json/chubes/v1/sync/status` - Get sync status for a project
+- `POST /wp-json/chubes/v1/sync/doc` - Sync a single document
+- `POST /wp-json/chubes/v1/sync/batch` - Batch sync documents
+- `POST /wp-json/chubes/v1/sync/all` - Manually sync GitHub docs for all codebases
+- `POST /wp-json/chubes/v1/sync/term/{id}` - Manually sync GitHub docs for a term
+- `GET /wp-json/chubes/v1/sync/test-token` - GitHub token diagnostics
+- `POST /wp-json/chubes/v1/sync/test-repo` - GitHub repo diagnostics (`repo_url`)
 ### Parameters
 
 See [API Reference](api-reference.md) for complete parameter documentation.
@@ -113,15 +118,7 @@ Documentation content supports Markdown syntax via Parsedown.
 
 ## Install Tracking
 
-The plugin tracks installation and usage data for analytics.
-
-### Features
-
-- Installation date tracking
-- Usage statistics
-- Repository metadata storage
-- Performance monitoring
-
+The plugin tracks install counts for codebase terms that have a WordPress.org URL configured (returned as `meta.installs` on `GET /codebase/{id}`).
 ## Templates
 
 The plugin provides custom templates for documentation display:
@@ -135,10 +132,7 @@ The plugin provides custom templates for documentation display:
 
 ### Hooks and Filters
 
-- `chubes_docs_content` - Modify processed content
-- `chubes_docs_sync_sources` - Add sync sources
-- `chubes_docs_taxonomy_terms` - Modify taxonomy terms
-
+This plugin uses standard WordPress hooks internally. Public hooks/filters are not currently documented here; rely on the codebase when extending.
 ### Components
 
 - Api/Controllers/DocsController.php - REST API handling
@@ -167,7 +161,7 @@ The plugin provides custom templates for documentation display:
 
 **API authentication errors**
 - Ensure you're using proper WordPress authentication (cookies or application passwords)
-- Verify user has appropriate permissions (`edit_posts` for sync operations)
+- Verify user has appropriate permissions (`edit_posts` for `/sync/doc` and `/sync/batch`; `manage_options` for manual GitHub sync and diagnostics)
 - Check that the REST API is enabled on your WordPress installation
 
 ### Debug Mode

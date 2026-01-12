@@ -2,6 +2,7 @@
 
 This guide covers breaking changes and migration steps when upgrading Chubes Docs from version 0.1.x to 0.2.x.
 
+Note: Current plugin version is 0.2.8.
 ## Version 0.2.0 Breaking Changes
 
 ### API Parameter Changes
@@ -14,7 +15,7 @@ curl -X POST /wp-json/chubes/v1/sync/doc \
   -d '{
     "title": "My Doc",
     "content": "# Content",
-    "codebase_path": "wordpress-plugins/my-plugin"
+    "codebase_path": ["wordpress-plugins", "my-plugin"]
   }'
 ```
 
@@ -52,10 +53,8 @@ curl -X POST /wp-json/chubes/v1/sync/doc \
 
 #### Parameter Format Changes
 
-- `codebase_path`: Now expects array instead of string
 - `subpath`: Now expects array instead of string
-- Removed: `codebase_path` from docs endpoints (use taxonomy resolution separately)
-
+- `codebase_path`: Docs endpoints accept `codebase_path` as an array (for resolving and assigning taxonomy)
 ### Taxonomy Management Changes
 
 #### Path Resolution
@@ -63,7 +62,7 @@ curl -X POST /wp-json/chubes/v1/sync/doc \
 **Before:**
 ```bash
 curl -X POST /wp-json/chubes/v1/codebase/resolve \
-  -d '{"path": "wordpress-plugins/my-plugin/api"}'
+  -d '{"path": ["wordpress-plugins", "my-plugin", "api"]}'
 ```
 
 **After:**
@@ -80,7 +79,7 @@ curl -X POST /wp-json/chubes/v1/docs \
   -d '{
     "title": "API Docs",
     "content": "...",
-    "codebase_path": "wordpress-plugins/my-plugin/api"
+    "codebase_path": ["wordpress-plugins", "my-plugin", "api"]
   }'
 ```
 
@@ -199,9 +198,7 @@ Update GitHub Actions or other automation:
 
 ### Deprecated Features
 
-- String-based `codebase_path` parameters (use arrays)
-- String-based `subpath` parameters (use arrays)
-- Automatic taxonomy creation during document sync (use `/sync/setup` first)
+- String-based `codebase_path` and string-based `subpath` parameters (use arrays)
 
 ## Troubleshooting Migration
 
@@ -238,6 +235,17 @@ After migration:
 4. **Validate API responses** match expected format
 5. **Test batch operations** with multiple documents
 
+## Manual GitHub Sync Endpoints (0.2.8)
+
+Version 0.2.8 adds manual GitHub sync and diagnostics endpoints:
+
+- `POST /sync/all`
+- `POST /sync/term/{id}`
+- `GET /sync/test-token`
+- `POST /sync/test-repo`
+
+These endpoints require `manage_options`.
+
 ## Version 0.2.1 Updates
 
 ### Additional Changes in 0.2.1
@@ -263,5 +271,4 @@ For migration assistance:
 2. **Test in staging** environment first
 3. **Backup data** before migration
 4. **Update scripts incrementally** to minimize downtime
-5. **Contact support** if issues persist after following this guide</content>
-<parameter name="filePath">/Users/chubes/Developer/chubes-net/chubes-docs/docs/migration-guide.md
+5. **Contact support** if issues persist after following this guide

@@ -66,7 +66,7 @@ The `./build.sh` script creates a production-ready WordPress plugin package:
 - Development dependencies (`vendor/` after production install)
 - Development files (`.buildignore`, `build.sh`, `README.md`)
 - Source control (`.git/`, `.gitignore`)
-- Development documentation (`CLAUDE.md`, `AGENTS.md`)
+- Development documentation (`CLAUDE.md`, `CLAUDE.md`)
 
 ### File Structure
 
@@ -345,5 +345,4 @@ For development support:
 - Review WordPress.org documentation
 - Test with minimal reproduction case
 - Include debug logs and error messages
-- Specify WordPress/PHP versions</content>
-<parameter name="filePath">/Users/chubes/Developer/chubes-net/chubes-docs/docs/development.md
+- Specify WordPress/PHP versions

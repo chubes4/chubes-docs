@@ -36,18 +36,7 @@ codebase/
 
 ### Creating Terms via API
 
-#### Manual Term Creation
-
-```bash
-# Create a category term
-curl -X POST /wp-json/chubes/v1/codebase \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "WordPress Plugins",
-    "slug": "wordpress-plugins",
-    "description": "Documentation for WordPress plugins"
-  }'
-```
+The REST API does not provide an endpoint to create arbitrary codebase terms directly (there is no `POST /codebase`). Use `POST /codebase/resolve` with `create_missing: true` to create missing segments in a path.
 
 #### Path Resolution
 
@@ -61,14 +50,14 @@ curl -X POST /wp-json/chubes/v1/codebase/resolve \
     "create_missing": true,
     "project_meta": {
       "github_url": "https://github.com/user/my-plugin",
-      "wordpress_url": "https://wordpress.org/plugins/my-plugin",
-      "version": "1.0.0"
+      "wp_url": "https://wordpress.org/plugins/my-plugin"
     }
   }'
 ```
 
-This creates all missing terms in the hierarchy and associates metadata with the project term.
+This creates all missing terms in the hierarchy.
 
+Permissions note: `POST /codebase/resolve` is public when `create_missing` is `false`, and requires `manage_categories` when `create_missing` is `true`.
 ### Updating Terms
 
 ```bash
@@ -78,12 +67,13 @@ curl -X PUT /wp-json/chubes/v1/codebase/{term_id} \
     "name": "Updated Plugin Name",
     "description": "New description",
     "meta": {
-      "version": "2.0.0",
-      "last_updated": "2025-12-01"
+      "github_url": "https://github.com/user/repo",
+      "wp_url": "https://wordpress.org/plugins/repo"
     }
   }'
 ```
 
+> `PUT /codebase/{id}` only updates `name`, `description`, `meta.github_url`, and `meta.wp_url`.
 ### Listing Terms
 
 ```bash
@@ -97,23 +87,22 @@ curl /wp-json/chubes/v1/codebase/tree
 curl /wp-json/chubes/v1/codebase?parent=5
 
 # Hide empty terms
-curl /wp-json/chubes/v1/codebase?hide_empty=1
+curl "/wp-json/chubes/v1/codebase?hide_empty=true"
 ```
 
 ## Repository Metadata
 
-### Supported Metadata Fields
+### Repository Metadata
 
-- `github_url`: GitHub repository URL
-- `wordpress_url`: WordPress.org plugin/theme URL
-- `version`: Current version string
-- `installs`: Active install count (auto-fetched from WordPress.org API)
-- `last_updated`: Last update timestamp (ISO 8601 format)
-- `stars`: GitHub stars count (auto-fetched from GitHub API)
-- `forks`: GitHub forks count (auto-fetched from GitHub API)
-- `description`: Repository description (auto-fetched)
-- `language`: Primary programming language (auto-fetched)
-- `license`: Repository license (auto-fetched)
+The term update endpoint supports setting two URLs:
+
+- `meta.github_url` is stored as `codebase_github_url`
+- `meta.wp_url` is stored as `codebase_wp_url`
+
+The term detail endpoint (`GET /codebase/{id}`) also returns:
+
+- `meta.installs`
+- `repository_info` (the computed repository info array returned by `chubes_get_repository_info()`)
 
 ### Automatic Fetching
 
@@ -130,7 +119,7 @@ curl -X PUT /wp-json/chubes/v1/codebase/{project_term_id} \
   -d '{
     "meta": {
       "github_url": "https://github.com/user/repo",
-      "wordpress_url": "https://wordpress.org/plugins/repo",
+      "wp_url": "https://wordpress.org/plugins/repo",
       "version": "1.5.0",
       "description": "Custom repository description"
     }
