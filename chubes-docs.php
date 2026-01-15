@@ -36,6 +36,7 @@ use ChubesDocs\Templates\Homepage;
 use ChubesDocs\Sync\CronSync;
 use ChubesDocs\Admin\SettingsPage;
 use ChubesDocs\Admin\CodebaseColumns;
+use ChubesDocs\Admin\DocumentationColumns;
 
 Documentation::init();
 Codebase::init();
@@ -50,6 +51,7 @@ add_action( 'chubes_codebase_registered', function() {
 
 CronSync::init();
 SettingsPage::init();
+DocumentationColumns::init();
 
 add_action( 'init', function() {
 	RelatedPosts::init();
