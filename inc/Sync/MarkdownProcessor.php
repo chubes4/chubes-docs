@@ -12,10 +12,12 @@ class MarkdownProcessor {
 
 	private string $project_slug;
 	private string $current_file_path;
+	private int $project_term_id;
 
-	public function __construct( string $project_slug, string $current_file_path ) {
+	public function __construct( string $project_slug, string $current_file_path, int $project_term_id ) {
 		$this->project_slug      = $project_slug;
 		$this->current_file_path = $current_file_path;
+		$this->project_term_id   = $project_term_id;
 	}
 
 	/**
@@ -51,7 +53,7 @@ class MarkdownProcessor {
 
 		$target_source_file = $this->resolvePath( $md_path );
 
-		$target_post_id = SyncManager::find_post_by_source( $target_source_file );
+		$target_post_id = SyncManager::find_post_by_source( $target_source_file, $this->project_term_id );
 
 		if ( $target_post_id ) {
 			$permalink = get_permalink( $target_post_id );

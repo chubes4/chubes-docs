@@ -219,12 +219,13 @@ class RepoSync {
 		}
 
 		foreach ( $changes['removed'] as $relative_path ) {
-			if ( $this->delete_by_source_file( $relative_path ) ) {
+			if ( $this->delete_by_source_file( $term_id, $relative_path ) ) {
 				$result['removed'][] = $relative_path;
 			}
 		}
 
 		return $result;
+
 	}
 
 	/**
@@ -379,8 +380,8 @@ class RepoSync {
 	 * @param string $source_file Source file path.
 	 * @return bool True if deleted, false otherwise.
 	 */
-	private function delete_by_source_file( string $source_file ): bool {
-		$post_id = SyncManager::find_post_by_source( $source_file );
+	private function delete_by_source_file( int $term_id, string $source_file ): bool {
+		$post_id = SyncManager::find_post_by_source( $source_file, $term_id );
 		if ( $post_id ) {
 			return $this->delete_post( $post_id );
 		}

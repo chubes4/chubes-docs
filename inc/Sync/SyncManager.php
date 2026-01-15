@@ -27,7 +27,7 @@ class SyncManager {
 		$project_slug = $project_term->slug;
 
 		if ( MarkdownProcessor::isMarkdown( $content ) ) {
-			$processor = new MarkdownProcessor( $project_slug, $source_file );
+			$processor = new MarkdownProcessor( $project_slug, $source_file, $project_term_id );
 			$content   = $processor->process( $content );
 		}
 
@@ -39,7 +39,7 @@ class SyncManager {
 			];
 		}
 
-		$existing_post_id = self::find_post_by_source( $source_file );
+		$existing_post_id = self::find_post_by_source( $source_file, $project_term_id );
 
 		if ( $existing_post_id ) {
 			$stored_filesize = get_post_meta( $existing_post_id, '_sync_filesize', true );
@@ -159,7 +159,7 @@ class SyncManager {
 		return $current_parent;
 	}
 
-	public static function find_post_by_source( string $source_file ): ?int {
+	public static function find_post_by_source( string $source_file, int $project_term_id ): ?int {
 		$posts = get_posts( array(
 			'post_type'      => 'documentation',
 			'post_status'    => 'any',
@@ -168,6 +168,14 @@ class SyncManager {
 				array(
 					'key'   => '_sync_source_file',
 					'value' => $source_file,
+				),
+			),
+			'tax_query'      => array(
+				array(
+					'taxonomy'         => Codebase::TAXONOMY,
+					'field'            => 'term_id',
+					'terms'            => $project_term_id,
+					'include_children' => true,
 				),
 			),
 		) );
