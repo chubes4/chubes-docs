@@ -351,7 +351,18 @@ class Codebase {
 	 * @return array
 	 */
 	public static function get_top_level_slugs() {
-		return [ 'wordpress-plugins', 'wordpress-themes', 'discord-bots', 'php-libraries' ];
+		$slugs = get_terms( [
+			'taxonomy'   => self::TAXONOMY,
+			'parent'     => 0,
+			'hide_empty' => false,
+			'fields'     => 'slugs',
+		] );
+
+		if ( is_wp_error( $slugs ) ) {
+			return [];
+		}
+
+		return is_array( $slugs ) ? $slugs : [];
 	}
 
 	/**
@@ -361,7 +372,7 @@ class Codebase {
 	 * @return bool
 	 */
 	public static function is_top_level_term( $term ) {
-		return $term->parent === 0 && in_array( $term->slug, self::get_top_level_slugs(), true );
+		return (int) $term->parent === 0;
 	}
 
 	/**

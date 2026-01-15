@@ -1,0 +1,123 @@
+<?php
+
+namespace ChubesDocs\WPCLI\Commands;
+
+use ChubesDocs\Core\Codebase;
+use WP_CLI;
+use WP_CLI\Utils;
+use WP_Error;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
+class CodebaseEnsureCommand {
+	public static function run( array $args, array $assoc_args ): void {
+		$type_slug = sanitize_title( $assoc_args['type'] ?? '' );
+		$project_slug = sanitize_title( $assoc_args['project'] ?? '' );
+		$project_name = sanitize_text_field( $assoc_args['name'] ?? '' );
+		$github_url = isset( $assoc_args['github'] ) ? esc_url_raw( $assoc_args['github'] ) : '';
+		$wporg_url = isset( $assoc_args['wporg'] ) ? esc_url_raw( $assoc_args['wporg'] ) : '';
+		$format = sanitize_key( $assoc_args['format'] ?? 'table' );
+
+		if ( empty( $type_slug ) ) {
+			WP_CLI::error( '--type is required (e.g. --type=cli)' );
+		}
+
+		if ( empty( $project_slug ) ) {
+			WP_CLI::error( '--project is required (e.g. --project=homeboy)' );
+		}
+
+		if ( empty( $project_name ) ) {
+			WP_CLI::error( '--name is required (e.g. --name="Homeboy")' );
+		}
+
+		if ( ! in_array( $format, [ 'table', 'json', 'yaml' ], true ) ) {
+			WP_CLI::error( '--format must be one of: table, json, yaml' );
+		}
+
+		$type_term = self::ensure_top_level_term( $type_slug );
+		if ( is_wp_error( $type_term ) ) {
+			WP_CLI::error( $type_term->get_error_message() );
+		}
+
+		$project_term = self::ensure_child_term( $type_term->term_id, $project_slug, $project_name );
+		if ( is_wp_error( $project_term ) ) {
+			WP_CLI::error( $project_term->get_error_message() );
+		}
+
+		if ( ! empty( $github_url ) ) {
+			update_term_meta( $project_term->term_id, 'codebase_github_url', $github_url );
+		}
+
+		if ( ! empty( $wporg_url ) ) {
+			update_term_meta( $project_term->term_id, 'codebase_wp_url', $wporg_url );
+		}
+
+		WP_CLI::success( 'Codebase terms ensured.' );
+
+		$rows = [
+			[
+				'type_slug'        => $type_term->slug,
+				'type_term_id'     => (string) $type_term->term_id,
+				'project_slug'     => $project_term->slug,
+				'project_term_id'  => (string) $project_term->term_id,
+				'github_url'       => Codebase::get_github_url( $project_term->term_id ) ?? '',
+				'wporg_url'        => Codebase::get_wp_url( $project_term->term_id ) ?? '',
+				'project_type'     => Codebase::get_project_type( $project_term ),
+			],
+		];
+
+		Utils\format_items( $format, $rows, array_keys( $rows[0] ) );
+	}
+
+	private static function ensure_top_level_term( string $slug ): \WP_Term|WP_Error {
+		$existing = get_term_by( 'slug', $slug, Codebase::TAXONOMY );
+		if ( $existing && ! is_wp_error( $existing ) ) {
+			if ( (int) $existing->parent !== 0 ) {
+				return new WP_Error( 'term_parent_mismatch', "Top-level codebase term '{$slug}' exists but is not top-level" );
+			}
+			return $existing;
+		}
+
+		$result = wp_insert_term( $slug, Codebase::TAXONOMY, [
+			'slug'   => $slug,
+			'parent' => 0,
+		] );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return get_term( $result['term_id'], Codebase::TAXONOMY );
+	}
+
+	private static function ensure_child_term( int $parent_id, string $slug, string $name ): \WP_Term|WP_Error {
+		$existing = get_terms( [
+			'taxonomy'   => Codebase::TAXONOMY,
+			'parent'     => $parent_id,
+			'slug'       => $slug,
+			'hide_empty' => false,
+			'number'     => 1,
+		] );
+
+		if ( is_wp_error( $existing ) ) {
+			return $existing;
+		}
+
+		if ( ! empty( $existing ) ) {
+			return $existing[0];
+		}
+
+		$result = wp_insert_term( $name, Codebase::TAXONOMY, [
+			'slug'   => $slug,
+			'parent' => $parent_id,
+		] );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return get_term( $result['term_id'], Codebase::TAXONOMY );
+	}
+}

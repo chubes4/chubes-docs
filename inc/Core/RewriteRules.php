@@ -46,16 +46,6 @@ class RewriteRules {
 			'top'
 		);
 
-		$categories = Codebase::get_top_level_slugs();
-
-		// /docs/{category}/ → top-level category archive
-		foreach ( $categories as $category ) {
-			add_rewrite_rule(
-				'^docs/' . $category . '/?$',
-				'index.php?codebase=' . $category,
-				'top'
-			);
-		}
 
 		// /docs/{path}/ → catch-all for projects and deeper hierarchy
 		add_rewrite_rule(

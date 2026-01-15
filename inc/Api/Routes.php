@@ -217,6 +217,16 @@ class Routes {
                     'type'     => 'string',
                     'required' => true,
                 ],
+                'github_url' => [
+                    'type'              => 'string',
+                    'required'          => false,
+                    'sanitize_callback' => 'esc_url_raw',
+                ],
+                'wp_url' => [
+                    'type'              => 'string',
+                    'required'          => false,
+                    'sanitize_callback' => 'esc_url_raw',
+                ],
             ],
         ]);
 

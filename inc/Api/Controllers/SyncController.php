@@ -163,6 +163,8 @@ class SyncController {
         $project_name = sanitize_text_field($request->get_param('project_name'));
         $category_slug = sanitize_title($request->get_param('category_slug'));
         $category_name = sanitize_text_field($request->get_param('category_name'));
+        $github_url = esc_url_raw( $request->get_param( 'github_url' ) ?? '' );
+        $wp_url = esc_url_raw( $request->get_param( 'wp_url' ) ?? '' );
 
         $category_term = get_term_by('slug', $category_slug, Codebase::TAXONOMY);
         
@@ -196,6 +198,14 @@ class SyncController {
                 'parent' => $category_term->term_id,
             ]);
             $project_term = get_term($project_term->term_id, Codebase::TAXONOMY);
+        }
+
+        if ( ! empty( $github_url ) ) {
+            update_term_meta( $project_term->term_id, 'codebase_github_url', $github_url );
+        }
+
+        if ( ! empty( $wp_url ) ) {
+            update_term_meta( $project_term->term_id, 'codebase_wp_url', $wp_url );
         }
 
         return rest_ensure_response([

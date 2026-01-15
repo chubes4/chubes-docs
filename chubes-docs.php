@@ -62,6 +62,11 @@ add_action( 'rest_api_init', function() {
 	Routes::register();
 } );
 
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require_once CHUBES_DOCS_PATH . 'inc/WPCLI/CLI.php';
+	\ChubesDocs\WPCLI\CLI::register();
+}
+
 add_filter( 'html_to_blocks_supported_post_types', function( $post_types ) {
 	$post_types[] = 'documentation';
 	return $post_types;
