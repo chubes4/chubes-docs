@@ -193,9 +193,6 @@ class Archive {
 		<section class="term-section depth-<?php echo esc_attr( $depth ); ?>">
 			<div class="term-section-header">
 				<<?php echo $header_tag; ?>><?php echo esc_html( $term->name ); ?></<?php echo $header_tag; ?>>
-				<?php if ( $direct_posts->have_posts() ) : ?>
-					<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="btn secondary">View all →</a>
-				<?php endif; ?>
 			</div>
 
 			<?php if ( $term->description ) : ?>
@@ -204,6 +201,7 @@ class Archive {
 
 			<?php if ( $direct_posts->have_posts() ) : ?>
 				<?php self::render_documentation_cards( $direct_posts ); ?>
+				<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="view-all-link btn secondary">View all →</a>
 			<?php endif; ?>
 
 			<?php foreach ( $child_terms as $child_term ) : ?>

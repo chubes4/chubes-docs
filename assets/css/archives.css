@@ -426,6 +426,36 @@
     margin-top: 50px;
 }
 
+/* Term Sections (Hierarchical Archive) */
+.term-section {
+    margin-bottom: 2rem;
+}
+
+.term-section-header {
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.term-section-header h3,
+.term-section-header h4,
+.term-section-header h5 {
+    margin: 0;
+}
+
+.term-section.depth-2,
+.term-section.depth-3 {
+    margin-left: 1.5rem;
+    padding-left: 1.5rem;
+    border-left: 2px solid rgba(0, 194, 255, 0.2);
+}
+
+.term-section .view-all-link {
+    display: block;
+    text-align: center;
+    margin: 1.5rem 0;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
     .codebase-cards-grid,
