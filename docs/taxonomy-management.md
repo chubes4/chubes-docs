@@ -113,15 +113,18 @@ The plugin automatically fetches metadata from APIs:
 
 ### Manual Metadata Updates
 
+`PUT /wp-json/chubes/v1/codebase/{id}` only persists:
+
+- `meta.github_url` → `codebase_github_url`
+- `meta.wp_url` → `codebase_wp_url`
+
 ```bash
 curl -X PUT /wp-json/chubes/v1/codebase/{project_term_id} \
   -H "Content-Type: application/json" \
   -d '{
     "meta": {
       "github_url": "https://github.com/user/repo",
-      "wp_url": "https://wordpress.org/plugins/repo",
-      "version": "1.5.0",
-      "description": "Custom repository description"
+      "wp_url": "https://wordpress.org/plugins/repo"
     }
   }'
 ```

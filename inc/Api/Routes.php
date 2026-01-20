@@ -13,7 +13,7 @@ class Routes {
     public static function register(): void {
         self::register_docs_routes();
         self::register_codebase_routes();
-        self::register_sync_routes();
+        self::register_test_routes();
     }
 
     private static function register_docs_routes(): void {
@@ -153,30 +153,7 @@ class Routes {
         ]);
     }
 
-    private static function register_sync_routes(): void {
-        register_rest_route(self::NAMESPACE, '/sync/all', [
-            'methods'             => 'POST',
-            'callback'            => [SyncController::class, 'sync_all'],
-            'permission_callback' => [self::class, 'check_manage_options_permission'],
-        ]);
-
-        register_rest_route(self::NAMESPACE, '/sync/term/(?P<id>\d+)', [
-            'methods'             => 'POST',
-            'callback'            => [SyncController::class, 'sync_term'],
-            'permission_callback' => [self::class, 'check_manage_options_permission'],
-            'args'                => [
-                'id' => [
-                    'type'              => 'integer',
-                    'required'          => true,
-                    'sanitize_callback' => 'absint',
-                ],
-                'force' => [
-                    'type'    => 'boolean',
-                    'default' => false,
-                ],
-            ],
-        ]);
-
+    private static function register_test_routes(): void {
         register_rest_route(self::NAMESPACE, '/sync/test-token', [
             'methods'             => 'GET',
             'callback'            => [SyncController::class, 'test_token'],
@@ -237,25 +214,6 @@ class Routes {
             'args'                => [
                 'project' => [
                     'type' => 'string',
-                ],
-            ],
-        ]);
-
-        register_rest_route(self::NAMESPACE, '/sync/doc', [
-            'methods'             => 'POST',
-            'callback'            => [SyncController::class, 'sync_doc'],
-            'permission_callback' => [self::class, 'check_edit_permission'],
-            'args'                => self::get_sync_doc_args(),
-        ]);
-
-        register_rest_route(self::NAMESPACE, '/sync/batch', [
-            'methods'             => 'POST',
-            'callback'            => [SyncController::class, 'sync_batch'],
-            'permission_callback' => [self::class, 'check_edit_permission'],
-            'args'                => [
-                'docs' => [
-                    'type'     => 'array',
-                    'required' => true,
                 ],
             ],
         ]);
@@ -364,47 +322,6 @@ class Routes {
             'meta' => [
                 'type'    => 'object',
                 'default' => [],
-            ],
-        ];
-    }
-
-    private static function get_sync_doc_args(): array {
-        return [
-            'source_file' => [
-                'type'     => 'string',
-                'required' => true,
-            ],
-            'title' => [
-                'type'     => 'string',
-                'required' => true,
-            ],
-            'content' => [
-                'type'     => 'string',
-                'required' => true,
-            ],
-            'project_term_id' => [
-                'type'     => 'integer',
-                'required' => true,
-            ],
-            'filesize' => [
-                'type'     => 'integer',
-                'required' => true,
-            ],
-            'timestamp' => [
-                'type'     => 'string',
-                'required' => true,
-            ],
-            'subpath' => [
-                'type'    => 'array',
-                'default' => [],
-                'items'   => ['type' => 'string'],
-            ],
-            'excerpt' => [
-                'type' => 'string',
-            ],
-            'force' => [
-                'type'    => 'boolean',
-                'default' => false,
             ],
         ];
     }

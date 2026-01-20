@@ -22,26 +22,22 @@ document.addEventListener( 'DOMContentLoaded', function() {
 			syncAllStatus.textContent = chubesDocsSync.strings.syncing;
 			syncAllStatus.className = '';
 
-			fetch( chubesDocsSync.restUrl + '/sync/all', {
+			fetch( chubesDocsSync.restUrl + '/abilities/chubes/sync-docs-batch/run', {
 				method: 'POST',
 				headers: headers,
+				body: JSON.stringify( {} ),
 				credentials: 'same-origin',
 			} )
 				.then( response => response.json() )
 				.then( data => {
 					syncAllButton.disabled = false;
 
-					if ( data.message ) {
-						syncAllStatus.textContent = data.message;
+					if ( data.errors && data.errors.length > 0 ) {
+						syncAllStatus.textContent = 'Synced ' + data.repos_synced + ' repos (' + data.errors.length + ' errors)';
+						syncAllStatus.className = 'sync-warning';
+					} else {
+						syncAllStatus.textContent = 'Synced ' + data.repos_synced + ' repos';
 						syncAllStatus.className = 'sync-success';
-
-						if ( data.errors && data.errors.length > 0 ) {
-							syncAllStatus.textContent += ' (' + data.errors.length + ' errors)';
-							syncAllStatus.className = 'sync-warning';
-						}
-					} else if ( data.code ) {
-						syncAllStatus.textContent = chubesDocsSync.strings.error + ' ' + data.message;
-						syncAllStatus.className = 'sync-error';
 					}
 				} )
 				.catch( error => {
@@ -113,9 +109,10 @@ document.addEventListener( 'DOMContentLoaded', function() {
 			if ( termTestButton ) termTestButton.disabled = true;
 			termResults.innerHTML = '<span class="spinner is-active" style="float:none; margin:0 5px 0 0;"></span>' + chubesDocsSync.strings.syncing;
 
-			fetch( chubesDocsSync.restUrl + '/sync/term/' + termId + '?force=true', {
+			fetch( chubesDocsSync.restUrl + '/abilities/chubes/sync-docs/run', {
 				method: 'POST',
 				headers: headers,
+				body: JSON.stringify( { term_id: parseInt( termId ) } ),
 				credentials: 'same-origin',
 			} )
 				.then( response => response.json() )
@@ -123,15 +120,15 @@ document.addEventListener( 'DOMContentLoaded', function() {
 					termSyncButton.disabled = false;
 					if ( termTestButton ) termTestButton.disabled = false;
 
-					if ( data.message ) {
+					if ( data.success ) {
 						let html = '<div style="background:#f0faf0; border-left:4px solid #00a32a; padding:10px; margin-top:10px;">';
 						html += '<p style="color:#00a32a; margin:0 0 8px;"><strong>' + chubesDocsSync.strings.success + '</strong></p>';
-						html += '<p style="margin:0;">' + data.message + '</p>';
+						html += '<p style="margin:0;">Added: ' + data.added.length + ', Updated: ' + data.updated.length + ', Removed: ' + data.removed.length + (data.renamed.length > 0 ? ', Renamed: ' + data.renamed.length : '') + '</p>';
 						html += '</div>';
 						termResults.innerHTML = html;
-					} else if ( data.code ) {
+					} else if ( data.error ) {
 						let html = '<div style="background:#fcf0f1; border-left:4px solid #d63638; padding:10px; margin-top:10px;">';
-						html += '<p style="color:#d63638; margin:0;"><strong>' + chubesDocsSync.strings.error + '</strong> ' + data.message + '</p>';
+						html += '<p style="color:#d63638; margin:0;"><strong>' + chubesDocsSync.strings.error + '</strong> ' + data.error + '</p>';
 						html += '</div>';
 						termResults.innerHTML = html;
 					}

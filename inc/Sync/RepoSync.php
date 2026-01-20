@@ -21,17 +21,17 @@ class RepoSync {
 	/**
 	 * Sync documentation for a codebase term.
 	 *
-	 * @param int  $term_id The codebase term ID (project level, depth 1).
-	 * @param bool $force   Force sync even if no changes detected.
+	 * @param int $term_id The codebase term ID (project level, depth 1).
 	 * @return array Sync results with counts and details.
 	 */
-	public function sync( int $term_id, bool $force = false ): array {
+	public function sync( int $term_id ): array {
 		$result = [
 			'success'       => false,
 			'term_id'       => $term_id,
 			'added'         => [],
 			'updated'       => [],
 			'removed'       => [],
+			'renamed'       => [],
 			'unchanged'     => [],
 			'terms_created' => [],
 			'error'         => null,
@@ -75,13 +75,13 @@ class RepoSync {
 		$old_sha = get_term_meta( $term_id, 'codebase_last_sync_sha', true );
 		$result['old_sha'] = $old_sha ?: null;
 
-		if ( ! $force && $old_sha === $new_sha ) {
+		if ( $old_sha === $new_sha ) {
 			$result['success'] = true;
 			$result['error'] = 'No changes detected';
 			return $result;
 		}
 
-		if ( empty( $old_sha ) || $force ) {
+		if ( empty( $old_sha ) ) {
 			$sync_result = $this->full_sync( $term_id, $owner, $repo, $new_sha );
 		} else {
 			$sync_result = $this->incremental_sync( $term_id, $owner, $repo, $old_sha, $new_sha );
@@ -184,6 +184,7 @@ class RepoSync {
 			'added'         => [],
 			'updated'       => [],
 			'removed'       => [],
+			'renamed'       => [],
 			'unchanged'     => [],
 			'terms_created' => [],
 			'error'         => null,
@@ -221,6 +222,20 @@ class RepoSync {
 		foreach ( $changes['removed'] as $relative_path ) {
 			if ( $this->delete_by_source_file( $term_id, $relative_path ) ) {
 				$result['removed'][] = $relative_path;
+			}
+		}
+
+		foreach ( $changes['renamed'] ?? [] as $rename ) {
+			$post_id = SyncManager::find_post_by_source( $rename['previous'], $term_id );
+			if ( $post_id ) {
+				update_post_meta( $post_id, '_sync_source_file', $rename['new'] );
+				$process_result = $this->process_file( $term_id, $owner, $repo, $rename['new'], $new_sha );
+				if ( $process_result['success'] ) {
+					$result['renamed'][] = $rename['new'];
+				} else {
+					$result['error'] = $process_result['error'];
+					$result['success'] = false;
+				}
 			}
 		}
 

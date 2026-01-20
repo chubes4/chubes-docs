@@ -121,7 +121,7 @@ class GitHubClient {
 	 * @param string $base Base commit SHA.
 	 * @param string $head Head commit SHA.
 	 * @param string $path Filter to files in this path (default: 'docs').
-	 * @return array ['added' => [...], 'modified' => [...], 'removed' => [...]]
+	 * @return array ['added' => [...], 'modified' => [...], 'removed' => [...], 'renamed' => [...]]
 	 */
 	public function compare_commits( string $owner, string $repo, string $base, string $head, string $path = 'docs' ): array {
 		$endpoint = "/repos/{$owner}/{$repo}/compare/{$base}...{$head}";
@@ -131,6 +131,7 @@ class GitHubClient {
 			'added'    => [],
 			'modified' => [],
 			'removed'  => [],
+			'renamed'   => [],
 		];
 
 		if ( is_wp_error( $response ) || ! isset( $response['files'] ) ) {
@@ -161,8 +162,10 @@ class GitHubClient {
 					$result['removed'][] = $relative_path;
 					break;
 				case 'renamed':
-					$result['removed'][] = substr( $file['previous_filename'], strlen( $path_prefix ) );
-					$result['added'][] = $relative_path;
+					$result['renamed'][] = [
+						'previous' => substr( $file['previous_filename'], strlen( $path_prefix ) ),
+						'new'      => $relative_path,
+					];
 					break;
 			}
 		}

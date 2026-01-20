@@ -103,11 +103,10 @@ class CronSync {
 	/**
 	 * Sync a single term by ID.
 	 *
-	 * @param int  $term_id Term ID.
-	 * @param bool $force   Force full sync.
+	 * @param int $term_id Term ID.
 	 * @return array Sync result.
 	 */
-	public static function sync_term( int $term_id, bool $force = false ): array {
+	public static function sync_term( int $term_id ): array {
 		$pat = get_option( self::OPTION_PAT );
 		if ( empty( $pat ) ) {
 			return [
@@ -120,7 +119,7 @@ class CronSync {
 		$repo_sync = new RepoSync( $github );
 		$notifier = new SyncNotifier();
 
-		$result = $repo_sync->sync( $term_id, $force );
+		$result = $repo_sync->sync( $term_id );
 
 		if ( $result['success'] ) {
 			$notifier->send( $term_id, $result );
