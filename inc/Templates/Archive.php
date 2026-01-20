@@ -193,7 +193,9 @@ class Archive {
 		<section class="term-section depth-<?php echo esc_attr( $depth ); ?>">
 			<div class="term-section-header">
 				<<?php echo $header_tag; ?>><?php echo esc_html( $term->name ); ?></<?php echo $header_tag; ?>>
-				<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="btn secondary">View all →</a>
+				<?php if ( $direct_posts->have_posts() ) : ?>
+					<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="btn secondary">View all →</a>
+				<?php endif; ?>
 			</div>
 
 			<?php if ( $term->description ) : ?>
