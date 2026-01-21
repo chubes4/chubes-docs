@@ -18,7 +18,7 @@ define( 'CHUBES_DOCS_URL', plugin_dir_url( __FILE__ ) );
 require_once CHUBES_DOCS_PATH . 'vendor/autoload.php';
 
 use ChubesDocs\Api\Routes;
-use ChubesDocs\Api\Abilities;
+use ChubesDocs\Abilities\Abilities;
 use ChubesDocs\Core\Assets;
 use ChubesDocs\Core\Documentation;
 use ChubesDocs\Core\Codebase;

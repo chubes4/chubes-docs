@@ -200,7 +200,7 @@ class Archive {
 
 		<section class="term-section depth-<?php echo esc_attr( $depth ); ?>">
 			<div class="term-section-header">
-				<<?php echo $header_tag; ?>><?php echo esc_html( $term->name ); ?></<?php echo $header_tag; ?>>
+				<<?php echo $header_tag; ?>><a href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a></<?php echo $header_tag; ?>>
 			</div>
 
 			<?php if ( $term->description ) : ?>
@@ -464,7 +464,7 @@ class Archive {
 					<?php foreach ( $projects_with_docs as $project ) : ?>
 						<div class="documentation-card">
 							<div class="card-header">
-								<h3><?php echo esc_html( $project['term']->name ); ?></h3>
+								<h3><a href="<?php echo esc_url( get_term_link( $project['term'] ) ); ?>"><?php echo esc_html( $project['term']->name ); ?></a></h3>
 								<?php if ( $project['term']->description ) : ?>
 									<p class="card-description"><?php echo esc_html( wp_trim_words( $project['term']->description, 20 ) ); ?></p>
 								<?php endif; ?>
@@ -475,12 +475,6 @@ class Archive {
 								<?php if ( $project['repo_info']['installs'] > 0 ) : ?>
 									<span class="stat-item"><?php echo number_format( $project['repo_info']['installs'] ); ?> downloads</span>
 								<?php endif; ?>
-							</div>
-
-							<div class="card-actions">
-								<a href="<?php echo esc_url( get_term_link( $project['term'] ) ); ?>" class="btn primary">
-									View Documentation →
-								</a>
 
 								<div class="external-links">
 									<?php if ( $project['repo_info']['wp_url'] ) : ?>
@@ -495,6 +489,12 @@ class Archive {
 										</a>
 									<?php endif; ?>
 								</div>
+							</div>
+
+							<div class="card-actions">
+								<a href="<?php echo esc_url( get_term_link( $project['term'] ) ); ?>" class="btn primary">
+									View Documentation →
+								</a>
 							</div>
 						</div>
 					<?php endforeach; ?>
