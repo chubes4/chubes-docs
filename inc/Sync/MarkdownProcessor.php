@@ -1,12 +1,12 @@
 <?php
 /**
  * Converts markdown content to HTML with internal link resolution.
- * Uses Parsedown for markdown parsing and resolves .md links to WordPress URLs.
+ * Uses league/commonmark for markdown parsing and resolves .md links to WordPress URLs.
  */
 
 namespace ChubesDocs\Sync;
 
-use Parsedown;
+use League\CommonMark\GithubFlavoredMarkdownConverter;
 
 class MarkdownProcessor {
 
@@ -26,10 +26,12 @@ class MarkdownProcessor {
 	public function process( string $markdown ): string {
 		$markdown = $this->resolveInternalLinks( $markdown );
 
-		$parsedown = new Parsedown();
-		$parsedown->setSafeMode( false );
+		$converter = new GithubFlavoredMarkdownConverter( [
+			'html_input'         => 'allow',
+			'allow_unsafe_links' => false,
+		] );
 
-		return $parsedown->text( $markdown );
+		return $converter->convert( $markdown )->getContent();
 	}
 
 	/**
