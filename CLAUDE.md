@@ -20,7 +20,8 @@ chubes-docs/
 │   │   │   ├── CodebaseController.php
 │   │   │   ├── DocsController.php
 │   │   │   └── SyncController.php
-│   │   └── Routes.php      # Route registration
+│   │   ├── Routes.php      # Route registration
+│   │   └── Abilities.php   # WP Abilities API integration
 │   ├── Core/               # Plugin core systems
 │   │   ├── Assets.php      # Asset management
 │   │   ├── Breadcrumbs.php # Breadcrumb generation
@@ -31,15 +32,32 @@ chubes-docs/
 │   │   ├── InstallTracker.php # WordPress.org install stats
 │   │   └── RepositoryFields.php # Repository metadata
 │   ├── Sync/               # Data synchronization
+│   │   ├── CronSync.php    # Automated scheduling
+│   │   ├── GitHubClient.php # GitHub API client
 │   │   ├── MarkdownProcessor.php # Markdown to HTML conversion
-│   │   └── SyncManager.php # External data sync
-│   └── Templates/          # Frontend enhancements
-│       └── RelatedPosts.php # Related documentation logic
+│   │   ├── RepoSync.php    # Repository synchronization
+│   │   ├── SyncManager.php # External data sync
+│   │   └── SyncNotifier.php # Email notifications
+│   ├── Templates/          # Frontend enhancements
+│   │   ├── Archive.php     # Archive page enhancements
+│   │   ├── CodebaseCard.php # Project card component
+│   │   ├── Homepage.php    # Homepage integration
+│   │   └── RelatedPosts.php # Related documentation logic
+│   ├── Admin/              # Admin interface
+│   │   ├── CodebaseColumns.php # Codebase taxonomy admin columns
+│   │   ├── DocumentationColumns.php # Documentation post type admin columns
+│   │   └── SettingsPage.php # Plugin settings page
+│   └── WPCLI/              # WP-CLI commands
+│       ├── CLI.php         # Command registration
+│       └── Commands/       # Command implementations
+│           ├── CodebaseEnsureCommand.php
+│           └── DocsSyncCommand.php
 └── assets/                 # Frontend assets
     ├── css/
     │   ├── archives.css
     │   └── related-posts.css
-    └── (other frontend assets)
+    └── js/
+        └── admin-sync.js   # Admin sync interface
 ```
 
 ## Key Systems
@@ -54,16 +72,33 @@ chubes-docs/
 - **Post Type Integration**: Extends theme's `documentation` post type with hierarchical URL routing
 - **Markdown Processing**: Converts markdown to HTML with internal link resolution and taxonomy-aware URL generation
 - **Sync Capabilities**: External documentation source synchronization with automatic taxonomy term creation
+- **Admin Columns**: Enhanced documentation list screen with relevant metadata display
 
 ### Codebase Integration
 - **Taxonomy Management**: Extends theme's `codebase` taxonomy with hierarchical path resolution and automatic term creation
 - **Repository Metadata**: GitHub and WordPress.org repository information with auto-fetching capabilities
 - **Install Tracking**: Automatic WordPress.org install count fetching with daily updates
+- **Admin Columns**: Enhanced taxonomy list screen with GitHub URLs, install counts, and sync status
 
 ### Admin Interface
 - **Repository Fields**: Meta boxes for repository URLs, versions, and metadata with validation
 - **Install Statistics**: Display of active install counts and trends with historical data
 - **Sync Management**: Interface for external data synchronization with status monitoring
+- **Settings Page**: GitHub PAT configuration, connection diagnostics, and sync management
+
+### GitHub Integration
+- **GitHub Client**: Full GitHub API integration for repository operations
+- **Repo Sync**: Automated documentation sync from GitHub repositories
+- **Connection Testing**: Diagnostic tools for token and repository validation
+- **Cron Sync**: Scheduled automated synchronization with configurable intervals
+
+### WP-CLI Commands
+- **Codebase Ensure**: Ensure codebase taxonomy terms exist and are properly configured
+- **Docs Sync**: Manually trigger documentation synchronization from command line
+
+### WP Abilities API
+- **Sync Documentation**: Individual repository sync ability
+- **Sync All Documentation**: Batch sync multiple repositories ability
 
 ## Development Commands
 
@@ -130,6 +165,10 @@ All endpoints use the `chubes/v1` namespace:
 - `GET /sync/status` - Get sync status (with project filter)
 - `POST /sync/doc` - Sync documentation from external sources (source_file, title, content, project_term_id, filesize, timestamp, subpath, excerpt, force)
 - `POST /sync/batch` - Batch sync multiple documents
+- `POST /sync/all` - Manually sync GitHub docs for all codebases with GitHub URLs
+- `POST /sync/term/{id}` - Manually sync GitHub docs for a single codebase term
+- `GET /sync/test-token` - GitHub token diagnostics
+- `POST /sync/test-repo` - GitHub repo diagnostics (repo_url)
 
 ## Dependencies
 

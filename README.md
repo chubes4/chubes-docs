@@ -29,10 +29,16 @@ curl -X POST /wp-json/chubes/v1/sync/doc \
 
 - **REST API Endpoints**: Full CRUD operations for documentation posts and codebase taxonomy management
 - **Enhanced Sync System**: Project-based sync with `project_term_id` and `subpath` parameters (v0.2.0+)
-- **Codebase Integration**: GitHub and WordPress.org repository metadata tracking
-- **Install Tracking**: Automatic fetching of active install counts from WordPress.org API
+- **GitHub Integration**: Full GitHub API integration for automated documentation sync from repositories
+- **Codebase Integration**: GitHub and WordPress.org repository metadata tracking with admin columns
+- **Install Tracking**: Automatic fetching of active install counts from WordPress.org API with daily updates
 - **Markdown Processing**: Convert markdown content to HTML with internal link resolution
 - **Related Posts**: Hierarchical codebase-aware related documentation display
+- **Cron Sync**: Scheduled automated synchronization with configurable intervals (hourly/twice daily/daily)
+- **Admin Interface**: GitHub PAT configuration, connection diagnostics, and sync management UI
+- **WP-CLI Commands**: Command-line tools for codebase management and documentation sync
+- **WP Abilities API**: AI agent capabilities for documentation synchronization
+- **Sync Notifications**: Email alerts for sync completion and failures
 
 ## Requirements
 
@@ -74,6 +80,14 @@ The plugin provides REST API endpoints under the `chubes/v1` namespace:
 - `POST /wp-json/chubes/v1/sync/term/{id}` - Manually sync GitHub docs for a single codebase term
 - `GET /wp-json/chubes/v1/sync/test-token` - GitHub token diagnostics
 - `POST /wp-json/chubes/v1/sync/test-repo` - GitHub repo diagnostics (`repo_url`)
+
+### WP-CLI Commands
+- `wp chubes codebase ensure` - Ensure codebase taxonomy terms exist and are properly configured
+- `wp chubes docs sync` - Manually trigger documentation synchronization
+
+### WP Abilities API
+- `chubes/sync-docs` - Sync a single codebase term from GitHub
+- `chubes/sync-docs-batch` - Sync multiple codebase terms from GitHub
 ## Development
 
 ### Building
@@ -86,11 +100,15 @@ This creates a production-ready ZIP file in the `build/` directory.
 
 ### Code Structure
 
-- `inc/Api/` - REST API controllers and routes
+- `inc/Api/` - REST API controllers, routes, and WP Abilities API integration
 - `inc/Core/` - Core plugin functionality (assets, breadcrumbs, codebase, documentation, rewrite rules)
 - `inc/Fields/` - Admin interface fields and install tracking
-- `inc/Sync/` - Markdown processing and sync management
-- `inc/Templates/` - Frontend template enhancements
+- `inc/Sync/` - Markdown processing, GitHub client, cron sync, repo sync, and notifications
+- `inc/Templates/` - Frontend template enhancements (archive, codebase cards, homepage, related posts)
+- `inc/Admin/` - Admin interface components (settings page, admin columns)
+- `inc/WPCLI/` - WP-CLI commands for codebase management and documentation sync
+- `assets/css/` - Frontend stylesheets (archives, related posts)
+- `assets/js/` - Admin JavaScript (sync interface)
 
 ## License
 

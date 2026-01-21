@@ -1,7 +1,7 @@
 {
     "name": "chubes/chubes-docs",
     "description": "Documentation post type, codebase taxonomy, and REST API sync system for chubes.net",
-    "version": "0.2.8",
+    "version": "0.3.3",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "authors": [

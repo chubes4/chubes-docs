@@ -187,6 +187,14 @@ class Archive {
 	private static function render_term_hierarchy_section( $term, $depth ) {
 		$direct_posts = self::get_direct_posts_for_term( $term );
 		$child_terms = self::get_sorted_child_terms( $term );
+
+		$has_direct_posts = $direct_posts->have_posts();
+		$has_children_with_content = self::term_has_descendant_content( $child_terms );
+
+		if ( ! $has_direct_posts && ! $has_children_with_content ) {
+			return;
+		}
+
 		$header_tag = self::get_header_tag( $depth );
 		?>
 
@@ -199,7 +207,7 @@ class Archive {
 				<p class="term-description"><?php echo esc_html( $term->description ); ?></p>
 			<?php endif; ?>
 
-			<?php if ( $direct_posts->have_posts() ) : ?>
+			<?php if ( $has_direct_posts ) : ?>
 				<?php self::render_documentation_cards( $direct_posts ); ?>
 				<div class="view-all-wrapper">
 					<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="btn secondary">View all →</a>
@@ -211,6 +219,26 @@ class Archive {
 			<?php endforeach; ?>
 		</section>
 		<?php
+	}
+
+	/**
+	 * Check if any child terms have content (posts or their own descendants with posts)
+	 *
+	 * @param array $child_terms Array of WP_Term objects
+	 * @return bool True if any descendant has posts
+	 */
+	private static function term_has_descendant_content( $child_terms ) {
+		foreach ( $child_terms as $child ) {
+			$posts = self::get_direct_posts_for_term( $child );
+			if ( $posts->have_posts() ) {
+				return true;
+			}
+			$grandchildren = self::get_sorted_child_terms( $child );
+			if ( self::term_has_descendant_content( $grandchildren ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
