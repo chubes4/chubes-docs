@@ -201,7 +201,9 @@ class Archive {
 
 			<?php if ( $direct_posts->have_posts() ) : ?>
 				<?php self::render_documentation_cards( $direct_posts ); ?>
-				<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="view-all-link btn secondary">View all →</a>
+				<div class="view-all-wrapper">
+					<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="btn secondary">View all →</a>
+				</div>
 			<?php endif; ?>
 
 			<?php foreach ( $child_terms as $child_term ) : ?>
