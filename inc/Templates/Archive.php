@@ -21,8 +21,8 @@ class Archive {
 
 	/**
 	 * Render header extras for codebase project pages
-	 * 
-	 * Adds download stats and action buttons for child codebase terms.
+	 *
+	 * Renders a project info card with description, stats, and action buttons.
 	 */
 	public static function render_header_extras() {
 		if ( ! is_tax( 'codebase' ) ) {
@@ -41,30 +41,50 @@ class Archive {
 		$singular_type = rtrim( $category_name, 's' );
 		$has_download = ! empty( $repo_info['wp_url'] );
 		$download_text = $has_download ? 'Download ' . $singular_type : 'View ' . $singular_type;
+		$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
+		$has_stats = ( ! empty( $repo_info['installs'] ) && $repo_info['installs'] > 0 ) || $doc_count > 0;
+		$has_actions = ! empty( $repo_info['wp_url'] ) || ! empty( $repo_info['github_url'] );
 		?>
 
-		<?php if ( ! empty( $repo_info['installs'] ) && $repo_info['installs'] > 0 ) : ?>
-			<div class="project-stats">
-				<div class="stat-item">
-					<span class="stat-number"><?php echo number_format( $repo_info['installs'] ); ?></span>
-					<span class="stat-label">Downloads</span>
-				</div>
-			</div>
-		<?php endif; ?>
-
-		<div class="project-actions">
-			<?php if ( ! empty( $repo_info['wp_url'] ) ) : ?>
-				<a href="<?php echo esc_url( $repo_info['wp_url'] ); ?>" class="btn primary" target="_blank">
-					<svg class="btn-icon"><use href="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/fonts/social-icons.svg#icon-wordpress"></use></svg>
-					<?php echo esc_html( $download_text ); ?>
-				</a>
+		<div class="project-info-card">
+			<?php if ( $term->description ) : ?>
+				<p class="project-description"><?php echo esc_html( $term->description ); ?></p>
 			<?php endif; ?>
 
-			<?php if ( ! empty( $repo_info['github_url'] ) ) : ?>
-				<a href="<?php echo esc_url( $repo_info['github_url'] ); ?>" class="btn secondary" target="_blank">
-					<svg class="btn-icon"><use href="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/fonts/social-icons.svg#icon-github"></use></svg>
-					View on GitHub
-				</a>
+			<?php if ( $has_stats ) : ?>
+				<div class="project-stats">
+					<?php if ( ! empty( $repo_info['installs'] ) && $repo_info['installs'] > 0 ) : ?>
+						<div class="stat-item">
+							<span class="stat-number"><?php echo number_format( $repo_info['installs'] ); ?></span>
+							<span class="stat-label">Downloads</span>
+						</div>
+					<?php endif; ?>
+
+					<?php if ( $doc_count > 0 ) : ?>
+						<div class="stat-item">
+							<span class="stat-number"><?php echo $doc_count; ?></span>
+							<span class="stat-label"><?php echo $doc_count === 1 ? 'Guide' : 'Guides'; ?></span>
+						</div>
+					<?php endif; ?>
+				</div>
+			<?php endif; ?>
+
+			<?php if ( $has_actions ) : ?>
+				<div class="project-actions">
+					<?php if ( ! empty( $repo_info['wp_url'] ) ) : ?>
+						<a href="<?php echo esc_url( $repo_info['wp_url'] ); ?>" class="btn primary" target="_blank">
+							<svg class="btn-icon"><use href="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/fonts/social-icons.svg#icon-wordpress"></use></svg>
+							<?php echo esc_html( $download_text ); ?>
+						</a>
+					<?php endif; ?>
+
+					<?php if ( ! empty( $repo_info['github_url'] ) ) : ?>
+						<a href="<?php echo esc_url( $repo_info['github_url'] ); ?>" class="btn secondary" target="_blank">
+							<svg class="btn-icon"><use href="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/fonts/social-icons.svg#icon-github"></use></svg>
+							View on GitHub
+						</a>
+					<?php endif; ?>
+				</div>
 			<?php endif; ?>
 		</div>
 		<?php
