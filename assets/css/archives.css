@@ -25,8 +25,8 @@
 .codebase-card,
 .docs-category-card,
 .documentation-card {
-    background: rgba(34, 34, 34, 0.95);
-    border: 1px solid rgba(68, 68, 68, 0.6);
+    background: var(--chubes-background-card);
+    border: 1px solid var(--chubes-border-default);
     border-radius: 12px;
     padding: 30px;
     transition: all 0.3s ease;
@@ -45,37 +45,22 @@
 .codebase-card:hover,
 .docs-category-card:hover,
 .documentation-card:hover {
-    background: rgba(0, 194, 255, 0.04);
-    border-color: rgba(0, 194, 255, 0.3);
+    background: var(--chubes-accent-subtle);
+    border-color: var(--chubes-accent-strong);
     transform: translateY(-3px);
 }
 
 .documentation-card:hover {
-    border-color: rgba(0, 194, 255, 0.15);
+    border-color: var(--chubes-accent-subtle);
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 8px 25px var(--chubes-shadow-medium);
 }
 
-/* Project Type Colors */
-.codebase-card[data-project-type="wordpress-plugin"] {
-    border-left: 4px solid #00e0ff;
-}
 
-.codebase-card[data-project-type="wordpress-theme"] {
-    border-left: 4px solid #ff6b6b;
-}
-
-.codebase-card[data-project-type="discord-bot"] {
-    border-left: 4px solid #4ecdc4;
-}
-
-.codebase-card[data-project-type="php-library"] {
-    border-left: 4px solid #45b7d1;
-}
 
 /* Card Headers */
 .card-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--chubes-border-light);
     padding-bottom: 20px;
 }
 
@@ -83,13 +68,13 @@
 .card-header h3 {
     margin: 0 0 10px;
     font-size: 1.4em;
-    color: #fff;
+    color: var(--chubes-text-primary);
 }
 
 .project-title a,
 .card-header h3 a {
     text-decoration: none;
-    color: #fff;
+    color: var(--chubes-text-primary);
 }
 
 .project-title a:hover,
@@ -118,8 +103,8 @@
     display: flex;
     align-items: center;
     gap: 5px;
-    background: rgba(0, 194, 255, 0.1);
-    border: 1px solid rgba(0, 194, 255, 0.2);
+    background: var(--chubes-accent-subtle);
+    border: 1px solid var(--chubes-accent-medium);
     border-radius: 20px;
     padding: 4px 12px;
     font-size: 0.85em;
@@ -136,7 +121,7 @@
 }
 
 .stat-label {
-    color: #bbb;
+    color: var(--chubes-text-secondary);
 }
 
 /* Content Buttons */
@@ -150,8 +135,8 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    background: rgba(0, 194, 255, 0.1);
-    border: 1px solid rgba(0, 194, 255, 0.2);
+    background: var(--chubes-accent-subtle);
+    border: 1px solid var(--chubes-accent-medium);
     border-radius: 6px;
     padding: 8px 14px;
     color: var(--chubes-accent-color-2);
@@ -161,9 +146,9 @@
 }
 
 .content-btn:hover {
-    background: rgba(0, 194, 255, 0.2);
-    border-color: rgba(0, 194, 255, 0.4);
-    color: #fff;
+    background: var(--chubes-accent-medium);
+    border-color: var(--chubes-accent-strong);
+    color: var(--chubes-text-primary);
     transform: translateY(-1px);
 }
 
@@ -172,7 +157,7 @@
 }
 
 .btn-count {
-    background: rgba(0, 194, 255, 0.2);
+    background: var(--chubes-accent-medium);
     border-radius: 10px;
     padding: 2px 6px;
     font-size: 0.8em;
@@ -187,7 +172,7 @@
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--chubes-border-light);
     padding-top: 20px;
 }
 
@@ -219,26 +204,26 @@
 .external-btn.primary,
 .btn.primary {
     background: var(--chubes-accent-color-2);
-    color: #000;
+    color: var(--chubes-text-contrast);
 }
 
 .external-btn.primary:hover,
 .btn.primary:hover {
-    background: #00c4e6;
+    background: var(--chubes-accent-active);
     transform: translateY(-1px);
 }
 
 .external-btn.secondary,
 .btn.secondary {
-    background: rgba(68, 68, 68, 0.8);
-    border: 1px solid rgba(136, 136, 136, 0.3);
-    color: #fff;
+    background: var(--chubes-background-interactive);
+    border: 1px solid var(--chubes-border-default);
+    color: var(--chubes-text-primary);
 }
 
 .external-btn.secondary:hover,
 .btn.secondary:hover {
-    background: rgba(136, 136, 136, 0.2);
-    border-color: rgba(136, 136, 136, 0.5);
+    background: var(--chubes-border-default);
+    border-color: var(--chubes-border-light);
     transform: translateY(-1px);
 }
 
@@ -254,17 +239,17 @@
     justify-content: center;
     width: 36px;
     height: 36px;
-    background: rgba(68, 68, 68, 0.4);
-    border: 1px solid rgba(68, 68, 68, 0.6);
+    background: var(--chubes-border-default);
+    border: 1px solid var(--chubes-border-default);
     border-radius: 6px;
-    color: #ddd;
+    color: var(--chubes-body-text-color);
     text-decoration: none;
     transition: all 0.3s ease;
 }
 
 .external-link:hover {
-    background: rgba(0, 194, 255, 0.1);
-    border-color: rgba(0, 194, 255, 0.3);
+    background: var(--chubes-accent-subtle);
+    border-color: var(--chubes-accent-strong);
     color: var(--chubes-accent-color-2);
 }
 
@@ -284,7 +269,7 @@
 .documentation-category-section,
 .docs-category-header {
     padding: 40px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--chubes-border-faint);
 }
 
 .documentation-category-section:last-child {
@@ -331,7 +316,7 @@
 .docs-archive-header {
     padding: 40px 0 10px;
     text-align: center;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--chubes-border-faint);
 }
 
 .docs-archive-header h1 {
@@ -350,17 +335,17 @@
 }
 
 .doc-item {
-    background: rgba(34, 34, 34, 0.95);
-    border: 1px solid rgba(68, 68, 68, 0.6);
+    background: var(--chubes-background-card);
+    border: 1px solid var(--chubes-border-default);
     border-radius: 10px;
     padding: 22px;
     transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .doc-item:hover {
-    border-color: rgba(0, 194, 255, 0.3);
+    border-color: var(--chubes-accent-strong);
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 8px 20px var(--chubes-shadow-light);
 }
 
 .doc-item h3 {
@@ -369,7 +354,7 @@
 }
 
 .doc-item h3 a {
-    color: #fff;
+    color: var(--chubes-text-primary);
     text-decoration: none;
 }
 
@@ -378,7 +363,7 @@
 }
 
 .doc-excerpt {
-    color: #bbb;
+    color: var(--chubes-text-secondary);
     margin: 8px 0 12px;
     line-height: 1.6;
     font-size: 0.95em;
@@ -390,7 +375,7 @@
 }
 
 .doc-meta small {
-    color: #777;
+    color: var(--chubes-muted-text-color);
 }
 
 /* Documentation Groups (Hierarchical Archive) */
@@ -402,12 +387,12 @@
     font-size: 1.5em;
     margin-bottom: 10px;
     padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
+    border-bottom: 1px solid var(--chubes-border-light);
+    color: var(--chubes-text-primary);
 }
 
 .group-title a {
-    color: #fff;
+    color: var(--chubes-text-primary);
     text-decoration: none;
 }
 
@@ -416,7 +401,7 @@
 }
 
 .group-description {
-    color: #bbb;
+    color: var(--chubes-text-secondary);
     margin-bottom: 20px;
     font-size: 1em;
     max-width: 800px;
@@ -434,7 +419,7 @@
 .term-section.depth-1 {
     margin-top: 2rem;
     padding-bottom: 2rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid var(--chubes-border-light);
 }
 
 .term-section.depth-1:last-child {
@@ -449,8 +434,8 @@
 
 .term-section.depth-2,
 .term-section.depth-3 {
-    background: rgba(34, 34, 34, 0.5);
-    border: 1px solid rgba(68, 68, 68, 0.4);
+    background: var(--chubes-background-muted);
+    border: 1px solid var(--chubes-border-default);
     border-radius: 8px;
     padding: 1.5rem;
     margin-top: 1.5rem;

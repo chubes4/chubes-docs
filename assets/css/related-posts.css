@@ -2,8 +2,8 @@
 .related-posts {
     margin: 50px 0 30px;
     padding: 30px;
-    background: rgba(34, 34, 34, 0.5);
-    border: 1px solid rgba(68, 68, 68, 0.4);
+    background: var(--chubes-background-muted);
+    border: 1px solid var(--chubes-border-default);
     border-radius: 8px;
 }
 
@@ -11,7 +11,7 @@
     margin: 0 0 20px;
     font-size: 1.4em;
     color: var(--chubes-accent-color-2);
-    border-bottom: 2px solid rgba(0, 194, 255, 0.2);
+    border-bottom: 2px solid var(--chubes-accent-medium);
     padding-bottom: 8px;
 }
 
@@ -21,7 +21,7 @@
     gap: 20px;
     margin-top: 30px;
     padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    border-top: 1px solid var(--chubes-border-faint);
 }
 
 .related-actions .button-1,
@@ -39,15 +39,15 @@
 
 .related-post-item {
     padding: 20px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(68, 68, 68, 0.3);
+    background: var(--chubes-background-muted);
+    border: 1px solid var(--chubes-border-default);
     border-radius: 6px;
     transition: all 0.3s ease;
 }
 
 .related-post-item:hover {
-    background: rgba(0, 194, 255, 0.04);
-    border-color: rgba(0, 194, 255, 0.15);
+    background: var(--chubes-accent-subtle);
+    border-color: var(--chubes-accent-subtle);
     transform: translateY(-2px);
 }
 
@@ -57,7 +57,7 @@
 }
 
 .related-post-item h4 a {
-    color: #fff;
+    color: var(--chubes-text-primary);
     text-decoration: none;
 }
 
@@ -67,7 +67,7 @@
 
 .related-excerpt {
     margin: 8px 0 12px;
-    color: #bbb;
+    color: var(--chubes-text-secondary);
     font-size: 0.9em;
     line-height: 1.5;
 }
@@ -75,7 +75,7 @@
 .no-related-posts {
     text-align: center;
     padding: 30px 0;
-    color: #999;
+    color: var(--chubes-muted-text-color);
 }
 
 @media (max-width: 768px) {
