@@ -26,10 +26,8 @@ class SyncManager {
 		}
 		$project_slug = $project_term->slug;
 
-		if ( MarkdownProcessor::isMarkdown( $content ) ) {
-			$processor = new MarkdownProcessor( $project_slug, $source_file, $project_term_id );
-			$content   = $processor->process( $content );
-		}
+		$processor = new MarkdownProcessor( $project_slug, $source_file, $project_term_id );
+		$content   = $processor->process( $content );
 
 		$leaf_term_id = self::resolve_subpath( $project_term_id, $subpath );
 		if ( is_wp_error( $leaf_term_id ) ) {
