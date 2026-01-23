@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+- Project info card component for codebase term archives
+
+### Changed
+- Migrated markdown library from erusev/parsedown to league/commonmark ^2.5 for improved formatting support
+- Archive styling: centered card stats and updated label from Guide/Guides to Doc/Docs
+
 ## [0.4.1] - 2026-01-20
 
 - Changed: replaced hardcoded colors with CSS design system variables
