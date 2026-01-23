@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+- Add documentation search bar for archive pages (WIP)
+
+### Fixed
+- Fix resolve_path to search by name instead of slug to prevent duplicate taxonomy terms
+
+- Add filter to suppress duplicate archive description on codebase project pages
+- Convert EM units to REM/CSS variables in archives and related-posts CSS
+
 ## [0.5.3] - 2026-01-23
 
 - Update documentation CPT description to mention GitHub sync
