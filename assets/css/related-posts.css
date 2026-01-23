@@ -39,6 +39,37 @@
     gap: var(--chubes-space-lg);
 }
 
+.related-post-item {
+    padding: var(--chubes-space-md);
+    border-radius: 6px;
+    transition: background 0.2s ease;
+}
+
+.related-post-item:hover {
+    background: var(--chubes-accent-subtle);
+}
+
+.related-post-item h4 {
+    margin: 0 0 8px;
+    font-size: var(--chubes-font-size-md);
+}
+
+.related-post-item h4 a {
+    color: var(--chubes-text-primary);
+    text-decoration: none;
+}
+
+.related-post-item h4 a:hover {
+    color: var(--chubes-accent-color-2);
+}
+
+.related-excerpt {
+    margin: 0;
+    color: var(--chubes-text-secondary);
+    font-size: var(--chubes-font-size-sm);
+    line-height: 1.5;
+}
+
 .no-related-posts {
     text-align: center;
     padding: 30px 0;

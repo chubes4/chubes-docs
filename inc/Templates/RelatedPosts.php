@@ -65,14 +65,14 @@ class RelatedPosts {
 			<?php if ( ! empty( $related_posts ) ) : ?>
 				<div class="related-posts-list">
 					<?php foreach ( $related_posts as $related_post ) : ?>
-						<a href="<?php echo esc_url( get_permalink( $related_post->ID ) ); ?>" class="doc-card doc-card--link doc-card--compact">
-							<h4><?php echo esc_html( $related_post->post_title ); ?></h4>
+						<article class="related-post-item">
+							<h4><a href="<?php echo esc_url( get_permalink( $related_post->ID ) ); ?>"><?php echo esc_html( $related_post->post_title ); ?></a></h4>
 							<?php if ( $related_post->post_excerpt ) : ?>
-								<p class="card-description">
+								<p class="related-excerpt">
 									<?php echo wp_trim_words( $related_post->post_excerpt, 15 ); ?>
 								</p>
 							<?php endif; ?>
-						</a>
+						</article>
 					<?php endforeach; ?>
 				</div>
 			<?php else : ?>
@@ -86,7 +86,7 @@ class RelatedPosts {
 					$project_url = home_url( '/docs/' . $top_level_term->slug . '/' . $project_term->slug . '/' );
 					?>
 					<a href="<?php echo esc_url( $project_url ); ?>" class="button-2">
-						<?php echo esc_html( $project_term->name ); ?> Home
+						All <?php echo esc_html( $project_term->name ); ?> Docs
 					</a>
 				<?php endif; ?>
 
