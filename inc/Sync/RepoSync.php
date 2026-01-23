@@ -75,6 +75,14 @@ class RepoSync {
 		$old_sha = get_term_meta( $term_id, 'codebase_last_sync_sha', true );
 		$result['old_sha'] = $old_sha ?: null;
 
+		// Sync repository description to term
+		$description = $this->github->get_repo_description( $owner, $repo );
+		if ( $description !== null ) {
+			wp_update_term( $term_id, Codebase::TAXONOMY, [
+				'description' => $description,
+			] );
+		}
+
 		if ( $old_sha === $new_sha ) {
 			$result['success'] = true;
 			$result['error'] = 'No changes detected';

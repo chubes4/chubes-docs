@@ -269,6 +269,26 @@ class GitHubClient {
 	}
 
 	/**
+	 * Get repository description from GitHub.
+	 *
+	 * @param string $owner Repository owner.
+	 * @param string $repo Repository name.
+	 * @return string|null Description or null on failure/empty.
+	 */
+	public function get_repo_description( string $owner, string $repo ): ?string {
+		$endpoint = "/repos/{$owner}/{$repo}";
+		$response = $this->request( $endpoint );
+
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		$description = $response['description'] ?? null;
+
+		return ! empty( $description ) ? $description : null;
+	}
+
+	/**
 	 * Make an authenticated request to the GitHub API.
 	 *
 	 * @param string $endpoint API endpoint (relative to API_BASE).
