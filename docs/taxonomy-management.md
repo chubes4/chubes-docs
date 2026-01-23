@@ -213,7 +213,7 @@ The `InstallTracker` class automatically:
 - **Projects**: One term per repository
 - **Subpaths**: Logical content organization
   - `api/` - API reference
-  - `guides/` - User guides
+  - `docs/` - Documentation
   - `examples/` - Code examples
   - `changelog/` - Version history
 

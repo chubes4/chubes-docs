@@ -21,6 +21,10 @@ The plugin doesn’t provide WordPress template files to override. Instead it ho
     - Documentation archive grouping under `/docs`
   - Adds header UI via `chubes_archive_header_after`
   - Adjusts titles via `get_the_archive_title`
+  - Renders project info cards in codebase term archives via `render_header_extras()`
+    - Displays project statistics (doc count, install count, stars)
+    - Shows action buttons (GitHub, WordPress.org, documentation)
+    - Centers card statistics for improved layout
 
 - `inc/Templates/Homepage.php`
   - Adds a “Documentation” column via the theme action `chubes_homepage_columns`
