@@ -94,6 +94,33 @@ class Assets {
 			[],
 			filemtime( CHUBES_DOCS_PATH . 'assets/css/archives.css' )
 		);
+
+		if ( is_post_type_archive( 'documentation' ) ) {
+			self::enqueue_search_assets();
+		}
+	}
+
+	/**
+	 * Enqueue search bar assets for documentation archive.
+	 */
+	private static function enqueue_search_assets() {
+		wp_enqueue_script(
+			'chubes-docs-search',
+			CHUBES_DOCS_URL . 'assets/js/docs-search.js',
+			[],
+			filemtime( CHUBES_DOCS_PATH . 'assets/js/docs-search.js' ),
+			true
+		);
+
+		wp_localize_script( 'chubes-docs-search', 'chubesDocsSearch', [
+			'restUrl' => rest_url( 'wp/v2/documentation' ),
+			'strings' => [
+				'loading'   => __( 'Searching...', 'chubes-docs' ),
+				'error'     => __( 'Search failed. Please try again.', 'chubes-docs' ),
+				'noResults' => __( 'No results for "%s"', 'chubes-docs' ),
+				'viewAll'   => __( 'View all %d results', 'chubes-docs' ),
+			],
+		] );
 	}
 
 	/**

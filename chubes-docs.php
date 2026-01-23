@@ -30,6 +30,7 @@ use ChubesDocs\Templates\RelatedPosts;
 use ChubesDocs\Templates\Archive;
 use ChubesDocs\Templates\CodebaseCard;
 use ChubesDocs\Templates\Homepage;
+use ChubesDocs\Templates\SearchBar;
 use ChubesDocs\Sync\CronSync;
 use ChubesDocs\Admin\SettingsPage;
 use ChubesDocs\Admin\CodebaseColumns;
@@ -55,6 +56,7 @@ add_action( 'init', function() {
 	Breadcrumbs::init();
 	Archive::init();
 	Homepage::init();
+	SearchBar::init();
 } );
 
 add_action( 'rest_api_init', function() {

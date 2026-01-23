@@ -17,6 +17,7 @@ class Archive {
 		add_action( 'chubes_archive_header_after', [ self::class, 'render_header_extras' ] );
 		add_filter( 'chubes_archive_content', [ self::class, 'filter_content' ], 10, 2 );
 		add_filter( 'get_the_archive_title', [ self::class, 'filter_archive_title' ], 15 );
+		add_filter( 'chubes_show_archive_description', [ self::class, 'filter_show_description' ] );
 	}
 
 	/**
@@ -537,5 +538,25 @@ class Archive {
 		}
 
 		return $title;
+	}
+
+	/**
+	 * Filter whether to show archive description in theme header
+	 *
+	 * Suppresses the default archive description for non-root codebase terms
+	 * since we display it in the project-info-card instead.
+	 */
+	public static function filter_show_description( $show ) {
+		if ( ! is_tax( 'codebase' ) ) {
+			return $show;
+		}
+
+		$term = get_queried_object();
+
+		if ( $term->parent !== 0 ) {
+			return false;
+		}
+
+		return $show;
 	}
 }

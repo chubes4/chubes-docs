@@ -18,6 +18,7 @@ class Documentation {
 
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register' ] );
+		add_action( 'rest_api_init', [ __CLASS__, 'register_rest_fields' ] );
 	}
 
 	public static function register() {
@@ -79,5 +80,38 @@ class Documentation {
 		register_post_type( self::POST_TYPE, $args );
 
 		do_action( 'chubes_documentation_registered' );
+	}
+
+	public static function register_rest_fields() {
+		register_rest_field( self::POST_TYPE, 'codebase_info', [
+			'get_callback' => function( $post ) {
+				$terms = get_the_terms( $post['id'], Codebase::TAXONOMY );
+
+				if ( ! $terms || is_wp_error( $terms ) ) {
+					return null;
+				}
+
+				$project_term = Codebase::get_project_term( $terms );
+
+				if ( ! $project_term ) {
+					return null;
+				}
+
+				return [
+					'id'   => $project_term->term_id,
+					'name' => $project_term->name,
+					'slug' => $project_term->slug,
+				];
+			},
+			'schema'       => [
+				'type'        => 'object',
+				'description' => 'Codebase project information',
+				'properties'  => [
+					'id'   => [ 'type' => 'integer' ],
+					'name' => [ 'type' => 'string' ],
+					'slug' => [ 'type' => 'string' ],
+				],
+			],
+		] );
 	}
 }

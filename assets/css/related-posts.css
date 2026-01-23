@@ -9,7 +9,7 @@
 
 .related-posts h3 {
     margin: 0 0 20px;
-    font-size: 1.4em;
+    font-size: var(--chubes-font-size-xl);
     color: var(--chubes-accent-color-2);
     border-bottom: 2px solid var(--chubes-accent-medium);
     padding-bottom: 8px;
@@ -53,7 +53,7 @@
 
 .related-post-item h4 {
     margin: 0 0 8px;
-    font-size: 1.1em;
+    font-size: var(--chubes-font-size-md);
 }
 
 .related-post-item h4 a {
@@ -68,7 +68,7 @@
 .related-excerpt {
     margin: 8px 0 12px;
     color: var(--chubes-text-secondary);
-    font-size: 0.9em;
+    font-size: var(--chubes-font-size-sm);
     line-height: 1.5;
 }
 

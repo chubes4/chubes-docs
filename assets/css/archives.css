@@ -68,7 +68,7 @@
 .project-title,
 .card-header h3 {
     margin: 0 0 10px;
-    font-size: 1.4em;
+    font-size: var(--chubes-font-size-xl);
     color: var(--chubes-text-primary);
 }
 
@@ -88,7 +88,7 @@
     color: var(--chubes-body-text-color);
     line-height: 1.6;
     margin: 0 0 15px;
-    font-size: 0.95em;
+    font-size: var(--chubes-font-size-sm);
 }
 
 /* Stats */
@@ -108,7 +108,7 @@
     border: 1px solid var(--chubes-accent-medium);
     border-radius: 20px;
     padding: 4px 12px;
-    font-size: 0.85em;
+    font-size: var(--chubes-font-size-sm);
     color: var(--chubes-link-color);
 }
 
@@ -142,7 +142,7 @@
     padding: 8px 14px;
     color: var(--chubes-accent-color-2);
     text-decoration: none;
-    font-size: 0.9em;
+    font-size: var(--chubes-font-size-sm);
     transition: all 0.2s ease;
 }
 
@@ -161,7 +161,7 @@
     background: var(--chubes-accent-medium);
     border-radius: 10px;
     padding: 2px 6px;
-    font-size: 0.8em;
+    font-size: var(--chubes-font-size-sm);
     min-width: 18px;
     text-align: center;
 }
@@ -190,7 +190,7 @@
     padding: 10px 18px;
     border-radius: 6px;
     text-decoration: none;
-    font-size: 0.9em;
+    font-size: var(--chubes-font-size-sm);
     font-weight: 500;
     transition: all 0.2s ease;
 }
@@ -284,14 +284,14 @@
 
 .category-header h2 {
     margin: 0 0 15px;
-    font-size: 1.8em;
+    font-size: var(--chubes-font-size-2xl);
     color: var(--chubes-accent-color-2);
 }
 
 .category-header p {
     max-width: 600px;
     margin: 0 auto;
-    font-size: 1.1em;
+    font-size: var(--chubes-font-size-md);
 }
 
 .docs-category-header h1 {
@@ -301,7 +301,7 @@
 .docs-category-header p {
     max-width: 600px;
     margin: 0 auto;
-    font-size: 1.1em;
+    font-size: var(--chubes-font-size-md);
 }
 
 /* No Content States */
@@ -351,7 +351,7 @@
 
 .doc-item h3 {
     margin: 0 0 10px;
-    font-size: 1.2em;
+    font-size: var(--chubes-font-size-lg);
 }
 
 .doc-item h3 a {
@@ -367,7 +367,7 @@
     color: var(--chubes-text-secondary);
     margin: 8px 0 12px;
     line-height: 1.6;
-    font-size: 0.95em;
+    font-size: var(--chubes-font-size-sm);
 }
 
 .doc-meta {
@@ -385,7 +385,7 @@
 }
 
 .group-title {
-    font-size: 1.5em;
+    font-size: var(--chubes-font-size-xl);
     margin-bottom: 10px;
     padding-bottom: 10px;
     border-bottom: 1px solid var(--chubes-border-light);
@@ -404,7 +404,7 @@
 .group-description {
     color: var(--chubes-text-secondary);
     margin-bottom: 20px;
-    font-size: 1em;
+    font-size: var(--chubes-font-size-base);
     max-width: 800px;
 }
 
@@ -551,11 +551,131 @@
     .card-stats {
         justify-content: center;
     }
-    
+
     .stat-item {
         flex-direction: column;
         gap: 2px;
         text-align: center;
         min-width: 70px;
+    }
+}
+
+/* Documentation Search Bar */
+.docs-search-wrapper {
+    max-width: 600px;
+    margin: 0 auto 30px;
+    position: relative;
+}
+
+/* Search Results Dropdown */
+.docs-search-results {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 8px;
+    background: var(--chubes-background-card);
+    border: 1px solid var(--chubes-border-default);
+    border-radius: 8px;
+    box-shadow: 0 8px 30px var(--chubes-shadow-medium);
+    z-index: 100;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.docs-search-results[hidden] {
+    display: none;
+}
+
+.docs-search-loading,
+.docs-search-error,
+.docs-search-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--chubes-text-secondary);
+}
+
+.docs-search-error {
+    color: var(--chubes-error-color, #dc3545);
+}
+
+.docs-search-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.docs-search-item {
+    border-bottom: 1px solid var(--chubes-border-faint);
+}
+
+.docs-search-item:last-child {
+    border-bottom: none;
+}
+
+.docs-search-link {
+    display: block;
+    padding: 14px 18px;
+    text-decoration: none;
+    transition: background 0.2s ease;
+}
+
+.docs-search-link:hover {
+    background: var(--chubes-accent-subtle);
+}
+
+.docs-search-title {
+    display: block;
+    font-weight: 600;
+    color: var(--chubes-text-primary);
+    margin-bottom: 4px;
+}
+
+.docs-search-codebase {
+    display: inline-block;
+    font-size: var(--chubes-font-size-xs);
+    background: var(--chubes-accent-subtle);
+    color: var(--chubes-accent-color-2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 6px;
+}
+
+.docs-search-excerpt {
+    display: block;
+    font-size: var(--chubes-font-size-sm);
+    color: var(--chubes-text-secondary);
+    line-height: 1.5;
+}
+
+.docs-search-view-all {
+    display: block;
+    padding: 14px 18px;
+    text-align: center;
+    background: var(--chubes-background-muted);
+    color: var(--chubes-accent-color-2);
+    text-decoration: none;
+    font-weight: 500;
+    border-top: 1px solid var(--chubes-border-default);
+    border-radius: 0 0 8px 8px;
+    transition: background 0.2s ease;
+}
+
+.docs-search-view-all:hover {
+    background: var(--chubes-accent-subtle);
+}
+
+/* Mobile Search Styles */
+@media (max-width: 768px) {
+    .docs-search-wrapper {
+        margin: 0 15px 25px;
+    }
+
+    .docs-search-results {
+        max-height: 300px;
+    }
+
+    .docs-search-link {
+        padding: 12px 14px;
     }
 }

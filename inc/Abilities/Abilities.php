@@ -18,6 +18,7 @@ class Abilities {
 		add_action( 'wp_abilities_api_categories_init', [ __CLASS__, 'register_categories' ] );
 		add_action( 'wp_abilities_api_init', [ SyncAbilities::class, 'register' ] );
 		add_action( 'wp_abilities_api_init', [ CodebaseAbilities::class, 'register' ] );
+		add_action( 'wp_abilities_api_init', [ SearchAbilities::class, 'register' ] );
 	}
 
 	public static function register_categories(): void {
