@@ -1,85 +1,85 @@
 /* Codebase & Documentation Archive Styles */
 
-/* Codebase Cards */
-.codebase-cards-section,
-.docs-category-cards-section {
-    padding: 40px 0;
-}
+/* ==========================================================================
+   Unified Card Grid System
+   ========================================================================== */
 
-.codebase-cards-grid,
-.docs-category-cards-grid,
-.documentation-cards {
+.cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-    gap: 30px;
-    margin-top: 20px;
+    gap: var(--chubes-space-xl);
     max-width: 1200px;
-    margin-left: auto;
-    margin-right: auto;
+    margin: var(--chubes-space-lg) auto;
 }
 
-.docs-category-cards-grid {
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+.cards-grid--narrow {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
 }
 
-.codebase-card,
-.docs-category-card,
-.documentation-card {
+/* ==========================================================================
+   Unified Card Component
+   ========================================================================== */
+
+.doc-card {
     background: var(--chubes-background-card);
     border: 1px solid var(--chubes-border-default);
-    border-radius: 12px;
-    padding: 30px;
-    transition: all 0.3s ease;
+    border-radius: 8px;
+    padding: var(--chubes-space-xl);
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--chubes-space-lg);
+    text-align: center;
+    transition: all 0.3s ease;
     position: relative;
-    text-decoration: none;
 }
 
-.docs-category-card,
-.documentation-card {
-    border-radius: 8px;
-    padding: 25px;
-}
-
-.codebase-card:hover,
-.docs-category-card:hover,
-.documentation-card:hover {
-    background: var(--chubes-accent-subtle);
+.doc-card:hover {
     border-color: var(--chubes-accent-strong);
-    transform: translateY(-3px);
-}
-
-.documentation-card:hover {
-    border-color: var(--chubes-accent-subtle);
     transform: translateY(-2px);
     box-shadow: 0 8px 25px var(--chubes-shadow-medium);
 }
 
+.doc-card--link {
+    text-decoration: none;
+    color: inherit;
+}
 
+.doc-card--compact {
+    padding: var(--chubes-space-lg);
+    gap: var(--chubes-space-md);
+}
 
-/* Card Headers */
+/* ==========================================================================
+   Card Headers
+   ========================================================================== */
+
 .card-header {
     border-bottom: 1px solid var(--chubes-border-light);
-    padding-bottom: 20px;
+    padding-bottom: var(--chubes-space-lg);
 }
 
 .project-title,
-.card-header h3 {
+.card-header h3,
+.card-header h4 {
     margin: 0 0 10px;
     font-size: var(--chubes-font-size-xl);
     color: var(--chubes-text-primary);
 }
 
+.card-header h4 {
+    font-size: var(--chubes-font-size-lg);
+}
+
 .project-title a,
-.card-header h3 a {
+.card-header h3 a,
+.card-header h4 a {
     text-decoration: none;
     color: var(--chubes-text-primary);
 }
 
 .project-title a:hover,
-.card-header h3 a:hover {
+.card-header h3 a:hover,
+.card-header h4 a:hover {
     color: var(--chubes-link-color);
 }
 
@@ -87,11 +87,15 @@
 .card-description {
     color: var(--chubes-body-text-color);
     line-height: 1.6;
-    margin: 0 0 15px;
+    margin: 0;
     font-size: var(--chubes-font-size-sm);
+    text-align: center;
 }
 
-/* Stats */
+/* ==========================================================================
+   Stats
+   ========================================================================== */
+
 .project-stats,
 .card-stats {
     display: flex;
@@ -106,14 +110,10 @@
     gap: 5px;
     background: var(--chubes-accent-subtle);
     border: 1px solid var(--chubes-accent-medium);
-    border-radius: 20px;
+    border-radius: 12px;
     padding: 4px 12px;
     font-size: var(--chubes-font-size-sm);
     color: var(--chubes-link-color);
-}
-
-.card-stats .stat-item {
-    border-radius: 12px;
 }
 
 .stat-number {
@@ -125,7 +125,10 @@
     color: var(--chubes-text-secondary);
 }
 
-/* Content Buttons */
+/* ==========================================================================
+   Content Buttons
+   ========================================================================== */
+
 .content-buttons {
     display: flex;
     flex-wrap: wrap;
@@ -166,15 +169,17 @@
     text-align: center;
 }
 
-/* External Buttons */
+/* ==========================================================================
+   External Buttons & Actions
+   ========================================================================== */
+
 .external-buttons,
-.external-links,
 .card-actions {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
     border-top: 1px solid var(--chubes-border-light);
-    padding-top: 20px;
+    padding-top: var(--chubes-space-lg);
 }
 
 .card-actions {
@@ -200,6 +205,7 @@
     text-align: center;
     padding: 12px 20px;
     white-space: nowrap;
+    justify-content: center;
 }
 
 .external-btn.primary,
@@ -229,9 +235,10 @@
 }
 
 .external-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
     flex-shrink: 0;
-    border: none;
-    padding: 0;
 }
 
 .external-link {
@@ -266,7 +273,15 @@
     height: 18px;
 }
 
-/* Category Headers */
+/* ==========================================================================
+   Section Headers
+   ========================================================================== */
+
+.codebase-cards-section,
+.docs-category-cards-section {
+    padding: 40px 0;
+}
+
 .documentation-category-section,
 .docs-category-header {
     padding: 40px 0;
@@ -304,7 +319,10 @@
     font-size: var(--chubes-font-size-md);
 }
 
-/* No Content States */
+/* ==========================================================================
+   No Content States
+   ========================================================================== */
+
 .no-content,
 .no-docs-category {
     text-align: center;
@@ -313,7 +331,10 @@
     margin: 0 auto;
 }
 
-/* Documentation Taxonomy Archive Grid */
+/* ==========================================================================
+   Documentation Taxonomy Archive
+   ========================================================================== */
+
 .docs-archive-header {
     padding: 40px 0 10px;
     text-align: center;
@@ -379,7 +400,10 @@
     color: var(--chubes-muted-text-color);
 }
 
-/* Documentation Groups (Hierarchical Archive) */
+/* ==========================================================================
+   Documentation Groups (Hierarchical Archive)
+   ========================================================================== */
+
 .documentation-group {
     margin-bottom: 40px;
 }
@@ -412,7 +436,10 @@
     margin-top: 50px;
 }
 
-/* Term Sections (Hierarchical Archive) */
+/* ==========================================================================
+   Term Sections (Hierarchical Archive)
+   ========================================================================== */
+
 .term-section {
     margin-bottom: 2rem;
 }
@@ -447,7 +474,10 @@
     margin-top: 1.5rem;
 }
 
-/* Project Info Card */
+/* ==========================================================================
+   Project Info Card
+   ========================================================================== */
+
 .project-info-card {
     display: flex;
     flex-direction: column;
@@ -479,52 +509,59 @@
     justify-content: center;
 }
 
-/* Mobile Responsive */
+/* ==========================================================================
+   Mobile Responsive
+   ========================================================================== */
+
 @media (max-width: 768px) {
-    .codebase-cards-grid,
-    .docs-category-cards-grid,
-    .documentation-cards {
+    .cards-grid {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: var(--chubes-space-lg);
     }
-    
-    .codebase-card,
-    .docs-category-card,
-    .documentation-card {
-        padding: 25px;
-        gap: 15px;
+
+    .cards-grid--narrow {
+        grid-template-columns: 1fr;
     }
-    
+
+    .doc-card {
+        padding: var(--chubes-space-lg);
+        gap: var(--chubes-space-md);
+    }
+
+    .doc-card--compact {
+        padding: var(--chubes-space-md);
+    }
+
     .content-buttons {
         flex-direction: column;
     }
-    
+
     .content-btn {
         justify-content: space-between;
     }
-    
+
     .external-buttons {
         flex-direction: column;
     }
-    
+
     .external-btn {
         text-align: center;
         justify-content: center;
     }
-    
+
     .card-actions {
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .external-links {
         justify-content: center;
     }
-    
+
     .card-stats {
         justify-content: center;
     }
-    
+
     .documentation-list {
         grid-template-columns: 1fr;
         gap: 18px;
@@ -560,14 +597,16 @@
     }
 }
 
-/* Documentation Search Bar */
+/* ==========================================================================
+   Documentation Search Bar
+   ========================================================================== */
+
 .docs-search-wrapper {
     max-width: 600px;
     margin: 0 auto 30px;
     position: relative;
 }
 
-/* Search Results Dropdown */
 .docs-search-results {
     position: absolute;
     top: 100%;
@@ -665,7 +704,6 @@
     background: var(--chubes-accent-subtle);
 }
 
-/* Mobile Search Styles */
 @media (max-width: 768px) {
     .docs-search-wrapper {
         margin: 0 15px 25px;

@@ -156,7 +156,7 @@ class Archive {
 		endif;
 		?>
 
-		<div class="codebase-cards-grid">
+		<div class="cards-grid">
 			<?php
 			foreach ( $project_terms as $project ) :
 				$repo_info = Codebase::get_repository_info( $project );
@@ -285,9 +285,9 @@ class Archive {
 	 */
 	private static function render_documentation_cards( $query ) {
 		?>
-		<div class="documentation-cards">
+		<div class="cards-grid">
 			<?php while ( $query->have_posts() ) : $query->the_post(); ?>
-				<a href="<?php the_permalink(); ?>" class="documentation-card">
+				<a href="<?php the_permalink(); ?>" class="doc-card doc-card--link doc-card--compact">
 					<div class="card-header">
 						<h4><?php the_title(); ?></h4>
 						<?php if ( has_excerpt() ) : ?>
@@ -481,9 +481,9 @@ class Archive {
 					<?php endif; ?>
 				</div>
 
-				<div class="documentation-cards">
+				<div class="cards-grid">
 					<?php foreach ( $projects_with_docs as $project ) : ?>
-						<div class="documentation-card">
+						<div class="doc-card">
 							<div class="card-header">
 								<h3><a href="<?php echo esc_url( get_term_link( $project['term'] ) ); ?>"><?php echo esc_html( $project['term']->name ); ?></a></h3>
 								<?php if ( $project['term']->description ) : ?>

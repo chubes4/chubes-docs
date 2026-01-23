@@ -30,7 +30,7 @@ class CodebaseCard {
 		$download_text = $has_download ? 'Download ' . $singular_type : 'View ' . $singular_type;
 		?>
 
-		<div class="codebase-card" data-project-type="<?php echo esc_attr( $parent_term ? $parent_term->slug : '' ); ?>">
+		<div class="doc-card" data-project-type="<?php echo esc_attr( $parent_term ? $parent_term->slug : '' ); ?>">
 			<div class="card-header">
 				<h3 class="project-title">
 					<a href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>

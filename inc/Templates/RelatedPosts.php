@@ -65,18 +65,14 @@ class RelatedPosts {
 			<?php if ( ! empty( $related_posts ) ) : ?>
 				<div class="related-posts-list">
 					<?php foreach ( $related_posts as $related_post ) : ?>
-						<article class="related-post-item">
-							<h4>
-								<a href="<?php echo esc_url( get_permalink( $related_post->ID ) ); ?>">
-									<?php echo esc_html( $related_post->post_title ); ?>
-								</a>
-							</h4>
+						<a href="<?php echo esc_url( get_permalink( $related_post->ID ) ); ?>" class="doc-card doc-card--link doc-card--compact">
+							<h4><?php echo esc_html( $related_post->post_title ); ?></h4>
 							<?php if ( $related_post->post_excerpt ) : ?>
-								<p class="related-excerpt">
+								<p class="card-description">
 									<?php echo wp_trim_words( $related_post->post_excerpt, 15 ); ?>
 								</p>
 							<?php endif; ?>
-						</article>
+						</a>
 					<?php endforeach; ?>
 				</div>
 			<?php else : ?>
