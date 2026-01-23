@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Chubes Docs
  * Description: REST API sync system and admin enhancements for chubes.net documentation. Requires Chubes theme.
- * Version: 0.5.3
+ * Version: 0.5.4
  * Author: Chris Huber
  * Author URI: https://chubes.net
  * License: GPL v2 or later
@@ -11,7 +11,7 @@
  * Requires PHP: 8.0
  */
 
-define( 'CHUBES_DOCS_VERSION', '0.5.3' );
+define( 'CHUBES_DOCS_VERSION', '0.5.4' );
 define( 'CHUBES_DOCS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CHUBES_DOCS_URL', plugin_dir_url( __FILE__ ) );
 
