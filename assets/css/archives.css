@@ -522,7 +522,7 @@
     }
     
     .card-stats {
-        justify-content: flex-start;
+        justify-content: center;
     }
     
     .documentation-list {

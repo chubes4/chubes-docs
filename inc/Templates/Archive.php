@@ -63,7 +63,7 @@ class Archive {
 					<?php if ( $doc_count > 0 ) : ?>
 						<div class="stat-item">
 							<span class="stat-number"><?php echo $doc_count; ?></span>
-							<span class="stat-label"><?php echo $doc_count === 1 ? 'Guide' : 'Guides'; ?></span>
+							<span class="stat-label"><?php echo $doc_count === 1 ? 'Doc' : 'Docs'; ?></span>
 						</div>
 					<?php endif; ?>
 				</div>
