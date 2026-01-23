@@ -77,8 +77,11 @@ class CodebaseEnsureCommand {
 			if ( (int) $existing->parent !== 0 ) {
 				return new WP_Error( 'term_parent_mismatch', "Top-level codebase term '{$slug}' exists but is not top-level" );
 			}
+			WP_CLI::log( "Using existing type: {$slug}" );
 			return $existing;
 		}
+
+		WP_CLI::warning( "Creating new type: {$slug}" );
 
 		$result = wp_insert_term( $slug, Codebase::TAXONOMY, [
 			'slug'   => $slug,
@@ -106,8 +109,11 @@ class CodebaseEnsureCommand {
 		}
 
 		if ( ! empty( $existing ) ) {
+			WP_CLI::log( "Using existing project: {$slug}" );
 			return $existing[0];
 		}
+
+		WP_CLI::log( "Creating new project: {$slug}" );
 
 		$result = wp_insert_term( $name, Codebase::TAXONOMY, [
 			'slug'   => $slug,
