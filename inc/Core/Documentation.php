@@ -53,7 +53,7 @@ class Documentation {
 
 		$args = array(
 			'label'               => __( 'Documentation', 'chubes-docs' ),
-			'description'         => __( 'Technical documentation for projects.', 'chubes-docs' ),
+			'description'         => __( 'Technical documentation for my coding projects. Automatically synchronized with GitHub repositories.', 'chubes-docs' ),
 			'labels'              => $labels,
 			'supports'            => array( 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'revisions' ),
 			'taxonomies'          => array(),
