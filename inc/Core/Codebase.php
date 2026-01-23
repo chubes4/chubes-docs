@@ -251,17 +251,23 @@ class Codebase {
 			$found = false;
 			$term  = null;
 
-			// Try to find child of parent with this name or slug
+			// Try to find child of parent with matching name (case-insensitive)
+			// Note: We search by name, not slug, because WordPress slugs are globally unique
+			// and may have suffixes like "architecture-2" even under different parents
 			$children = get_terms( array(
 				'taxonomy'   => self::TAXONOMY,
 				'parent'     => $parent_id,
 				'hide_empty' => false,
-				'slug'       => $slug,
 			) );
-			
+
 			if ( ! empty( $children ) && ! is_wp_error( $children ) ) {
-				$term = $children[0];
-				$found = true;
+				foreach ( $children as $child ) {
+					if ( strtolower( $child->name ) === strtolower( $part_name ) ) {
+						$term = $child;
+						$found = true;
+						break;
+					}
+				}
 			}
 
 			if ( ! $found ) {
