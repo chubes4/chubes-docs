@@ -12,7 +12,7 @@ use ChubesDocs\Sync\RepoSync;
 use ChubesDocs\Sync\CronSync;
 use ChubesDocs\Sync\GitHubClient;
 use ChubesDocs\Sync\SyncNotifier;
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -131,7 +131,7 @@ class SyncAbilities {
 
 	private static function get_syncable_terms(): array {
 		$all_terms = get_terms( [
-			'taxonomy'   => Codebase::TAXONOMY,
+			'taxonomy'   => Project::TAXONOMY,
 			'hide_empty' => false,
 		] );
 
@@ -142,7 +142,7 @@ class SyncAbilities {
 		$syncable = [];
 
 		foreach ( $all_terms as $term ) {
-			if ( Codebase::get_term_depth( $term ) !== 1 ) {
+			if ( Project::get_term_depth( $term ) !== 1 ) {
 				continue;
 			}
 

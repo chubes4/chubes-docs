@@ -1,25 +1,25 @@
 <?php
 /**
- * Codebase Abilities
+ * Project Abilities
  *
- * Provides WP Abilities API integration for inspecting the codebase taxonomy
+ * Provides WP Abilities API integration for inspecting the project taxonomy
  * hierarchy and metadata. Enables inspection via WP-CLI, REST, or MCP.
  */
 
 namespace ChubesDocs\Abilities;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class CodebaseAbilities {
+class ProjectAbilities {
 
 	public static function register(): void {
-		wp_register_ability( 'chubes/get-codebase-tree', [
-			'label'               => __( 'Get Codebase Tree', 'chubes-docs' ),
-			'description'         => __( 'Returns hierarchical codebase taxonomy with metadata', 'chubes-docs' ),
+		wp_register_ability( 'chubes/get-project-tree', [
+			'label'               => __( 'Get Project Tree', 'chubes-docs' ),
+			'description'         => __( 'Returns hierarchical project taxonomy with metadata', 'chubes-docs' ),
 			'category'            => 'chubes',
 			'input_schema'        => [
 				'type'       => 'object',
@@ -83,7 +83,7 @@ class CodebaseAbilities {
 
 	private static function build_tree( int $parent_id, int $depth, bool $include_empty, bool $include_meta ): array {
 		$terms = get_terms( [
-			'taxonomy'   => Codebase::TAXONOMY,
+			'taxonomy'   => Project::TAXONOMY,
 			'parent'     => $parent_id,
 			'hide_empty' => ! $include_empty,
 			'orderby'    => 'name',
@@ -117,10 +117,10 @@ class CodebaseAbilities {
 	}
 
 	private static function get_term_meta( \WP_Term $term ): array {
-		$github_url = get_term_meta( $term->term_id, 'codebase_github_url', true );
-		$wp_url     = get_term_meta( $term->term_id, 'codebase_wp_url', true );
-		$installs   = (int) get_term_meta( $term->term_id, 'codebase_installs', true );
-		$last_sync  = get_term_meta( $term->term_id, 'codebase_last_sync', true );
+		$github_url = get_term_meta( $term->term_id, 'project_github_url', true );
+		$wp_url     = get_term_meta( $term->term_id, 'project_wp_url', true );
+		$installs   = (int) get_term_meta( $term->term_id, 'project_installs', true );
+		$last_sync  = get_term_meta( $term->term_id, 'project_last_sync', true );
 
 		$meta = [];
 

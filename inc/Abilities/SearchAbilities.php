@@ -9,7 +9,7 @@
 namespace ChubesDocs\Abilities;
 
 use ChubesDocs\Core\Documentation;
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -32,7 +32,7 @@ class SearchAbilities {
 					],
 					'codebase' => [
 						'type'        => 'integer',
-						'description' => 'Codebase term ID to filter results',
+						'description' => 'Project term ID to filter results',
 					],
 					'per_page' => [
 						'type'        => 'integer',
@@ -98,7 +98,7 @@ class SearchAbilities {
 		if ( $codebase > 0 ) {
 			$args['tax_query'] = [
 				[
-					'taxonomy'         => Codebase::TAXONOMY,
+					'taxonomy'         => Project::TAXONOMY,
 					'field'            => 'term_id',
 					'terms'            => $codebase,
 					'include_children' => true,
@@ -110,8 +110,8 @@ class SearchAbilities {
 		$items        = [];
 
 		foreach ( $search_query->posts as $post ) {
-			$terms         = get_the_terms( $post->ID, Codebase::TAXONOMY );
-			$project_term  = $terms && ! is_wp_error( $terms ) ? Codebase::get_project_term( $terms ) : null;
+			$terms         = get_the_terms( $post->ID, Project::TAXONOMY );
+			$project_term  = $terms && ! is_wp_error( $terms ) ? Project::get_project_term( $terms ) : null;
 			$codebase_data = null;
 
 			if ( $project_term ) {

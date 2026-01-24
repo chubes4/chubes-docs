@@ -8,7 +8,7 @@
 
 namespace ChubesDocs\Templates;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 use ChubesDocs\Core\Documentation;
 
 class Archive {
@@ -36,8 +36,8 @@ class Archive {
 			return;
 		}
 
-		$repo_info = Codebase::get_repository_info( $term );
-		$parent_term = get_term( $term->parent, 'codebase' );
+		$repo_info = Project::get_repository_info( $term );
+		$parent_term = get_term( $term->parent, 'project' );
 		$category_name = $parent_term && ! is_wp_error( $parent_term ) ? $parent_term->name : 'Project';
 		$singular_type = rtrim( $category_name, 's' );
 		$has_download = ! empty( $repo_info['wp_url'] );
@@ -102,7 +102,7 @@ class Archive {
 	 * @return string HTML content or unmodified content
 	 */
 	public static function filter_content( $content, $queried_object ) {
-		if ( is_tax( 'codebase' ) ) {
+		if ( is_tax( 'project' ) ) {
 			ob_start();
 			self::render_codebase_content();
 			return ob_get_clean();
@@ -140,7 +140,7 @@ class Archive {
 	 */
 	private static function render_category_content( $term ) {
 		$project_terms = get_terms( [
-			'taxonomy'   => 'codebase',
+			'taxonomy'   => 'project',
 			'hide_empty' => false,
 			'parent'     => $term->term_id,
 			'orderby'    => 'name',
@@ -159,10 +159,10 @@ class Archive {
 		<div class="cards-grid">
 			<?php
 			foreach ( $project_terms as $project ) :
-				$repo_info = Codebase::get_repository_info( $project );
+				$repo_info = Project::get_repository_info( $project );
 
 				if ( $repo_info['has_content'] ) :
-					CodebaseCard::render( $project, $repo_info );
+					ProjectCard::render( $project, $repo_info );
 				endif;
 			endforeach;
 			?>
@@ -310,8 +310,8 @@ class Archive {
 	 * @param \WP_Term $term The codebase term
 	 */
 	private static function render_no_content_message( $term ) {
-		$project_term = Codebase::get_project_term( [ $term ] );
-		$repo_info = $project_term ? Codebase::get_repository_info( $project_term ) : [];
+		$project_term = Project::get_project_term( [ $term ] );
+		$repo_info = $project_term ? Project::get_repository_info( $project_term ) : [];
 		?>
 		<div class="no-docs">
 			<p>Documentation for this section is coming soon.</p>
@@ -333,7 +333,7 @@ class Archive {
 			'post_type'      => Documentation::POST_TYPE,
 			'tax_query'      => [
 				[
-					'taxonomy'         => Codebase::TAXONOMY,
+					'taxonomy'         => Project::TAXONOMY,
 					'field'            => 'term_id',
 					'terms'            => $term->term_id,
 					'include_children' => false,
@@ -354,7 +354,7 @@ class Archive {
 	 */
 	private static function get_sorted_child_terms( $term ) {
 		$children = get_terms( [
-			'taxonomy'   => Codebase::TAXONOMY,
+			'taxonomy'   => Project::TAXONOMY,
 			'parent'     => $term->term_id,
 			'hide_empty' => false,
 		] );
@@ -401,7 +401,7 @@ class Archive {
 			'post_type'      => Documentation::POST_TYPE,
 			'tax_query'      => [
 				[
-					'taxonomy'         => Codebase::TAXONOMY,
+					'taxonomy'         => Project::TAXONOMY,
 					'field'            => 'term_id',
 					'terms'            => $term->term_id,
 					'include_children' => true,
@@ -429,7 +429,7 @@ class Archive {
 	 */
 	private static function render_documentation_archive() {
 		$parent_categories = get_terms( [
-			'taxonomy'   => 'codebase',
+			'taxonomy'   => 'project',
 			'hide_empty' => true,
 			'parent'     => 0,
 			'orderby'    => 'name',
@@ -442,7 +442,7 @@ class Archive {
 
 		foreach ( $parent_categories as $parent_category ) :
 			$project_terms = get_terms( [
-				'taxonomy'   => 'codebase',
+				'taxonomy'   => 'project',
 				'hide_empty' => true,
 				'parent'     => $parent_category->term_id,
 				'orderby'    => 'name',
@@ -454,7 +454,7 @@ class Archive {
 
 			if ( $project_terms && ! is_wp_error( $project_terms ) ) {
 				foreach ( $project_terms as $project_term ) {
-					$repo_info = Codebase::get_repository_info( $project_term );
+					$repo_info = Project::get_repository_info( $project_term );
 					$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
 
 					if ( $doc_count > 0 ) {
@@ -532,7 +532,7 @@ class Archive {
 			return 'Documentation';
 		}
 
-		if ( is_tax( 'codebase' ) ) {
+		if ( is_tax( 'project' ) ) {
 			$term = get_queried_object();
 			return $term->name;
 		}
@@ -547,7 +547,7 @@ class Archive {
 	 * since we display it in the project-info-card instead.
 	 */
 	public static function filter_show_description( $show ) {
-		if ( ! is_tax( 'codebase' ) ) {
+		if ( ! is_tax( 'project' ) ) {
 			return $show;
 		}
 

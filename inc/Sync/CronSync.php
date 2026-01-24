@@ -8,7 +8,7 @@
 
 namespace ChubesDocs\Sync;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 
 class CronSync {
 
@@ -136,7 +136,7 @@ class CronSync {
 	 */
 	private static function get_syncable_terms(): array {
 		$all_terms = get_terms( [
-			'taxonomy'   => Codebase::TAXONOMY,
+			'taxonomy'   => Project::TAXONOMY,
 			'hide_empty' => false,
 		] );
 
@@ -147,11 +147,11 @@ class CronSync {
 		$syncable = [];
 
 		foreach ( $all_terms as $term ) {
-			if ( Codebase::get_term_depth( $term ) !== 1 ) {
+			if ( Project::get_term_depth( $term ) !== 1 ) {
 				continue;
 			}
 
-			$github_url = get_term_meta( $term->term_id, 'codebase_github_url', true );
+			$github_url = get_term_meta( $term->term_id, 'project_github_url', true );
 			if ( empty( $github_url ) ) {
 				continue;
 			}

@@ -1,25 +1,25 @@
 <?php
 /**
- * Codebase Card Component
- * 
- * Renders a project card for codebase taxonomy archives.
+ * Project Card Component
+ *
+ * Renders a project card for project taxonomy archives.
  * Shows project info, content type buttons, and external links.
  */
 
 namespace ChubesDocs\Templates;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 
-class CodebaseCard {
+class ProjectCard {
 
 	/**
-	 * Render a codebase project card
+	 * Render a project card
 	 *
-	 * @param \WP_Term $term      The codebase taxonomy term
-	 * @param array    $repo_info Repository info from Codebase::get_repository_info()
+	 * @param \WP_Term $term      The project taxonomy term
+	 * @param array    $repo_info Repository info from Project::get_repository_info()
 	 */
 	public static function render( $term, $repo_info ) {
-		$parent_term = get_term( $term->parent, 'codebase' );
+		$parent_term = get_term( $term->parent, 'project' );
 		$category_name = $parent_term && ! is_wp_error( $parent_term ) ? $parent_term->name : 'Project';
 		$singular_type = rtrim( $category_name, 's' );
 
@@ -90,7 +90,7 @@ class CodebaseCard {
 	/**
 	 * Get content type buttons for a project term
 	 *
-	 * @param \WP_Term $term The codebase taxonomy term
+	 * @param \WP_Term $term The project taxonomy term
 	 * @return array Array of button data
 	 */
 	private static function get_content_buttons( $term ) {
@@ -104,7 +104,7 @@ class CodebaseCard {
 				continue;
 			}
 
-			if ( ! is_object_in_taxonomy( $post_type, 'codebase' ) ) {
+			if ( ! is_object_in_taxonomy( $post_type, 'project' ) ) {
 				continue;
 			}
 
@@ -112,7 +112,7 @@ class CodebaseCard {
 				'post_type'      => $post_type,
 				'tax_query'      => [
 					[
-						'taxonomy' => 'codebase',
+						'taxonomy' => 'project',
 						'field'    => 'term_id',
 						'terms'    => $term->term_id,
 					],
@@ -140,7 +140,7 @@ class CodebaseCard {
 	}
 
 	/**
-	 * Generate URL for viewing content of specific type for a codebase project
+	 * Generate URL for viewing content of specific type for a project
 	 *
 	 * @param string   $post_type The post type
 	 * @param \WP_Term $term      The project term
@@ -153,7 +153,7 @@ class CodebaseCard {
 
 		$archive_url = get_post_type_archive_link( $post_type );
 		if ( $archive_url ) {
-			return add_query_arg( 'codebase', $term->slug, $archive_url );
+			return add_query_arg( 'project', $term->slug, $archive_url );
 		}
 
 		return get_term_link( $term );

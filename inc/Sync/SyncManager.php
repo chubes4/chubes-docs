@@ -2,7 +2,7 @@
 
 namespace ChubesDocs\Sync;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 
 class SyncManager {
 
@@ -17,7 +17,7 @@ class SyncManager {
 		string $excerpt = '',
 		bool $force = false
 	): array {
-		$project_term = get_term( $project_term_id, Codebase::TAXONOMY );
+		$project_term = get_term( $project_term_id, Project::TAXONOMY );
 		if ( ! $project_term || is_wp_error( $project_term ) ) {
 			return [
 				'success' => false,
@@ -70,7 +70,7 @@ class SyncManager {
 			}
 
 			self::update_sync_meta( $existing_post_id, $source_file, $filesize, $timestamp );
-			wp_set_object_terms( $existing_post_id, $leaf_term_id, Codebase::TAXONOMY );
+			wp_set_object_terms( $existing_post_id, $leaf_term_id, Project::TAXONOMY );
 
 			return [
 				'success'          => true,
@@ -99,7 +99,7 @@ class SyncManager {
 		}
 
 		self::update_sync_meta( $post_id, $source_file, $filesize, $timestamp );
-		wp_set_object_terms( $post_id, $leaf_term_id, Codebase::TAXONOMY );
+		wp_set_object_terms( $post_id, $leaf_term_id, Project::TAXONOMY );
 
 		return [
 			'success'          => true,
@@ -122,7 +122,7 @@ class SyncManager {
 			$slug = sanitize_title( $part_name );
 
 			$existing = get_terms( [
-				'taxonomy'   => Codebase::TAXONOMY,
+				'taxonomy'   => Project::TAXONOMY,
 				'parent'     => $current_parent,
 				'slug'       => $slug,
 				'hide_empty' => false,
@@ -134,14 +134,14 @@ class SyncManager {
 				continue;
 			}
 
-			$result = wp_insert_term( $part_name, Codebase::TAXONOMY, [
+			$result = wp_insert_term( $part_name, Project::TAXONOMY, [
 				'parent' => $current_parent,
 				'slug'   => $slug,
 			] );
 
 			if ( is_wp_error( $result ) ) {
 				if ( isset( $result->error_data['term_exists'] ) ) {
-					$term = get_term( $result->error_data['term_exists'], Codebase::TAXONOMY );
+					$term = get_term( $result->error_data['term_exists'], Project::TAXONOMY );
 					if ( $term && $term->parent === $current_parent ) {
 						$current_parent = $term->term_id;
 						continue;
@@ -170,7 +170,7 @@ class SyncManager {
 			),
 			'tax_query'      => array(
 				array(
-					'taxonomy'         => Codebase::TAXONOMY,
+					'taxonomy'         => Project::TAXONOMY,
 					'field'            => 'term_id',
 					'terms'            => $project_term_id,
 					'include_children' => true,

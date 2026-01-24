@@ -78,7 +78,7 @@ class RewriteRules {
 		$first_slug = $segments[0];
 
 		// First segment must be a top-level category
-		$current_term = get_term_by( 'slug', $first_slug, Codebase::TAXONOMY );
+		$current_term = get_term_by( 'slug', $first_slug, Project::TAXONOMY );
 		if ( ! $current_term || is_wp_error( $current_term ) || $current_term->parent !== 0 ) {
 			return;
 		}
@@ -86,7 +86,7 @@ class RewriteRules {
 		// Single segment - category archive
 		if ( count( $segments ) === 1 ) {
 			unset( $wp->query_vars['chubes_docs_path'] );
-			$wp->query_vars['codebase'] = $current_term->slug;
+			$wp->query_vars['project'] = $current_term->slug;
 			return;
 		}
 
@@ -119,7 +119,7 @@ class RewriteRules {
 
 		// All segments matched terms - show deepest term archive
 		unset( $wp->query_vars['chubes_docs_path'] );
-		$wp->query_vars['codebase'] = $current_term->slug;
+		$wp->query_vars['project'] = $current_term->slug;
 	}
 
 	/**
@@ -131,7 +131,7 @@ class RewriteRules {
 	 */
 	private static function find_child_term( $slug, $parent_id ) {
 		$terms = get_terms( [
-			'taxonomy'   => Codebase::TAXONOMY,
+			'taxonomy'   => Project::TAXONOMY,
 			'slug'       => $slug,
 			'parent'     => $parent_id,
 			'hide_empty' => false,
@@ -160,7 +160,7 @@ class RewriteRules {
 			'numberposts' => 1,
 			'tax_query'   => [
 				[
-					'taxonomy' => Codebase::TAXONOMY,
+					'taxonomy' => Project::TAXONOMY,
 					'field'    => 'term_id',
 					'terms'    => $term->term_id,
 				],
@@ -182,8 +182,8 @@ class RewriteRules {
 			return $permalink;
 		}
 
-		$terms = get_the_terms( $post->ID, Codebase::TAXONOMY );
-		$primary_term = Codebase::get_primary_term( $terms );
+		$terms = get_the_terms( $post->ID, Project::TAXONOMY );
+		$primary_term = Project::get_primary_term( $terms );
 
 		if ( ! $primary_term ) {
 			return $permalink;
@@ -202,7 +202,7 @@ class RewriteRules {
 	 * @return string
 	 */
 	public static function filter_term_permalink( $termlink, $term, $taxonomy ) {
-		if ( $taxonomy !== Codebase::TAXONOMY ) {
+		if ( $taxonomy !== Project::TAXONOMY ) {
 			return $termlink;
 		}
 
@@ -223,7 +223,7 @@ class RewriteRules {
 	 * @return string Path like 'category/project/sub/subsub'
 	 */
 	public static function build_docs_term_path( $term ) {
-		$ancestors = Codebase::get_term_ancestors( $term );
+		$ancestors = Project::get_term_ancestors( $term );
 		$ancestors[] = $term;
 
 		$slugs = array_map( function( $t ) {

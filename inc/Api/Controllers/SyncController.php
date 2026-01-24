@@ -2,7 +2,7 @@
 
 namespace ChubesDocs\Api\Controllers;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 use ChubesDocs\Sync\CronSync;
 use ChubesDocs\Sync\GitHubClient;
 use ChubesDocs\Sync\SyncManager;
@@ -82,10 +82,10 @@ class SyncController {
         $github_url = esc_url_raw( $request->get_param( 'github_url' ) ?? '' );
         $wp_url = esc_url_raw( $request->get_param( 'wp_url' ) ?? '' );
 
-        $category_term = get_term_by('slug', $category_slug, Codebase::TAXONOMY);
+        $category_term = get_term_by('slug', $category_slug, Project::TAXONOMY);
         
         if (!$category_term) {
-            $result = wp_insert_term($category_name, Codebase::TAXONOMY, [
+            $result = wp_insert_term($category_name, Project::TAXONOMY, [
                 'slug' => $category_slug,
             ]);
             
@@ -93,13 +93,13 @@ class SyncController {
                 return new WP_Error('category_creation_failed', $result->get_error_message(), ['status' => 500]);
             }
             
-            $category_term = get_term($result['term_id'], Codebase::TAXONOMY);
+            $category_term = get_term($result['term_id'], Project::TAXONOMY);
         }
 
-        $project_term = get_term_by('slug', $project_slug, Codebase::TAXONOMY);
+        $project_term = get_term_by('slug', $project_slug, Project::TAXONOMY);
         
         if (!$project_term) {
-            $result = wp_insert_term($project_name, Codebase::TAXONOMY, [
+            $result = wp_insert_term($project_name, Project::TAXONOMY, [
                 'slug'   => $project_slug,
                 'parent' => $category_term->term_id,
             ]);
@@ -108,12 +108,12 @@ class SyncController {
                 return new WP_Error('project_creation_failed', $result->get_error_message(), ['status' => 500]);
             }
             
-            $project_term = get_term($result['term_id'], Codebase::TAXONOMY);
+            $project_term = get_term($result['term_id'], Project::TAXONOMY);
         } elseif ($project_term->parent !== $category_term->term_id) {
-            wp_update_term($project_term->term_id, Codebase::TAXONOMY, [
+            wp_update_term($project_term->term_id, Project::TAXONOMY, [
                 'parent' => $category_term->term_id,
             ]);
-            $project_term = get_term($project_term->term_id, Codebase::TAXONOMY);
+            $project_term = get_term($project_term->term_id, Project::TAXONOMY);
         }
 
         if ( ! empty( $github_url ) ) {
@@ -144,7 +144,7 @@ class SyncController {
             );
         }
 
-        $term = get_term_by( 'slug', sanitize_text_field( $project ), Codebase::TAXONOMY );
+        $term = get_term_by( 'slug', sanitize_text_field( $project ), Project::TAXONOMY );
 
         if ( ! $term ) {
             return new WP_Error(
@@ -166,7 +166,7 @@ class SyncController {
             ],
             'tax_query'      => [
                 [
-                    'taxonomy'         => Codebase::TAXONOMY,
+                    'taxonomy'         => Project::TAXONOMY,
                     'field'            => 'term_id',
                     'terms'            => $term->term_id,
                     'include_children' => true,

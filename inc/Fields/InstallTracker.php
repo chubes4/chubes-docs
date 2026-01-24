@@ -2,7 +2,7 @@
 
 namespace ChubesDocs\Fields;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 
 class InstallTracker {
 
@@ -18,7 +18,7 @@ class InstallTracker {
 
     public static function update_all_installs(): void {
         $terms = get_terms([
-            'taxonomy'   => Codebase::TAXONOMY,
+            'taxonomy'   => Project::TAXONOMY,
             'hide_empty' => false,
         ]);
 
@@ -27,7 +27,7 @@ class InstallTracker {
         }
 
         foreach ($terms as $term) {
-            $wp_url = Codebase::get_wp_url($term->term_id);
+            $wp_url = Project::get_wp_url($term->term_id);
             if (!empty($wp_url)) {
                 self::fetch_and_store_installs($term->term_id, $wp_url);
             }
@@ -65,8 +65,8 @@ class InstallTracker {
             $installs = (int) $data['active_installs'];
         }
 
-        update_term_meta($term_id, 'codebase_installs', $installs);
-        update_term_meta($term_id, 'codebase_installs_updated', time());
+        update_term_meta($term_id, 'project_installs', $installs);
+        update_term_meta($term_id, 'project_installs_updated', time());
     }
 
     private static function extract_slug_from_wp_url(string $url): ?string {

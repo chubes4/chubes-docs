@@ -8,7 +8,7 @@
 
 namespace ChubesDocs\Sync;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 
 class RepoSync {
 
@@ -41,7 +41,7 @@ class RepoSync {
 
 		$this->update_sync_status( $term_id, 'syncing' );
 
-		$github_url = get_term_meta( $term_id, 'codebase_github_url', true );
+		$github_url = get_term_meta( $term_id, 'project_github_url', true );
 		if ( empty( $github_url ) ) {
 			$result['error'] = 'No GitHub URL configured';
 			$this->update_sync_status( $term_id, 'failed', $result['error'] );
@@ -72,13 +72,13 @@ class RepoSync {
 		}
 
 		$result['new_sha'] = $new_sha;
-		$old_sha = get_term_meta( $term_id, 'codebase_last_sync_sha', true );
+		$old_sha = get_term_meta( $term_id, 'project_last_sync_sha', true );
 		$result['old_sha'] = $old_sha ?: null;
 
 		// Sync repository description to term
 		$description = $this->github->get_repo_description( $owner, $repo );
 		if ( $description !== null ) {
-			wp_update_term( $term_id, Codebase::TAXONOMY, [
+			wp_update_term( $term_id, Project::TAXONOMY, [
 				'description' => $description,
 			] );
 		}
@@ -98,10 +98,10 @@ class RepoSync {
 		$result = array_merge( $result, $sync_result );
 
 		if ( $result['success'] ) {
-			update_term_meta( $term_id, 'codebase_last_sync_sha', $new_sha );
-			update_term_meta( $term_id, 'codebase_last_sync_time', time() );
+			update_term_meta( $term_id, 'project_last_sync_sha', $new_sha );
+			update_term_meta( $term_id, 'project_last_sync_time', time() );
 			$files_synced = count( $result['added'] ) + count( $result['updated'] ) + count( $result['unchanged'] );
-			update_term_meta( $term_id, 'codebase_files_synced', $files_synced );
+			update_term_meta( $term_id, 'project_files_synced', $files_synced );
 			$this->update_sync_status( $term_id, 'success' );
 		} else {
 			$this->update_sync_status( $term_id, 'failed', $result['error'] ?? 'Unknown error' );
@@ -364,7 +364,7 @@ class RepoSync {
 	private function find_orphaned_posts( int $term_id, array $synced_source_files ): array {
 		$orphans = [];
 
-		$term = get_term( $term_id, Codebase::TAXONOMY );
+		$term = get_term( $term_id, Project::TAXONOMY );
 		if ( ! $term || is_wp_error( $term ) ) {
 			return $orphans;
 		}
@@ -375,7 +375,7 @@ class RepoSync {
 			'posts_per_page' => -1,
 			'tax_query'      => [
 				[
-					'taxonomy'         => Codebase::TAXONOMY,
+					'taxonomy'         => Project::TAXONOMY,
 					'field'            => 'term_id',
 					'terms'            => $term_id,
 					'include_children' => true,
@@ -430,11 +430,12 @@ class RepoSync {
 	 * @param string|null $error   Error message if failed.
 	 */
 	private function update_sync_status( int $term_id, string $status, ?string $error = null ): void {
-		update_term_meta( $term_id, 'codebase_sync_status', $status );
+		update_term_meta( $term_id, 'project_sync_status', $status );
 		if ( $error ) {
-			update_term_meta( $term_id, 'codebase_sync_error', $error );
+			update_term_meta( $term_id, 'project_sync_error', $error );
 		} elseif ( $status === 'success' ) {
-			delete_term_meta( $term_id, 'codebase_sync_error' );
+			delete_term_meta( $term_id, 'project_sync_error' );
 		}
+	}
 	}
 }

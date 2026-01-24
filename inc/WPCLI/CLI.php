@@ -2,9 +2,10 @@
 
 namespace ChubesDocs\WPCLI;
 
-use ChubesDocs\WPCLI\Commands\CodebaseEnsureCommand;
-use ChubesDocs\WPCLI\Commands\CodebaseTreeCommand;
+use ChubesDocs\WPCLI\Commands\ProjectEnsureCommand;
+use ChubesDocs\WPCLI\Commands\ProjectTreeCommand;
 use ChubesDocs\WPCLI\Commands\DocsSyncCommand;
+use ChubesDocs\WPCLI\Commands\TaxonomyMigrateCommand;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -12,8 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class CLI {
 	public static function register(): void {
-		\WP_CLI::add_command( 'chubes codebase ensure', [ CodebaseEnsureCommand::class, 'run' ] );
-		\WP_CLI::add_command( 'chubes codebase tree', [ CodebaseTreeCommand::class, 'run' ] );
+		\WP_CLI::add_command( 'chubes project ensure', [ ProjectEnsureCommand::class, 'run' ] );
+		\WP_CLI::add_command( 'chubes project tree', [ ProjectTreeCommand::class, 'run' ] );
 		\WP_CLI::add_command( 'chubes docs sync', [ DocsSyncCommand::class, 'run' ] );
+		\WP_CLI::add_command( 'chubes taxonomy migrate', [ TaxonomyMigrateCommand::class, 'run' ] );
 	}
 }

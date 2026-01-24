@@ -1,21 +1,21 @@
 <?php
 /**
- * Codebase Taxonomy Columns
+ * Project Taxonomy Columns
  *
- * Adds custom columns to the codebase taxonomy list table.
+ * Adds custom columns to the project taxonomy list table.
  * Shows GitHub URL, WP.org installs, and sync status.
  */
 
 namespace ChubesDocs\Admin;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 
-class CodebaseColumns {
+class ProjectColumns {
 
 	public static function init(): void {
-		add_filter( 'manage_edit-codebase_columns', [ __CLASS__, 'add_columns' ] );
-		add_filter( 'manage_codebase_custom_column', [ __CLASS__, 'render_column' ], 10, 3 );
-		add_filter( 'manage_edit-codebase_sortable_columns', [ __CLASS__, 'sortable_columns' ] );
+		add_filter( 'manage_edit-project_columns', [ __CLASS__, 'add_columns' ] );
+		add_filter( 'manage_project_custom_column', [ __CLASS__, 'render_column' ], 10, 3 );
+		add_filter( 'manage_edit-project_sortable_columns', [ __CLASS__, 'sortable_columns' ] );
 	}
 
 	/**
@@ -49,12 +49,12 @@ class CodebaseColumns {
 	 * @return string Column content.
 	 */
 	public static function render_column( string $content, string $column_name, int $term_id ): string {
-		$term = get_term( $term_id, Codebase::TAXONOMY );
+		$term = get_term( $term_id, Project::TAXONOMY );
 		if ( ! $term || is_wp_error( $term ) ) {
 			return $content;
 		}
 
-		if ( Codebase::get_term_depth( $term ) !== 1 ) {
+		if ( Project::get_term_depth( $term ) !== 1 ) {
 			return '&mdash;';
 		}
 
@@ -93,7 +93,7 @@ class CodebaseColumns {
 	 * @return string HTML content.
 	 */
 	private static function render_github_column( int $term_id ): string {
-		$github_url = get_term_meta( $term_id, 'codebase_github_url', true );
+		$github_url = get_term_meta( $term_id, 'project_github_url', true );
 
 		if ( empty( $github_url ) ) {
 			return '<span class="dashicons dashicons-minus" style="color:#999;"></span>';
@@ -113,13 +113,13 @@ class CodebaseColumns {
 	 * @return string HTML content.
 	 */
 	private static function render_installs_column( int $term_id ): string {
-		$wp_url = get_term_meta( $term_id, 'codebase_wp_url', true );
+		$wp_url = get_term_meta( $term_id, 'project_wp_url', true );
 
 		if ( empty( $wp_url ) ) {
 			return '&mdash;';
 		}
 
-		$installs = (int) get_term_meta( $term_id, 'codebase_installs', true );
+		$installs = (int) get_term_meta( $term_id, 'project_installs', true );
 
 		if ( $installs >= 1000000 ) {
 			$formatted = number_format( floor( $installs / 1000000 ) ) . 'M+';
@@ -143,16 +143,16 @@ class CodebaseColumns {
 	 * @return string HTML content.
 	 */
 	private static function render_sync_column( int $term_id ): string {
-		$github_url = get_term_meta( $term_id, 'codebase_github_url', true );
+		$github_url = get_term_meta( $term_id, 'project_github_url', true );
 
 		if ( empty( $github_url ) ) {
 			return '&mdash;';
 		}
 
-		$status = get_term_meta( $term_id, 'codebase_sync_status', true );
-		$last_sync = get_term_meta( $term_id, 'codebase_last_sync_time', true );
-		$files_synced = get_term_meta( $term_id, 'codebase_files_synced', true );
-		$error = get_term_meta( $term_id, 'codebase_sync_error', true );
+		$status = get_term_meta( $term_id, 'project_sync_status', true );
+		$last_sync = get_term_meta( $term_id, 'project_last_sync_time', true );
+		$files_synced = get_term_meta( $term_id, 'project_files_synced', true );
+		$error = get_term_meta( $term_id, 'project_sync_error', true );
 
 		$icon = '';
 		$title = '';

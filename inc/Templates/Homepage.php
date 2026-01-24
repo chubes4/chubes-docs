@@ -8,7 +8,7 @@
 
 namespace ChubesDocs\Templates;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 
 class Homepage {
 
@@ -79,7 +79,7 @@ class Homepage {
 			}
 
 			foreach ( $child_projects as $project ) {
-				$repo_info = Codebase::get_repository_info( $project );
+				$repo_info = Project::get_repository_info( $project );
 				$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
 
 				if ( $doc_count > 0 ) {

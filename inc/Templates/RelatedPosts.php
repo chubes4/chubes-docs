@@ -8,7 +8,7 @@
 
 namespace ChubesDocs\Templates;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 
 class RelatedPosts {
 
@@ -45,9 +45,9 @@ class RelatedPosts {
 		$top_level_term = null;
 
 		if ( $terms && ! is_wp_error( $terms ) ) {
-			$project_term = Codebase::get_project_term( $terms );
-			$top_level_term = Codebase::get_top_level_term( $terms );
-			$current_level_term = Codebase::get_primary_term( $terms );
+			$project_term = Project::get_project_term( $terms );
+			$top_level_term = Project::get_top_level_term( $terms );
+			$current_level_term = Project::get_primary_term( $terms );
 		}
 
 		$related_posts = self::get_related_documentation( $post_id, 3 );

@@ -1,8 +1,8 @@
 <?php
 /**
- * Codebase Taxonomy Registration and Helpers
- * 
- * Registers the codebase taxonomy for organizing documentation by project.
+ * Project Taxonomy Registration and Helpers
+ *
+ * Registers the project taxonomy for organizing documentation by project.
  * Provides static helper methods for term hierarchy resolution.
  */
 
@@ -12,31 +12,32 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Codebase {
+class Project {
 
-	const TAXONOMY = 'codebase';
+	const TAXONOMY = 'project';
 
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register' ] );
+		add_action( 'init', [ __CLASS__, 'register_project_type' ] );
 	}
 
-	public static function register() {
+	public static function register_project_type() {
 		$labels = array(
-			'name'              => _x( 'Codebase', 'taxonomy general name', 'chubes-docs' ),
-			'singular_name'     => _x( 'Codebase', 'taxonomy singular name', 'chubes-docs' ),
-			'search_items'      => __( 'Search Codebases', 'chubes-docs' ),
-			'all_items'         => __( 'All Codebases', 'chubes-docs' ),
-			'parent_item'       => __( 'Parent Codebase', 'chubes-docs' ),
-			'parent_item_colon' => __( 'Parent Codebase:', 'chubes-docs' ),
-			'edit_item'         => __( 'Edit Codebase', 'chubes-docs' ),
-			'update_item'       => __( 'Update Codebase', 'chubes-docs' ),
-			'add_new_item'      => __( 'Add New Codebase', 'chubes-docs' ),
-			'new_item_name'     => __( 'New Codebase Name', 'chubes-docs' ),
-			'menu_name'         => __( 'Codebase', 'chubes-docs' ),
+			'name'              => _x( 'Project Type', 'taxonomy general name', 'chubes-docs' ),
+			'singular_name'     => _x( 'Project Type', 'taxonomy singular name', 'chubes-docs' ),
+			'search_items'      => __( 'Search Project Types', 'chubes-docs' ),
+			'all_items'         => __( 'All Project Types', 'chubes-docs' ),
+			'parent_item'       => null,
+			'parent_item_colon' => null,
+			'edit_item'         => __( 'Edit Project Type', 'chubes-docs' ),
+			'update_item'       => __( 'Update Project Type', 'chubes-docs' ),
+			'add_new_item'      => __( 'Add New Project Type', 'chubes-docs' ),
+			'new_item_name'     => __( 'New Project Type Name', 'chubes-docs' ),
+			'menu_name'         => __( 'Project Type', 'chubes-docs' ),
 		);
 
 		$args = array(
-			'hierarchical'      => true,
+			'hierarchical'      => false,
 			'labels'            => $labels,
 			'show_ui'           => true,
 			'show_admin_column' => true,
@@ -45,19 +46,46 @@ class Codebase {
 			'show_in_rest'      => true,
 		);
 
-		$args = apply_filters( 'chubes_codebase_args', $args );
+		register_taxonomy( 'project_type', array( Documentation::POST_TYPE ), $args );
+
+		do_action( 'chubes_project_type_registered' );
+	}
+
+	public static function register() {
+		$labels = array(
+			'name'              => _x( 'Projects', 'taxonomy general name', 'chubes-docs' ),
+			'singular_name'     => _x( 'Project', 'taxonomy singular name', 'chubes-docs' ),
+			'search_items'      => __( 'Search Projects', 'chubes-docs' ),
+			'all_items'         => __( 'All Projects', 'chubes-docs' ),
+			'parent_item'       => __( 'Parent Project', 'chubes-docs' ),
+			'parent_item_colon' => __( 'Parent Project:', 'chubes-docs' ),
+			'edit_item'         => __( 'Edit Project', 'chubes-docs' ),
+			'update_item'       => __( 'Update Project', 'chubes-docs' ),
+			'add_new_item'      => __( 'Add New Project', 'chubes-docs' ),
+			'new_item_name'     => __( 'New Project Name', 'chubes-docs' ),
+			'menu_name'         => __( 'Projects', 'chubes-docs' ),
+		);
+
+		$args = array(
+			'hierarchical'      => true,
+			'labels'            => $labels,
+			'show_ui'           => true,
+			'show_admin_column' => true,
+			'query_var'         => true,
+			'rewrite'           => array( 'slug' => 'project' ),
+			'show_in_rest'      => true,
+		);
+
+		$args = apply_filters( 'chubes_project_args', $args );
 
 		register_taxonomy( self::TAXONOMY, array( Documentation::POST_TYPE ), $args );
 
-		do_action( 'chubes_codebase_registered' );
+		do_action( 'chubes_project_registered' );
 	}
 
 	/**
-	 * Get the primary (deepest) codebase term from a set of terms
+	 * Get the primary (deepest) project term from a set of terms
 	 *
-	 * @param array $terms Array of WP_Term objects
-	 * @return WP_Term|null
-	 */
 	public static function get_primary_term( $terms ) {
 		if ( empty( $terms ) || is_wp_error( $terms ) ) {
 			return null;
@@ -319,7 +347,7 @@ class Codebase {
 	}
 
 	/**
-	 * Get GitHub URL for a codebase term
+	 * Get GitHub URL for a project term
 	 *
 	 * @param WP_Term|int $term Term object or ID
 	 * @return string|null
@@ -330,7 +358,7 @@ class Codebase {
 	}
 
 	/**
-	 * Get WordPress.org URL for a codebase term
+	 * Get WordPress.org URL for a project term
 	 *
 	 * @param WP_Term|int $term Term object or ID
 	 * @return string|null
@@ -341,11 +369,8 @@ class Codebase {
 	}
 
 	/**
-	 * Get install count for a codebase term
+	 * Get install count for a project term
 	 *
-	 * @param WP_Term|int $term Term object or ID
-	 * @return int
-	 */
 	public static function get_installs( $term ) {
 		$term_id = is_object( $term ) ? $term->term_id : $term;
 		return (int) get_term_meta( $term_id, 'codebase_installs', true );
@@ -382,16 +407,31 @@ class Codebase {
 	}
 
 	/**
-	 * Get the project type (top-level category slug) for a term
+	 * Get the project type slug for a post (from new project_type taxonomy)
 	 *
-	 * @param WP_Term|array $term_or_terms Single term or array of terms
+	 * @param int|WP_Post $post Post ID or object
 	 * @return string|null
 	 */
-	public static function get_project_type( $term_or_terms ) {
-		$terms = is_array( $term_or_terms ) ? $term_or_terms : array( $term_or_terms );
-		$top_level = self::get_top_level_term( $terms );
+	public static function get_project_type( $post ) {
+		$project_type_term = self::get_project_type_term( $post );
+		return $project_type_term ? $project_type_term->slug : null;
+	}
 
-		return $top_level ? $top_level->slug : null;
+	/**
+	 * Get the project type term from the new project_type taxonomy for a post
+	 *
+	 * @param int|WP_Post $post Post ID or object
+	 * @return WP_Term|null
+	 */
+	public static function get_project_type_term( $post ) {
+		$post_id = is_object( $post ) ? $post->ID : $post;
+		$terms = get_the_terms( $post_id, 'project_type' );
+
+		if ( ! $terms || is_wp_error( $terms ) || empty( $terms ) ) {
+			return null;
+		}
+
+		return $terms[0]; // Should only have one project type
 	}
 
 	/**

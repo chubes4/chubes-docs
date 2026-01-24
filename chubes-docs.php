@@ -21,30 +21,30 @@ use ChubesDocs\Api\Routes;
 use ChubesDocs\Abilities\Abilities;
 use ChubesDocs\Core\Assets;
 use ChubesDocs\Core\Documentation;
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 use ChubesDocs\Core\RewriteRules;
 use ChubesDocs\Core\Breadcrumbs;
 use ChubesDocs\Fields\RepositoryFields;
 use ChubesDocs\Fields\InstallTracker;
 use ChubesDocs\Templates\RelatedPosts;
 use ChubesDocs\Templates\Archive;
-use ChubesDocs\Templates\CodebaseCard;
+use ChubesDocs\Templates\ProjectCard;
 use ChubesDocs\Templates\Homepage;
 use ChubesDocs\Templates\SearchBar;
 use ChubesDocs\Sync\CronSync;
 use ChubesDocs\Admin\SettingsPage;
-use ChubesDocs\Admin\CodebaseColumns;
+use ChubesDocs\Admin\ProjectColumns;
 use ChubesDocs\Admin\DocumentationColumns;
 
 Documentation::init();
-Codebase::init();
+Project::init();
 RewriteRules::init();
 Assets::init();
 
-add_action( 'chubes_codebase_registered', function() {
+add_action( 'chubes_project_registered', function() {
 	RepositoryFields::init();
 	InstallTracker::init();
-	CodebaseColumns::init();
+	ProjectColumns::init();
 } );
 
 CronSync::init();
@@ -88,25 +88,25 @@ register_deactivation_hook( __FILE__, function() {
 } );
 
 /**
- * Global wrapper for Codebase::get_repository_info()
+ * Global wrapper for Project::get_repository_info()
  *
  * Provides theme templates with access to repository metadata (GitHub URL, WP.org URL, installs)
- * for a given codebase term without requiring direct class access.
+ * for a given project term without requiring direct class access.
  *
  * @param WP_Term|array $term_or_terms Single term object or array of term objects
  * @return array Repository info with github_url, wp_url, and installs keys
  */
 function chubes_get_repository_info( $term_or_terms ) {
-	return Codebase::get_repository_info( $term_or_terms );
+	return Project::get_repository_info( $term_or_terms );
 }
 
 /**
- * Generate URL for viewing content of specific type for a codebase project
+ * Generate URL for viewing content of specific type for a project
  *
  * @param string  $post_type The post type
  * @param WP_Term $term      The project term
  * @return string The URL to view this content type for this project
  */
 function chubes_generate_content_type_url( $post_type, $term ) {
-	return CodebaseCard::generate_content_type_url( $post_type, $term );
+	return ProjectCard::generate_content_type_url( $post_type, $term );
 }

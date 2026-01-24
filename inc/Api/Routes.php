@@ -3,7 +3,7 @@
 namespace ChubesDocs\Api;
 
 use ChubesDocs\Api\Controllers\DocsController;
-use ChubesDocs\Api\Controllers\CodebaseController;
+use ChubesDocs\Api\Controllers\ProjectController;
 use ChubesDocs\Api\Controllers\SyncController;
 
 class Routes {
@@ -73,7 +73,7 @@ class Routes {
     private static function register_codebase_routes(): void {
         register_rest_route(self::NAMESPACE, '/codebase', [
             'methods'             => 'GET',
-            'callback'            => [CodebaseController::class, 'list_terms'],
+            'callback'            => [ProjectController::class, 'list_terms'],
             'permission_callback' => '__return_true',
             'args'                => [
                 'parent' => [
@@ -90,13 +90,13 @@ class Routes {
 
         register_rest_route(self::NAMESPACE, '/codebase/tree', [
             'methods'             => 'GET',
-            'callback'            => [CodebaseController::class, 'get_tree'],
+            'callback'            => [ProjectController::class, 'get_tree'],
             'permission_callback' => '__return_true',
         ]);
 
         register_rest_route(self::NAMESPACE, '/codebase/resolve', [
             'methods'             => 'POST',
-            'callback'            => [CodebaseController::class, 'resolve_path'],
+            'callback'            => [ProjectController::class, 'resolve_path'],
             'permission_callback' => [self::class, 'check_resolve_permission'],
             'args'                => [
                 'path' => [
@@ -118,7 +118,7 @@ class Routes {
         register_rest_route(self::NAMESPACE, '/codebase/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
-                'callback'            => [CodebaseController::class, 'get_term'],
+                'callback'            => [ProjectController::class, 'get_term'],
                 'permission_callback' => '__return_true',
                 'args'                => [
                     'id' => [
@@ -130,7 +130,7 @@ class Routes {
             ],
             [
                 'methods'             => 'PUT',
-                'callback'            => [CodebaseController::class, 'update_term'],
+                'callback'            => [ProjectController::class, 'update_term'],
                 'permission_callback' => [self::class, 'check_manage_terms_permission'],
                 'args'                => [
                     'id' => [

@@ -53,10 +53,10 @@ class Breadcrumbs {
 		echo $args['separator'];
 		echo '<a href="' . esc_url( get_post_type_archive_link( 'documentation' ) ) . '">Docs</a>';
 
-		$terms = get_the_terms( $post_id, Codebase::TAXONOMY );
+		$terms = get_the_terms( $post_id, Project::TAXONOMY );
 
 		if ( $terms && ! is_wp_error( $terms ) ) {
-			$primary_term = Codebase::get_primary_term( $terms );
+			$primary_term = Project::get_primary_term( $terms );
 			if ( $primary_term ) {
 				self::render_term_breadcrumbs( $primary_term, $args, true );
 			}
@@ -73,7 +73,7 @@ class Breadcrumbs {
 	/**
 	 * Render breadcrumb chain for a codebase term hierarchy
 	 *
-	 * @param \WP_Term $term Codebase taxonomy term
+	 * @param \WP_Term $term Project taxonomy term
 	 * @param array $args Breadcrumb arguments
 	 * @param bool $link_current_term Whether to link the deepest term
 	 */
@@ -82,7 +82,7 @@ class Breadcrumbs {
 			return;
 		}
 
-		$ancestors = Codebase::get_term_ancestors( $term );
+		$ancestors = Project::get_term_ancestors( $term );
 		$ancestors[] = $term;
 
 		$slug_path = [];
@@ -96,7 +96,7 @@ class Breadcrumbs {
 			if ( $is_last && ! $link_current_term ) {
 				echo $args['before_current'] . esc_html( $chain_term->name ) . $args['after_current'];
 			} else {
-				$url = get_term_link( $chain_term, Codebase::TAXONOMY );
+				$url = get_term_link( $chain_term, Project::TAXONOMY );
 				echo '<a href="' . esc_url( $url ) . '">' . esc_html( $chain_term->name ) . '</a>';
 			}
 		}
@@ -107,8 +107,8 @@ class Breadcrumbs {
 	 *
 	 * @return \WP_Term|null
 	 */
-	public static function get_active_codebase_archive_term() {
-		if ( is_tax( Codebase::TAXONOMY ) ) {
+	public static function get_active_project_archive_term() {
+		if ( is_tax( Project::TAXONOMY ) ) {
 			$term = get_queried_object();
 			if ( $term && ! is_wp_error( $term ) ) {
 				return $term;

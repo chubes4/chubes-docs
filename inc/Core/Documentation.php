@@ -83,15 +83,15 @@ class Documentation {
 	}
 
 	public static function register_rest_fields() {
-		register_rest_field( self::POST_TYPE, 'codebase_info', [
+		register_rest_field( self::POST_TYPE, 'project_info', [
 			'get_callback' => function( $post ) {
-				$terms = get_the_terms( $post['id'], Codebase::TAXONOMY );
+				$terms = get_the_terms( $post['id'], Project::TAXONOMY );
 
 				if ( ! $terms || is_wp_error( $terms ) ) {
 					return null;
 				}
 
-				$project_term = Codebase::get_project_term( $terms );
+				$project_term = Project::get_project_term( $terms );
 
 				if ( ! $project_term ) {
 					return null;
@@ -105,7 +105,32 @@ class Documentation {
 			},
 			'schema'       => [
 				'type'        => 'object',
-				'description' => 'Codebase project information',
+				'description' => 'Project information',
+				'properties'  => [
+					'id'   => [ 'type' => 'integer' ],
+					'name' => [ 'type' => 'string' ],
+					'slug' => [ 'type' => 'string' ],
+				],
+			],
+		] );
+
+		register_rest_field( self::POST_TYPE, 'project_type', [
+			'get_callback' => function( $post ) {
+				$project_type_term = Project::get_project_type_term( $post['id'] );
+
+				if ( ! $project_type_term ) {
+					return null;
+				}
+
+				return [
+					'id'   => $project_type_term->term_id,
+					'name' => $project_type_term->name,
+					'slug' => $project_type_term->slug,
+				];
+			},
+			'schema'       => [
+				'type'        => 'object',
+				'description' => 'Project type information',
 				'properties'  => [
 					'id'   => [ 'type' => 'integer' ],
 					'name' => [ 'type' => 'string' ],

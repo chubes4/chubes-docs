@@ -2,7 +2,7 @@
 
 namespace ChubesDocs\WPCLI\Commands;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 use WP_CLI;
 use WP_CLI\Utils;
 use WP_Error;
@@ -11,7 +11,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class CodebaseEnsureCommand {
+class ProjectEnsureCommand {
 	public static function run( array $args, array $assoc_args ): void {
 		$type_slug = sanitize_title( $assoc_args['type'] ?? '' );
 		$project_slug = sanitize_title( $assoc_args['project'] ?? '' );
@@ -47,14 +47,14 @@ class CodebaseEnsureCommand {
 		}
 
 		if ( ! empty( $github_url ) ) {
-			update_term_meta( $project_term->term_id, 'codebase_github_url', $github_url );
+			update_term_meta( $project_term->term_id, 'project_github_url', $github_url );
 		}
 
 		if ( ! empty( $wporg_url ) ) {
-			update_term_meta( $project_term->term_id, 'codebase_wp_url', $wporg_url );
+			update_term_meta( $project_term->term_id, 'project_wp_url', $wporg_url );
 		}
 
-		WP_CLI::success( 'Codebase terms ensured.' );
+		WP_CLI::success( 'Project terms ensured.' );
 
 		$rows = [
 			[
@@ -62,9 +62,9 @@ class CodebaseEnsureCommand {
 				'type_term_id'     => (string) $type_term->term_id,
 				'project_slug'     => $project_term->slug,
 				'project_term_id'  => (string) $project_term->term_id,
-				'github_url'       => Codebase::get_github_url( $project_term->term_id ) ?? '',
-				'wporg_url'        => Codebase::get_wp_url( $project_term->term_id ) ?? '',
-				'project_type'     => Codebase::get_project_type( $project_term ),
+				'github_url'       => Project::get_github_url( $project_term->term_id ) ?? '',
+				'wporg_url'        => Project::get_wp_url( $project_term->term_id ) ?? '',
+				'project_type'     => Project::get_project_type( $project_term ),
 			],
 		];
 
@@ -72,10 +72,10 @@ class CodebaseEnsureCommand {
 	}
 
 	private static function ensure_top_level_term( string $slug ): \WP_Term|WP_Error {
-		$existing = get_term_by( 'slug', $slug, Codebase::TAXONOMY );
+		$existing = get_term_by( 'slug', $slug, Project::TAXONOMY );
 		if ( $existing && ! is_wp_error( $existing ) ) {
 			if ( (int) $existing->parent !== 0 ) {
-				return new WP_Error( 'term_parent_mismatch', "Top-level codebase term '{$slug}' exists but is not top-level" );
+				return new WP_Error( 'term_parent_mismatch', "Top-level project term '{$slug}' exists but is not top-level" );
 			}
 			WP_CLI::log( "Using existing type: {$slug}" );
 			return $existing;
@@ -83,7 +83,7 @@ class CodebaseEnsureCommand {
 
 		WP_CLI::warning( "Creating new type: {$slug}" );
 
-		$result = wp_insert_term( $slug, Codebase::TAXONOMY, [
+		$result = wp_insert_term( $slug, Project::TAXONOMY, [
 			'slug'   => $slug,
 			'parent' => 0,
 		] );
@@ -92,12 +92,12 @@ class CodebaseEnsureCommand {
 			return $result;
 		}
 
-		return get_term( $result['term_id'], Codebase::TAXONOMY );
+		return get_term( $result['term_id'], Project::TAXONOMY );
 	}
 
 	private static function ensure_child_term( int $parent_id, string $slug, string $name ): \WP_Term|WP_Error {
 		$existing = get_terms( [
-			'taxonomy'   => Codebase::TAXONOMY,
+			'taxonomy'   => Project::TAXONOMY,
 			'parent'     => $parent_id,
 			'slug'       => $slug,
 			'hide_empty' => false,
@@ -115,7 +115,7 @@ class CodebaseEnsureCommand {
 
 		WP_CLI::log( "Creating new project: {$slug}" );
 
-		$result = wp_insert_term( $name, Codebase::TAXONOMY, [
+		$result = wp_insert_term( $name, Project::TAXONOMY, [
 			'slug'   => $slug,
 			'parent' => $parent_id,
 		] );
@@ -124,6 +124,6 @@ class CodebaseEnsureCommand {
 			return $result;
 		}
 
-		return get_term( $result['term_id'], Codebase::TAXONOMY );
+		return get_term( $result['term_id'], Project::TAXONOMY );
 	}
 }

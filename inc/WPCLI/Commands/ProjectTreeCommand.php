@@ -2,17 +2,17 @@
 
 namespace ChubesDocs\WPCLI\Commands;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 use WP_CLI;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class CodebaseTreeCommand {
+class ProjectTreeCommand {
 	public static function run( array $args, array $assoc_args ): void {
 		$top_level_terms = get_terms( [
-			'taxonomy'   => Codebase::TAXONOMY,
+			'taxonomy'   => Project::TAXONOMY,
 			'parent'     => 0,
 			'hide_empty' => false,
 			'orderby'    => 'name',
@@ -24,7 +24,7 @@ class CodebaseTreeCommand {
 		}
 
 		if ( empty( $top_level_terms ) ) {
-			WP_CLI::warning( 'No codebase terms found.' );
+			WP_CLI::warning( 'No project terms found.' );
 			return;
 		}
 
@@ -32,7 +32,7 @@ class CodebaseTreeCommand {
 			WP_CLI::line( self::format_term_line( $type_term, false ) );
 
 			$children = get_terms( [
-				'taxonomy'   => Codebase::TAXONOMY,
+				'taxonomy'   => Project::TAXONOMY,
 				'parent'     => $type_term->term_id,
 				'hide_empty' => false,
 				'orderby'    => 'name',
@@ -64,7 +64,7 @@ class CodebaseTreeCommand {
 				$parts[] = "[{$doc_count} docs]";
 			}
 
-			$github_url = Codebase::get_github_url( $term->term_id );
+			$github_url = Project::get_github_url( $term->term_id );
 			if ( $github_url ) {
 				$parts[] = $github_url;
 			}
@@ -78,7 +78,7 @@ class CodebaseTreeCommand {
 			'post_type'      => 'documentation',
 			'tax_query'      => [
 				[
-					'taxonomy' => Codebase::TAXONOMY,
+					'taxonomy' => Project::TAXONOMY,
 					'field'    => 'term_id',
 					'terms'    => $term_id,
 				],

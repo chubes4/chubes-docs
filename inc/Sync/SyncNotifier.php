@@ -8,7 +8,7 @@
 
 namespace ChubesDocs\Sync;
 
-use ChubesDocs\Core\Codebase;
+use ChubesDocs\Core\Project;
 
 class SyncNotifier {
 
@@ -23,7 +23,7 @@ class SyncNotifier {
 			return;
 		}
 
-		$term = get_term( $term_id, Codebase::TAXONOMY );
+		$term = get_term( $term_id, Project::TAXONOMY );
 		if ( ! $term || is_wp_error( $term ) ) {
 			return;
 		}
@@ -82,7 +82,7 @@ class SyncNotifier {
 		}
 		$lines[] = $project_line;
 
-		$github_url = get_term_meta( $term->term_id, 'codebase_github_url', true );
+		$github_url = get_term_meta( $term->term_id, 'project_github_url', true );
 		if ( $github_url ) {
 			$lines[] = 'Repository: ' . $github_url;
 		}
@@ -154,11 +154,11 @@ class SyncNotifier {
 	 * @return int Install count.
 	 */
 	private function get_install_count( int $term_id ): int {
-		$wp_url = get_term_meta( $term_id, 'codebase_wp_url', true );
+		$wp_url = get_term_meta( $term_id, 'project_wp_url', true );
 		if ( empty( $wp_url ) ) {
 			return 0;
 		}
-		return (int) get_term_meta( $term_id, 'codebase_installs', true );
+		return (int) get_term_meta( $term_id, 'project_installs', true );
 	}
 
 	/**
