@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+- Add project_type taxonomy for explicit project categorization (wordpress-plugins, wordpress-themes, cli)
+- Add TaxonomyMigrateCommand for automated data migration from codebase to project taxonomy
+
+### Changed
+- Rename codebase taxonomy to project, update all references and API endpoints
+
 ## [0.5.6] - 2026-01-23
 
 ### Changed
