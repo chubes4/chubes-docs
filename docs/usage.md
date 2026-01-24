@@ -72,7 +72,7 @@ See [API Reference](api-reference.md) for complete parameter documentation.
 #### Quick Reference
 - `per_page` - Number of results per page (default: 10)
 - `page` - Page number for pagination
-- `codebase` - Filter by project taxonomy term slug
+- `project` - Filter by project taxonomy term slug
 - `status` - Filter by post status (publish, draft, etc.)
 - `search` - Search term for title/content
 

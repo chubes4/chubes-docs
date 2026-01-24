@@ -32,12 +32,12 @@ For development:
 
 - **Documentation Management**: Custom `documentation` post type with Gutenberg editor support
 - **Project Taxonomy**: Hierarchical `project` taxonomy for organizing documentation by project
-- **REST API Layer**: Complete CRUD operations for docs, codebase management, and sync operations
+- **REST API Layer**: Complete CRUD operations for docs, project management, and sync operations
 - **Markdown Processing**: Convert markdown to HTML with internal link resolution using Parsedown
 - **Sync System**: External documentation synchronization with batch operations and project setup
 - **Repository Integration**: GitHub and WordPress.org repository metadata tracking
 - **Install Tracking**: Automatic fetching of active install counts from WordPress.org API
-- **Template Enhancements**: Archive views, codebase cards, related posts, and breadcrumb navigation
+- **Template Enhancements**: Archive views, project cards, related posts, and breadcrumb navigation
 
 ## Post-Installation
 

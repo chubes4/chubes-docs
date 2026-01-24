@@ -33,7 +33,7 @@ curl -X POST /wp-json/chubes/v1/sync/doc \
 - **Codebase Integration**: GitHub and WordPress.org repository metadata tracking with admin columns
 - **Install Tracking**: Automatic fetching of active install counts from WordPress.org API with daily updates
 - **Markdown Processing**: Convert markdown content to HTML with internal link resolution
-- **Related Posts**: Hierarchical codebase-aware related documentation display
+- **Related Posts**: Hierarchical project-aware related documentation display
 - **Cron Sync**: Scheduled automated synchronization with configurable intervals (hourly/twice daily/daily)
 - **Admin Interface**: GitHub PAT configuration, connection diagnostics, and sync management UI
 - **WP-CLI Commands**: Command-line tools for codebase management and documentation sync
