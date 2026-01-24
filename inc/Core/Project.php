@@ -85,7 +85,7 @@ class Project {
 
 	/**
 	 * Get the primary (deepest) project term from a set of terms
-	 *
+	 */
 	public static function get_primary_term( $terms ) {
 		if ( empty( $terms ) || is_wp_error( $terms ) ) {
 			return null;
@@ -370,7 +370,7 @@ class Project {
 
 	/**
 	 * Get install count for a project term
-	 *
+	 */
 	public static function get_installs( $term ) {
 		$term_id = is_object( $term ) ? $term->term_id : $term;
 		return (int) get_term_meta( $term_id, 'project_installs', true );
