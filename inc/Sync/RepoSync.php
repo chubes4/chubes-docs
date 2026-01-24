@@ -24,7 +24,7 @@ class RepoSync {
 	 * @param int $term_id The codebase term ID (project level, depth 1).
 	 * @return array Sync results with counts and details.
 	 */
-	public function sync( int $term_id ): array {
+	public function sync( $term_id ) {
 		$result = [
 			'success'       => false,
 			'term_id'       => $term_id,
@@ -119,7 +119,7 @@ class RepoSync {
 	 * @param string $sha     Commit SHA.
 	 * @return array Sync results.
 	 */
-	private function full_sync( int $term_id, string $owner, string $repo, string $sha ): array {
+	private function full_sync( $term_id, $owner, $repo, $sha ) {
 		$result = [
 			'success'       => true,
 			'added'         => [],
@@ -186,7 +186,7 @@ class RepoSync {
 	 * @param string $new_sha New commit SHA.
 	 * @return array Sync results.
 	 */
-	private function incremental_sync( int $term_id, string $owner, string $repo, string $old_sha, string $new_sha ): array {
+	private function incremental_sync( $term_id, $owner, $repo, $old_sha, $new_sha ) {
 		$result = [
 			'success'       => true,
 			'added'         => [],
@@ -233,7 +233,7 @@ class RepoSync {
 			}
 		}
 
-		foreach ( $changes['renamed'] ?? [] as $rename ) {
+		foreach ( isset( $changes['renamed'] ) ? $changes['renamed'] : [] as $rename ) {
 			$post_id = SyncManager::find_post_by_source( $rename['previous'], $term_id );
 			if ( $post_id ) {
 				update_post_meta( $post_id, '_sync_source_file', $rename['new'] );
@@ -261,7 +261,7 @@ class RepoSync {
 	 * @param string $ref           Git reference.
 	 * @return array Process result.
 	 */
-	private function process_file( int $term_id, string $owner, string $repo, string $relative_path, string $ref ): array {
+	private function process_file( $term_id, $owner, $repo, $relative_path, $ref ) {
 		$result = [
 			'success'       => false,
 			'action'        => null,
@@ -316,7 +316,7 @@ class RepoSync {
 	 * @param string $markdown Markdown content.
 	 * @return string|null Title or null if not found.
 	 */
-	private function extract_title( string $markdown ): ?string {
+	private function extract_title( $markdown ) {
 		if ( preg_match( '/^#\s+(.+)/mu', $markdown, $matches ) ) {
 			return trim( $matches[1] );
 		}
@@ -329,7 +329,7 @@ class RepoSync {
 	 * @param string $markdown Markdown content.
 	 * @return string Content without first H1.
 	 */
-	private function strip_first_h1( string $markdown ): string {
+	private function strip_first_h1( $markdown ) {
 		return preg_replace( '/^#\s+.+\n*/mu', '', $markdown, 1 );
 	}
 
@@ -340,7 +340,7 @@ class RepoSync {
 	 * @param string $relative_path Relative path (e.g., 'guides/advanced/config.md').
 	 * @return array Subpath array (e.g., ['Guides', 'Advanced']).
 	 */
-	private function build_subpath( string $relative_path ): array {
+	private function build_subpath( $relative_path ) {
 		$subpath = [];
 		$dir_parts = explode( '/', dirname( $relative_path ) );
 
@@ -361,7 +361,7 @@ class RepoSync {
 	 * @param array $synced_source_files Array of source files that were synced.
 	 * @return array Array of orphaned posts with 'id' and 'source_file'.
 	 */
-	private function find_orphaned_posts( int $term_id, array $synced_source_files ): array {
+	private function find_orphaned_posts( $term_id, $synced_source_files ) {
 		$orphans = [];
 
 		$term = get_term( $term_id, Project::TAXONOMY );
@@ -403,7 +403,7 @@ class RepoSync {
 	 * @param string $source_file Source file path.
 	 * @return bool True if deleted, false otherwise.
 	 */
-	private function delete_by_source_file( int $term_id, string $source_file ): bool {
+	private function delete_by_source_file( $term_id, $source_file ) {
 		$post_id = SyncManager::find_post_by_source( $source_file, $term_id );
 		if ( $post_id ) {
 			return $this->delete_post( $post_id );
@@ -417,7 +417,7 @@ class RepoSync {
 	 * @param int $post_id Post ID.
 	 * @return bool True if deleted, false otherwise.
 	 */
-	private function delete_post( int $post_id ): bool {
+	private function delete_post( $post_id ) {
 		$result = wp_delete_post( $post_id, true );
 		return $result !== false && $result !== null;
 	}
@@ -429,7 +429,7 @@ class RepoSync {
 	 * @param string      $status  Status: 'syncing', 'success', 'failed'.
 	 * @param string|null $error   Error message if failed.
 	 */
-	private function update_sync_status( int $term_id, string $status, ?string $error = null ): void {
+	private function update_sync_status( $term_id, $status, $error = null ) {
 		update_term_meta( $term_id, 'project_sync_status', $status );
 		if ( $error ) {
 			update_term_meta( $term_id, 'project_sync_error', $error );
