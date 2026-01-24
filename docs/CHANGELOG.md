@@ -5,10 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [0.7.0] - 2026-01-24
 
 ### Fixed
-- Fix taxonomy migration issues and docblock errors
+- **Complete taxonomy migration**: Migrated all references from 'codebase' to 'project' taxonomy across templates, API routes, breadcrumbs, and meta keys
+- **Docblock fixes**: Closed unclosed docblocks in Project.php that were causing fatal errors
+- **Meta key consistency**: Updated all meta key references from `codebase_*` to `project_*` prefix throughout the codebase
+
+### Changed
+- **Simplified archive structure**: Docs archive and homepage now use project_type taxonomy directly
+- **Homepage nesting**: Simplified homepage documentation nesting to use top level project term directly after refactor
+
+### Added
+- **Documentation updates**: Various documentation improvements and updates
 
 ## [0.6.0] - 2026-01-24
 
