@@ -54,7 +54,7 @@ class Homepage {
 		$doc_items = [];
 
 		$parent_categories = get_terms( [
-			'taxonomy'   => 'codebase',
+			'taxonomy'   => 'project',
 			'hide_empty' => false,
 			'parent'     => 0,
 			'orderby'    => 'name',
@@ -67,7 +67,7 @@ class Homepage {
 
 		foreach ( $parent_categories as $parent_category ) {
 			$child_projects = get_terms( [
-				'taxonomy'   => 'codebase',
+				'taxonomy'   => 'project',
 				'hide_empty' => false,
 				'parent'     => $parent_category->term_id,
 				'orderby'    => 'name',

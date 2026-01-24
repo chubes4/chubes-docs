@@ -146,7 +146,7 @@ class SyncAbilities {
 				continue;
 			}
 
-			$github_url = get_term_meta( $term->term_id, 'codebase_github_url', true );
+			$github_url = get_term_meta( $term->term_id, 'project_github_url', true );
 			if ( empty( $github_url ) ) {
 				continue;
 			}

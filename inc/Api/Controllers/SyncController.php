@@ -117,11 +117,11 @@ class SyncController {
         }
 
         if ( ! empty( $github_url ) ) {
-            update_term_meta( $project_term->term_id, 'codebase_github_url', $github_url );
+            update_term_meta( $project_term->term_id, 'project_github_url', $github_url );
         }
 
         if ( ! empty( $wp_url ) ) {
-            update_term_meta( $project_term->term_id, 'codebase_wp_url', $wp_url );
+            update_term_meta( $project_term->term_id, 'project_wp_url', $wp_url );
         }
 
         return rest_ensure_response([
