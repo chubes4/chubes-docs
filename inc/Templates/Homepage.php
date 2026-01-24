@@ -53,7 +53,7 @@ class Homepage {
 	private static function get_documentation_items() {
 		$doc_items = [];
 
-		$parent_categories = get_terms( [
+		$top_level_terms = get_terms( [
 			'taxonomy'   => 'project',
 			'hide_empty' => false,
 			'parent'     => 0,
@@ -61,18 +61,20 @@ class Homepage {
 			'order'      => 'ASC',
 		] );
 
-		if ( ! $parent_categories || is_wp_error( $parent_categories ) ) {
+		if ( ! $top_level_terms || is_wp_error( $top_level_terms ) ) {
 			return [];
 		}
 
-		foreach ( $parent_categories as $parent_category ) {
+		foreach ( $top_level_terms as $top_level_term ) {
 			$child_projects = get_terms( [
 				'taxonomy'   => 'project',
 				'hide_empty' => false,
-				'parent'     => $parent_category->term_id,
+				'parent'     => $top_level_term->term_id,
 				'orderby'    => 'name',
 				'order'      => 'ASC',
 			] );
+
+			$total_docs = 0;
 
 			if ( ! $child_projects || is_wp_error( $child_projects ) ) {
 				continue;
@@ -81,20 +83,22 @@ class Homepage {
 			foreach ( $child_projects as $project ) {
 				$repo_info = Project::get_repository_info( $project );
 				$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
+				$total_docs += $doc_count;
+			}
 
-				if ( $doc_count > 0 ) {
-					$doc_items[] = [
-						'name'  => $project->name,
-						'type'  => rtrim( $parent_category->name, 's' ),
-						'count' => $doc_count,
-						'url'   => get_term_link( $project ),
-					];
-				}
+			if ( $total_docs > 0 ) {
+				$doc_items[] = [
+					'name'  => $top_level_term->name,
+					'type'  => $top_level_term->slug, // Use slug as project type
+					'count' => $total_docs,
+					'url'   => get_term_link( $top_level_term ),
+				];
 			}
 		}
 
+		// Sort by count descending
 		usort( $doc_items, function( $a, $b ) {
-			return strcmp( $a['name'], $b['name'] );
+			return $b['count'] <=> $a['count'];
 		} );
 
 		return array_slice( $doc_items, 0, 3 );

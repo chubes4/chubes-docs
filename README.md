@@ -27,7 +27,7 @@ curl -X POST /wp-json/chubes/v1/sync/doc \
 ```
 ## Features
 
-- **REST API Endpoints**: Full CRUD operations for documentation posts and codebase taxonomy management
+- **REST API Endpoints**: Full CRUD operations for documentation posts and project taxonomy management
 - **Enhanced Sync System**: Project-based sync with `project_term_id` and `subpath` parameters (v0.2.0+)
 - **GitHub Integration**: Full GitHub API integration for automated documentation sync from repositories
 - **Codebase Integration**: GitHub and WordPress.org repository metadata tracking with admin columns
@@ -64,30 +64,30 @@ The plugin provides REST API endpoints under the `chubes/v1` namespace:
 - `PUT /wp-json/chubes/v1/docs/{id}` - Update documentation
 - `DELETE /wp-json/chubes/v1/docs/{id}` - Delete documentation
 
-### Codebase Taxonomy
-- `GET /wp-json/chubes/v1/codebase` - List codebase taxonomy terms
-- `GET /wp-json/chubes/v1/codebase/tree` - Get hierarchical codebase tree
-- `POST /wp-json/chubes/v1/codebase/resolve` - Resolve or create taxonomy path
-- `GET /wp-json/chubes/v1/codebase/{id}` - Get specific taxonomy term
-- `PUT /wp-json/chubes/v1/codebase/{id}` - Update taxonomy term
+### Project Taxonomy
+- `GET /wp-json/chubes/v1/project` - List project taxonomy terms
+- `GET /wp-json/chubes/v1/project/tree` - Get hierarchical project tree
+- `POST /wp-json/chubes/v1/project/resolve` - Resolve or create taxonomy path
+- `GET /wp-json/chubes/v1/project/{id}` - Get specific taxonomy term
+- `PUT /wp-json/chubes/v1/project/{id}` - Update taxonomy term
 
 ### Sync
 - `POST /wp-json/chubes/v1/sync/setup` - Setup project + category terms
 - `GET /wp-json/chubes/v1/sync/status` - Get sync status for a project (requires `project`)
 - `POST /wp-json/chubes/v1/sync/doc` - Sync a single document
 - `POST /wp-json/chubes/v1/sync/batch` - Batch sync documents
-- `POST /wp-json/chubes/v1/sync/all` - Manually sync GitHub docs for all codebases with GitHub URLs
-- `POST /wp-json/chubes/v1/sync/term/{id}` - Manually sync GitHub docs for a single codebase term
+- `POST /wp-json/chubes/v1/sync/all` - Manually sync GitHub docs for all projects with GitHub URLs
+- `POST /wp-json/chubes/v1/sync/term/{id}` - Manually sync GitHub docs for a single project term
 - `GET /wp-json/chubes/v1/sync/test-token` - GitHub token diagnostics
 - `POST /wp-json/chubes/v1/sync/test-repo` - GitHub repo diagnostics (`repo_url`)
 
 ### WP-CLI Commands
-- `wp chubes codebase ensure` - Ensure codebase taxonomy terms exist and are properly configured
+- `wp chubes project ensure` - Ensure project taxonomy terms exist and are properly configured
 - `wp chubes docs sync` - Manually trigger documentation synchronization
 
 ### WP Abilities API
-- `chubes/sync-docs` - Sync a single codebase term from GitHub
-- `chubes/sync-docs-batch` - Sync multiple codebase terms from GitHub
+- `chubes/sync-docs` - Sync a single project term from GitHub
+- `chubes/sync-docs-batch` - Sync multiple project terms from GitHub
 ## Development
 
 ### Building
@@ -101,12 +101,12 @@ This creates a production-ready ZIP file in the `build/` directory.
 ### Code Structure
 
 - `inc/Api/` - REST API controllers, routes, and WP Abilities API integration
-- `inc/Core/` - Core plugin functionality (assets, breadcrumbs, codebase, documentation, rewrite rules)
+- `inc/Core/` - Core plugin functionality (assets, breadcrumbs, project, documentation, rewrite rules)
 - `inc/Fields/` - Admin interface fields and install tracking
 - `inc/Sync/` - Markdown processing, GitHub client, cron sync, repo sync, and notifications
-- `inc/Templates/` - Frontend template enhancements (archive, codebase cards, homepage, related posts)
+- `inc/Templates/` - Frontend template enhancements (archive, project cards, homepage, related posts)
 - `inc/Admin/` - Admin interface components (settings page, admin columns)
-- `inc/WPCLI/` - WP-CLI commands for codebase management and documentation sync
+- `inc/WPCLI/` - WP-CLI commands for project management and documentation sync
 - `assets/css/` - Frontend stylesheets (archives, related posts)
 - `assets/js/` - Admin JavaScript (sync interface)
 

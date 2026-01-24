@@ -31,7 +31,7 @@ For development:
 ## Features
 
 - **Documentation Management**: Custom `documentation` post type with Gutenberg editor support
-- **Codebase Taxonomy**: Hierarchical `codebase` taxonomy for organizing documentation by project
+- **Project Taxonomy**: Hierarchical `project` taxonomy for organizing documentation by project
 - **REST API Layer**: Complete CRUD operations for docs, codebase management, and sync operations
 - **Markdown Processing**: Convert markdown to HTML with internal link resolution using Parsedown
 - **Sync System**: External documentation synchronization with batch operations and project setup
@@ -43,6 +43,6 @@ For development:
 
 After activation, the plugin will:
 - Register the `documentation` post type
-- Create the `codebase` taxonomy
+- Create the `project` taxonomy
 - Set up REST API routes
 - Initialize install tracking

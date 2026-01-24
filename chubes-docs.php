@@ -11,6 +11,11 @@
  * Requires PHP: 8.0
  */
 
+// Prevent direct access
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
 define( 'CHUBES_DOCS_VERSION', '0.6.0' );
 define( 'CHUBES_DOCS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CHUBES_DOCS_URL', plugin_dir_url( __FILE__ ) );

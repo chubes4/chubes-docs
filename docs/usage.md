@@ -8,7 +8,7 @@ The plugin provides a `documentation` custom post type for creating and managing
 
 - Gutenberg editor support
 - Markdown processing
-- Codebase taxonomy for organization
+- Project taxonomy for organization
 - REST API access
 - Archive and single views
 
@@ -16,12 +16,12 @@ The plugin provides a `documentation` custom post type for creating and managing
 
 1. In WordPress admin, go to Documentation > Add New
 2. Write your documentation content
-3. Assign to appropriate codebase taxonomy terms
+3. Assign to appropriate project taxonomy terms
 4. Publish
 
-## Codebase Taxonomy
+## Project Taxonomy
 
-Organize documentation with the `codebase` hierarchical taxonomy.
+Organize documentation with the `project` hierarchical taxonomy.
 
 ### Structure
 
@@ -49,19 +49,19 @@ All endpoints use the `chubes/v1` namespace.
 - `PUT /wp-json/chubes/v1/docs/{id}` - Update documentation
 - `DELETE /wp-json/chubes/v1/docs/{id}` - Delete documentation
 
-#### Codebase Taxonomy
-- `GET /wp-json/chubes/v1/codebase` - List codebase taxonomy terms
-- `GET /wp-json/chubes/v1/codebase/tree` - Get hierarchical codebase tree
-- `POST /wp-json/chubes/v1/codebase/resolve` - Resolve or create taxonomy path
-- `GET /wp-json/chubes/v1/codebase/{id}` - Get specific taxonomy term
-- `PUT /wp-json/chubes/v1/codebase/{id}` - Update taxonomy term
+#### Project Taxonomy
+- `GET /wp-json/chubes/v1/project` - List project taxonomy terms
+- `GET /wp-json/chubes/v1/project/tree` - Get hierarchical project tree
+- `POST /wp-json/chubes/v1/project/resolve` - Resolve or create taxonomy path
+- `GET /wp-json/chubes/v1/project/{id}` - Get specific taxonomy term
+- `PUT /wp-json/chubes/v1/project/{id}` - Update taxonomy term
 
 #### Sync Operations
 - `POST /wp-json/chubes/v1/sync/setup` - Setup project + category terms
 - `GET /wp-json/chubes/v1/sync/status` - Get sync status for a project
 - `POST /wp-json/chubes/v1/sync/doc` - Sync a single document
 - `POST /wp-json/chubes/v1/sync/batch` - Batch sync documents
-- `POST /wp-json/chubes/v1/sync/all` - Manually sync GitHub docs for all codebases
+- `POST /wp-json/chubes/v1/sync/all` - Manually sync GitHub docs for all projects
 - `POST /wp-json/chubes/v1/sync/term/{id}` - Manually sync GitHub docs for a term
 - `GET /wp-json/chubes/v1/sync/test-token` - GitHub token diagnostics
 - `POST /wp-json/chubes/v1/sync/test-repo` - GitHub repo diagnostics (`repo_url`)
@@ -72,7 +72,7 @@ See [API Reference](api-reference.md) for complete parameter documentation.
 #### Quick Reference
 - `per_page` - Number of results per page (default: 10)
 - `page` - Page number for pagination
-- `codebase` - Filter by codebase taxonomy term slug
+- `codebase` - Filter by project taxonomy term slug
 - `status` - Filter by post status (publish, draft, etc.)
 - `search` - Search term for title/content
 
@@ -118,7 +118,7 @@ Documentation content supports Markdown syntax via Parsedown.
 
 ## Install Tracking
 
-The plugin tracks install counts for codebase terms that have a WordPress.org URL configured (returned as `meta.installs` on `GET /codebase/{id}`).
+The plugin tracks install counts for project terms that have a WordPress.org URL configured (returned as `meta.installs` on `GET /project/{id}`).
 ## Templates
 
 The plugin provides custom templates for documentation display:
@@ -147,7 +147,7 @@ This plugin uses standard WordPress hooks internally. Public hooks/filters are n
 **Sync fails with "Project term not found"**
 - Ensure you've called `/sync/setup` first to create the project taxonomy terms
 - Verify the `project_term_id` matches the ID returned from setup
-- Check that the project term exists in the codebase taxonomy
+- Check that the project term exists in the project taxonomy
 
 **Content not updating**
 - Set `force: true` in your sync request to override existing content

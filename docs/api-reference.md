@@ -27,7 +27,7 @@ List documentation posts.
 **Query parameters:**
 - `per_page` (int, default `10`)
 - `page` (int, default `1`)
-- `codebase` (string): Codebase term slug or numeric term ID
+- `codebase` (string): Project term slug or numeric term ID
 - `status` (string, default `publish`)
 - `search` (string)
 
@@ -42,7 +42,7 @@ List documentation posts.
       "excerpt": "Brief description",
       "status": "publish",
       "link": "https://example.com/docs/.../getting-started/",
-      "codebase": {
+      "project": {
         "assigned_term": {"id": 15, "slug": "my-plugin", "name": "My Plugin"},
         "project": {"id": 15, "slug": "my-plugin", "name": "My Plugin"},
         "category": {"id": 5, "slug": "wordpress-plugins", "name": "WordPress Plugins"},
@@ -139,16 +139,16 @@ Delete a documentation post.
   "trashed": true
 }
 ```
-## Codebase Taxonomy Endpoints
+## Project Taxonomy Endpoints
 
 Permissions summary:
-- `GET /codebase`, `GET /codebase/tree`, `GET /codebase/{id}`: public
-- `POST /codebase/resolve`: public when `create_missing=false`, otherwise `manage_categories`
-- `PUT /codebase/{id}`: `manage_categories`
+- `GET /project`, `GET /project/tree`, `GET /project/{id}`: public
+- `POST /project/resolve`: public when `create_missing=false`, otherwise `manage_categories`
+- `PUT /project/{id}`: `manage_categories`
 
-### GET /codebase
+### GET /project
 
-List codebase taxonomy terms.
+List project taxonomy terms.
 
 **Permissions:** Public.
 
@@ -172,9 +172,9 @@ List codebase taxonomy terms.
   }
 ]
 ```
-### GET /codebase/tree
+### GET /project/tree
 
-Get the complete hierarchical codebase tree.
+Get the complete hierarchical project tree.
 
 **Permissions:** Public.
 
@@ -207,7 +207,7 @@ Get the complete hierarchical codebase tree.
   }
 ]
 ```
-### POST /codebase/resolve
+### POST /project/resolve
 
 Resolve a taxonomy path to terms, optionally creating missing terms.
 
@@ -235,16 +235,16 @@ Resolve a taxonomy path to terms, optionally creating missing terms.
   ]
 }
 ```
-### GET /codebase/{id}
+### GET /project/{id}
 
 Get a specific taxonomy term.
 
 **Parameters:**
 - `id` (int, required): Term ID
 
-**Response:** Single term object as shown in GET /codebase.
+**Response:** Single term object as shown in GET /project.
 
-### PUT /codebase/{id}
+### PUT /project/{id}
 
 Update a taxonomy term.
 
@@ -268,7 +268,7 @@ Permissions summary:
 
 ### POST /sync/all
 
-Manually sync all codebases that have a GitHub URL configured.
+Manually sync all projects that have a GitHub URL configured.
 
 **Permissions:** Requires `manage_options`.
 
@@ -286,12 +286,12 @@ Manually sync all codebases that have a GitHub URL configured.
 
 ### POST /sync/term/{id}
 
-Manually sync a single codebase term.
+Manually sync a single project term.
 
 **Permissions:** Requires `manage_options`.
 
 **Parameters:**
-- `id` (int, required): Codebase term ID
+- `id` (int, required): Project term ID
 - `force` (boolean, default `false`)
 
 **Response:**
