@@ -27,7 +27,7 @@ class Breadcrumbs {
 	 * @return string|null
 	 */
 	public static function handle_custom_archive( $output, $args ) {
-		$term = self::get_active_codebase_archive_term();
+		$term = self::get_active_project_archive_term();
 		if ( ! $term ) {
 			return $output;
 		}

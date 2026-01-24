@@ -26,7 +26,7 @@ class Archive {
 	 * Renders a project info card with description, stats, and action buttons.
 	 */
 	public static function render_header_extras() {
-		if ( ! is_tax( 'codebase' ) ) {
+		if ( ! is_tax( 'project' ) ) {
 			return;
 		}
 

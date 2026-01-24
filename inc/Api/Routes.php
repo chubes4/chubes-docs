@@ -71,7 +71,7 @@ class Routes {
     }
 
     private static function register_codebase_routes(): void {
-        register_rest_route(self::NAMESPACE, '/codebase', [
+        register_rest_route(self::NAMESPACE, '/project', [
             'methods'             => 'GET',
             'callback'            => [ProjectController::class, 'list_terms'],
             'permission_callback' => '__return_true',
@@ -88,13 +88,13 @@ class Routes {
             ],
         ]);
 
-        register_rest_route(self::NAMESPACE, '/codebase/tree', [
+        register_rest_route(self::NAMESPACE, '/project/tree', [
             'methods'             => 'GET',
             'callback'            => [ProjectController::class, 'get_tree'],
             'permission_callback' => '__return_true',
         ]);
 
-        register_rest_route(self::NAMESPACE, '/codebase/resolve', [
+        register_rest_route(self::NAMESPACE, '/project/resolve', [
             'methods'             => 'POST',
             'callback'            => [ProjectController::class, 'resolve_path'],
             'permission_callback' => [self::class, 'check_resolve_permission'],
@@ -115,7 +115,7 @@ class Routes {
             ],
         ]);
 
-        register_rest_route(self::NAMESPACE, '/codebase/(?P<id>\d+)', [
+        register_rest_route(self::NAMESPACE, '/project/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',
                 'callback'            => [ProjectController::class, 'get_term'],
@@ -245,7 +245,7 @@ class Routes {
 
     private static function get_docs_list_args(): array {
         return [
-            'codebase' => [
+            'project' => [
                 'type' => 'string',
             ],
             'status' => [
@@ -285,7 +285,7 @@ class Routes {
                 'type'    => 'string',
                 'default' => 'publish',
             ],
-            'codebase_path' => [
+            'project_path' => [
                 'type'  => 'array',
                 'items' => ['type' => 'string'],
             ],
@@ -315,7 +315,7 @@ class Routes {
             'status' => [
                 'type' => 'string',
             ],
-            'codebase_path' => [
+            'project_path' => [
                 'type'  => 'array',
                 'items' => ['type' => 'string'],
             ],

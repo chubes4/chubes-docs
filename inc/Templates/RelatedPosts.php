@@ -39,7 +39,7 @@ class RelatedPosts {
 			return;
 		}
 
-		$terms = get_the_terms( $post_id, 'codebase' );
+		$terms = get_the_terms( $post_id, 'project' );
 		$project_term = null;
 		$current_level_term = null;
 		$top_level_term = null;
