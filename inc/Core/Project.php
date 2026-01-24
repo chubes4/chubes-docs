@@ -14,7 +14,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Project {
 
-	const TAXONOMY = 'project';
+	const TAXONOMY = 'codebase';
 
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register' ] );
