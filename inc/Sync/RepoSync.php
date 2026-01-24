@@ -437,5 +437,4 @@ class RepoSync {
 			delete_term_meta( $term_id, 'project_sync_error' );
 		}
 	}
-	}
 }
