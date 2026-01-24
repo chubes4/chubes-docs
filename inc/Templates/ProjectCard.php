@@ -28,9 +28,26 @@ class ProjectCard {
 
 		$has_download = ! empty( $repo_info['wp_url'] );
 		$download_text = $has_download ? 'Download ' . $singular_type : 'View ' . $singular_type;
+
+		// Get actual project type from posts
+		$project_type = '';
+		$posts = get_posts( [
+			'post_type'      => 'documentation',
+			'tax_query'      => [
+				[
+					'taxonomy' => 'project',
+					'terms'    => $term->term_id,
+				],
+			],
+			'posts_per_page' => 1,
+			'fields'         => 'ids',
+		] );
+		if ( ! empty( $posts ) ) {
+			$project_type = Project::get_project_type( $posts[0] );
+		}
 		?>
 
-		<div class="doc-card" data-project-type="<?php echo esc_attr( $parent_term ? $parent_term->slug : '' ); ?>">
+		<div class="doc-card" data-project-type="<?php echo esc_attr( $project_type ); ?>">
 			<div class="card-header">
 				<h3 class="project-title">
 					<a href="<?php echo esc_url( get_term_link( $term ) ); ?>"><?php echo esc_html( $term->name ); ?></a>

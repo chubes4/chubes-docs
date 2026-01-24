@@ -425,59 +425,69 @@ class Archive {
 	/**
 	 * Render documentation archive page
 	 * 
-	 * Shows all documentation grouped by parent codebase category.
+	 * Shows all documentation grouped by project type.
 	 */
 	private static function render_documentation_archive() {
-		$parent_categories = get_terms( [
-			'taxonomy'   => 'project',
+		$project_types = get_terms( [
+			'taxonomy'   => 'project_type',
 			'hide_empty' => true,
-			'parent'     => 0,
 			'orderby'    => 'name',
 			'order'      => 'ASC',
 		] );
 
-		if ( ! $parent_categories || is_wp_error( $parent_categories ) ) {
+		if ( ! $project_types || is_wp_error( $project_types ) ) {
 			return;
 		}
 
-		foreach ( $parent_categories as $parent_category ) :
-			$project_terms = get_terms( [
-				'taxonomy'   => 'project',
-				'hide_empty' => true,
-				'parent'     => $parent_category->term_id,
-				'orderby'    => 'name',
-				'order'      => 'ASC',
+		foreach ( $project_types as $project_type ) :
+			// Find documentation posts with this project_type
+			$posts = get_posts( [
+				'post_type'      => Documentation::POST_TYPE,
+				'tax_query'      => [
+					[
+						'taxonomy' => 'project_type',
+						'terms'    => $project_type->term_id,
+					],
+				],
+				'posts_per_page' => -1,
+				'fields'         => 'ids',
 			] );
 
-			$has_documentation = false;
-			$projects_with_docs = [];
-
-			if ( $project_terms && ! is_wp_error( $project_terms ) ) {
-				foreach ( $project_terms as $project_term ) {
-					$repo_info = Project::get_repository_info( $project_term );
-					$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
-
-					if ( $doc_count > 0 ) {
-						$has_documentation = true;
-						$projects_with_docs[] = [
-							'term'      => $project_term,
-							'repo_info' => $repo_info,
-							'doc_count' => $doc_count,
-						];
+			$project_terms = [];
+			foreach ( $posts as $post_id ) {
+				$terms = get_the_terms( $post_id, 'project' );
+				if ( $terms && ! is_wp_error( $terms ) ) {
+					$project_term = Project::get_project_term( $terms );
+					if ( $project_term && ! in_array( $project_term->term_id, array_column( $project_terms, 'term_id' ) ) ) {
+						$project_terms[] = $project_term;
 					}
 				}
 			}
 
-			if ( ! $has_documentation ) {
+			$projects_with_docs = [];
+			foreach ( $project_terms as $project_term ) {
+				$repo_info = Project::get_repository_info( $project_term );
+				$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
+
+				if ( $doc_count > 0 ) {
+					$projects_with_docs[] = [
+						'term'      => $project_term,
+						'repo_info' => $repo_info,
+						'doc_count' => $doc_count,
+					];
+				}
+			}
+
+			if ( empty( $projects_with_docs ) ) {
 				continue;
 			}
 			?>
 
 			<section class="documentation-category-section">
 				<div class="category-header">
-					<h2><?php echo esc_html( ucfirst( $parent_category->name ) ); ?></h2>
-					<?php if ( $parent_category->description ) : ?>
-						<p><?php echo esc_html( $parent_category->description ); ?></p>
+					<h2><?php echo esc_html( ucfirst( $project_type->name ) ); ?></h2>
+					<?php if ( $project_type->description ) : ?>
+						<p><?php echo esc_html( $project_type->description ); ?></p>
 					<?php endif; ?>
 				</div>
 
