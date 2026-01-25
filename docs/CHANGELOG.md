@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- ### Fixed
+- Fixed project types not appearing in wp-admin sidebar by associating project_type taxonomy with documentation CPT
+- Fixed missing get_project_type_term method causing REST field errors
+
+### Added  
+- Added comprehensive tags support for documentation posts (CPT supports, taxonomies, REST API integration)
+- Added consolidated chubes/get-projects WP Abilities API ability replacing chubes/get-project-tree
+- Added chubes/get-projects ability with flexible filtering: project types, post IDs, tree format, flat lists by count
+- Added reverse lookup functionality: filter projects by project type(s)
+- Added full REST API support for both project types and tags
+
+### Changed
+- Consolidated project-related queries into single, more primitive WP Abilities API capability
+- Enhanced project type taxonomy visibility: show_in_menu, show_admin_column
+- Updated REST fields to use Abilities API with fallback compatibility
+
 ## [0.8.4] - 2026-01-24
 
 ### Fixed

@@ -56,8 +56,8 @@ class Documentation {
 			'label'               => __( 'Documentation', 'chubes-docs' ),
 			'description'         => __( 'Technical documentation for my coding projects. Automatically synchronized with GitHub repositories.', 'chubes-docs' ),
 			'labels'              => $labels,
-			'supports'            => array( 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'revisions' ),
-			'taxonomies'          => array(),
+		'supports'            => array( 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'revisions', 'post_tag' ),
+		'taxonomies'          => array( 'post_tag' ),
 			'hierarchical'        => false,
 			'public'              => true,
 			'show_ui'             => true,
@@ -116,16 +116,32 @@ class Documentation {
 
 		register_rest_field( self::POST_TYPE, 'project_type', [
 			'get_callback' => function( $post ) {
-				$project_type_term = Project::get_project_type_term( $post['id'] );
-
-				if ( ! $project_type_term ) {
+				if ( function_exists( 'wp_abilities_execute' ) ) {
+					$ability_result = wp_abilities_execute( 'chubes/get-projects', [
+						'post_ids' => [ $post['id'] ],
+					] );
+					
+					if ( $ability_result['success'] && ! empty( $ability_result['projects'] ) ) {
+						$project = $ability_result['projects'][0];
+						return $project['project_type'] ?? null;
+					}
+				}
+				
+				// Fallback to direct method if Abilities API not available
+				$project_type = Project::get_project_type( $post['id'] );
+				if ( ! $project_type ) {
 					return null;
 				}
-
+				
+				$term = get_term_by( 'slug', $project_type, 'project_type' );
+				if ( ! $term || is_wp_error( $term ) ) {
+					return null;
+				}
+				
 				return [
-					'id'   => $project_type_term->term_id,
-					'name' => $project_type_term->name,
-					'slug' => $project_type_term->slug,
+					'id'   => $term->term_id,
+					'name' => $term->name,
+					'slug' => $term->slug,
 				];
 			},
 			'schema'       => [
@@ -135,6 +151,34 @@ class Documentation {
 					'id'   => [ 'type' => 'integer' ],
 					'name' => [ 'type' => 'string' ],
 					'slug' => [ 'type' => 'string' ],
+				],
+			],
+		] );
+
+		register_rest_field( self::POST_TYPE, 'tags', [
+			'get_callback' => function( $post ) {
+				$tags = get_the_terms( $post['id'], 'post_tag' );
+				if ( ! $tags || is_wp_error( $tags ) ) {
+					return [];
+				}
+				return array_map( function( $tag ) {
+					return [
+						'id'   => $tag->term_id,
+						'name' => $tag->name,
+						'slug' => $tag->slug,
+					];
+				}, $tags );
+			},
+			'schema' => [
+				'type'        => 'array',
+				'description' => 'Post tags',
+				'items' => [
+					'type'       => 'object',
+					'properties' => [
+						'id'   => [ 'type' => 'integer' ],
+						'name' => [ 'type' => 'string' ],
+						'slug' => [ 'type' => 'string' ],
+					],
 				],
 			],
 		] );
