@@ -3,7 +3,7 @@
  * Documentation Breadcrumbs Handler
  * 
  * Hooks into theme's breadcrumb filters to provide documentation-specific
- * breadcrumb rendering with codebase taxonomy hierarchy.
+ * breadcrumb rendering with project taxonomy hierarchy.
  */
 
 namespace ChubesDocs\Core;
@@ -20,7 +20,7 @@ class Breadcrumbs {
 	}
 
 	/**
-	 * Handle custom archive breadcrumbs for codebase taxonomy pages
+	 * Handle custom archive breadcrumbs for project taxonomy pages
 	 *
 	 * @param string|null $output Current breadcrumb output
 	 * @param array $args Breadcrumb arguments
@@ -71,7 +71,7 @@ class Breadcrumbs {
 	}
 
 	/**
-	 * Render breadcrumb chain for a codebase term hierarchy
+	 * Render breadcrumb chain for a project term hierarchy
 	 *
 	 * @param \WP_Term $term Project taxonomy term
 	 * @param array $args Breadcrumb arguments
@@ -103,7 +103,7 @@ class Breadcrumbs {
 	}
 
 	/**
-	 * Resolve the active codebase term for documentation archives
+	 * Resolve the active project term for documentation archives
 	 *
 	 * @return \WP_Term|null
 	 */

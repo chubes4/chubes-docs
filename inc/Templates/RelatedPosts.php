@@ -3,7 +3,7 @@
  * Related Posts Template Functionality
  * 
  * Hooks into theme's single post template to render related documentation
- * using hierarchical codebase taxonomy relationships.
+ * using hierarchical project taxonomy relationships.
  */
 
 namespace ChubesDocs\Templates;

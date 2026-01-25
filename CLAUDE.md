@@ -63,7 +63,7 @@ chubes-docs/
 ## Key Systems
 
 ### REST API Layer (v0.2.1)
-- **Controllers**: Handle CRUD operations for docs, codebase taxonomy, and sync operations
+- **Controllers**: Handle CRUD operations for docs, project taxonomy, and sync operations
 - **Routes**: Centralized route registration under `chubes/v1` namespace with enhanced sync endpoints
 - **Authentication**: WordPress nonce verification and capability checks
 - **New Endpoints**: `/sync/setup` for project initialization, enhanced `/sync/doc` with `project_term_id`/`subpath` parameters
@@ -93,7 +93,7 @@ chubes-docs/
 - **Cron Sync**: Scheduled automated synchronization with configurable intervals
 
 ### WP-CLI Commands
-- **Codebase Ensure**: Ensure codebase taxonomy terms exist and are properly configured
+- **Project Ensure**: Ensure project taxonomy terms exist and are properly configured
 - **Docs Sync**: Manually trigger documentation synchronization from command line
 
 ### WP Abilities API
@@ -154,7 +154,7 @@ All endpoints use the `chubes/v1` namespace:
 - `DELETE /docs/{id}` - Delete documentation (with force parameter)
 
 ### Codebase
-- `GET /codebase` - List codebase taxonomy terms (with parent, hide_empty)
+- `GET /codebase` - List project taxonomy terms (with parent, hide_empty)
 - `GET /codebase/tree` - Get hierarchical codebase tree
 - `POST /codebase/resolve` - Resolve or create taxonomy path (with path, create_missing, project_meta)
 - `GET /codebase/{id}` - Get specific taxonomy term

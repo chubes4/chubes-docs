@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Fixed
+- Documentation archive description now displays on /docs/ page
+- Homepage doc counts now show correct project totals instead of inflated sums
+
 ## [0.8.3] - 2026-01-24
 
 - Fix fatal error: replace get_project_type_from_meta with get_project_type in Project.php
@@ -24,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Switched project type storage from taxonomy to term meta on depth-1 category terms
-- Renamed codebase taxonomy to project throughout the system
+- Renamed project taxonomy to project throughout the system
 - Updated archive template to group projects by term meta instead of taxonomy
 - Added new sync/doc and sync/batch REST API endpoints
 - Removed TaxonomyMigrateCommand and related migration logic
@@ -49,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add project_type taxonomy for explicit project categorization (wordpress-plugins, wordpress-themes, cli)
 
 ### Changed
-- Rename codebase taxonomy to project, update all references and API endpoints
+- Rename project taxonomy to project, update all references and API endpoints
 
 ## [0.5.6] - 2026-01-23
 
@@ -206,7 +212,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **Complete GitHub integration system** with automated repository synchronization
 - **Admin settings page** (`/wp-admin/edit.php?post_type=documentation&page=chubes-docs-settings`) for GitHub PAT configuration and sync management
-- **Enhanced codebase taxonomy columns** showing GitHub URLs, install counts, and sync status
+- **Enhanced project taxonomy columns** showing GitHub URLs, install counts, and sync status
 - **AJAX-powered sync operations** with real-time status updates in admin interface
 - **Cron-based automated sync** with configurable intervals (hourly/twice daily/daily)
 - **Sync notification system** with email alerts for sync completion and failures

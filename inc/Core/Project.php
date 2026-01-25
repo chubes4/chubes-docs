@@ -66,7 +66,8 @@ class Project {
 			'hierarchical'      => false,
 			'labels'            => $project_type_labels,
 			'show_ui'           => true,
-			'show_admin_column' => false,
+			'show_admin_column' => true,
+			'show_in_menu'      => true,
 			'query_var'         => true,
 			'rewrite'           => array( 'slug' => 'project-type' ),
 			'show_in_rest'      => true,
@@ -74,7 +75,7 @@ class Project {
 
 		$project_type_args = apply_filters( 'chubes_project_type_args', $project_type_args );
 
-		register_taxonomy( 'project_type', array(), $project_type_args );
+		register_taxonomy( 'project_type', array( Documentation::POST_TYPE ), $project_type_args );
 
 		do_action( 'chubes_project_registered' );
 	}

@@ -53,45 +53,41 @@ class Homepage {
 	private static function get_documentation_items() {
 		$doc_items = [];
 
-		$top_level_terms = get_terms( [
+		// Get depth 0 project terms with project_type meta (actual projects)
+		$project_terms = get_terms( [
 			'taxonomy'   => 'project',
 			'hide_empty' => false,
-			'parent'     => 0,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
+			'meta_query' => [
+				[
+					'key'     => 'project_type',
+					'compare' => 'EXISTS',
+				],
+			],
 		] );
 
-		if ( ! $top_level_terms || is_wp_error( $top_level_terms ) ) {
+		if ( ! $project_terms || is_wp_error( $project_terms ) ) {
 			return [];
 		}
 
-		foreach ( $top_level_terms as $top_level_term ) {
-			$child_projects = get_terms( [
-				'taxonomy'   => 'project',
-				'hide_empty' => false,
-				'parent'     => $top_level_term->term_id,
-				'orderby'    => 'name',
-				'order'      => 'ASC',
-			] );
-
-			$total_docs = 0;
-
-			if ( ! $child_projects || is_wp_error( $child_projects ) ) {
+		foreach ( $project_terms as $project_term ) {
+			// Only depth 0 terms (actual projects)
+			if ( Project::get_term_depth( $project_term ) !== 0 ) {
 				continue;
 			}
 
-			foreach ( $child_projects as $project ) {
-				$repo_info = Project::get_repository_info( $project );
-				$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
-				$total_docs += $doc_count;
-			}
+			$repo_info = Project::get_repository_info( $project_term );
+			$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
 
-			if ( $total_docs > 0 ) {
+			if ( $doc_count > 0 ) {
+				$project_type = Project::get_project_type( $project_term );
+				$type_term = $project_type ? get_term_by( 'slug', $project_type, 'project_type' ) : null;
+				$type_display = $type_term ? $type_term->name : ucfirst( str_replace( '-', ' ', $project_type ?? 'project' ) );
+
 				$doc_items[] = [
-					'name'  => $top_level_term->name,
-					'type'  => $top_level_term->slug, // Use slug as project type
-					'count' => $total_docs,
-					'url'   => get_term_link( $top_level_term ),
+					'name'  => $project_term->name,
+					'type'  => $type_display,
+					'count' => $doc_count,
+					'url'   => get_term_link( $project_term ),
 				];
 			}
 		}

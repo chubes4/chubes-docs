@@ -547,7 +547,7 @@ class Archive {
 	 * @return bool
 	 */
 	public static function filter_show_description( $show ) {
-		if ( is_tax( 'project' ) || is_post_type_archive( 'documentation' ) ) {
+		if ( is_tax( 'project' ) ) {
 			return false;
 		}
 		return $show;
