@@ -6,7 +6,7 @@ For exact request/response shapes and permissions, see the [API Reference](api-r
 
 ## Overview
 
-The sync system allows you to automatically import documentation from external repositories, convert Markdown to HTML, and organize content using the codebase taxonomy. Version 0.2.1 introduces enhanced project-based sync with improved term management and hierarchical subpath support.
+The sync system allows you to automatically import documentation from external repositories, convert Markdown to HTML, and organize content using the project taxonomy. Version 0.2.1 introduces enhanced project-based sync with improved term management and hierarchical subpath support.
 
 ## Key Concepts
 
