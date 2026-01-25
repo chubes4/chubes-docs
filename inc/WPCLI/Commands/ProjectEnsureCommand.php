@@ -36,12 +36,12 @@ class ProjectEnsureCommand {
 			WP_CLI::error( '--format must be one of: table, json, yaml' );
 		}
 
-		$type_term = self::ensure_top_level_term( $type_slug );
+		$type_term = self::ensure_project_type_term( $type_slug );
 		if ( is_wp_error( $type_term ) ) {
 			WP_CLI::error( $type_term->get_error_message() );
 		}
 
-		$project_term = self::ensure_child_term( $type_term->term_id, $project_slug, $project_name );
+		$project_term = self::ensure_project_term( $project_slug, $project_name );
 		if ( is_wp_error( $project_term ) ) {
 			WP_CLI::error( $project_term->get_error_message() );
 		}
@@ -54,11 +54,8 @@ class ProjectEnsureCommand {
 			update_term_meta( $project_term->term_id, 'project_wp_url', $wporg_url );
 		}
 
-		// Set project type meta based on the type slug
-		$project_type = self::get_project_type_from_slug( $type_slug );
-		if ( $project_type ) {
-			Project::set_project_type_meta( $project_term, $project_type );
-		}
+		// Set project type meta on the project term
+		update_term_meta( $project_term->term_id, 'project_type', $type_term->slug );
 
 		WP_CLI::success( 'Project terms ensured.' );
 
@@ -70,26 +67,46 @@ class ProjectEnsureCommand {
 				'project_term_id'  => (string) $project_term->term_id,
 				'github_url'       => Project::get_github_url( $project_term->term_id ) ?? '',
 				'wporg_url'        => Project::get_wp_url( $project_term->term_id ) ?? '',
-				'project_type'     => Project::get_project_type_from_meta( $project_term ),
+				'project_type'     => Project::get_project_type( $project_term ),
 			],
 		];
 
 		Utils\format_items( $format, $rows, array_keys( $rows[0] ) );
 	}
 
-	private static function ensure_top_level_term( string $slug ): \WP_Term|WP_Error {
-		$existing = get_term_by( 'slug', $slug, Project::TAXONOMY );
+	private static function ensure_project_type_term( string $slug ): \WP_Term|WP_Error {
+		$existing = get_term_by( 'slug', $slug, 'project_type' );
 		if ( $existing && ! is_wp_error( $existing ) ) {
-			if ( (int) $existing->parent !== 0 ) {
-				return new WP_Error( 'term_parent_mismatch', "Top-level project term '{$slug}' exists but is not top-level" );
-			}
-			WP_CLI::log( "Using existing type: {$slug}" );
+			WP_CLI::log( "Using existing project type: {$slug}" );
 			return $existing;
 		}
 
-		WP_CLI::warning( "Creating new type: {$slug}" );
+		WP_CLI::warning( "Creating new project type: {$slug}" );
 
-		$result = wp_insert_term( $slug, Project::TAXONOMY, [
+		$result = wp_insert_term( $slug, 'project_type', [
+			'slug' => $slug,
+		] );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return get_term( $result['term_id'], 'project_type' );
+	}
+
+	private static function ensure_project_term( string $slug, string $name ): \WP_Term|WP_Error {
+		$existing = get_term_by( 'slug', $slug, Project::TAXONOMY );
+		if ( $existing && ! is_wp_error( $existing ) ) {
+			if ( (int) $existing->parent !== 0 ) {
+				return new WP_Error( 'term_parent_mismatch', "Project term '{$slug}' exists but is not top-level" );
+			}
+			WP_CLI::log( "Using existing project: {$slug}" );
+			return $existing;
+		}
+
+		WP_CLI::log( "Creating new project: {$slug}" );
+
+		$result = wp_insert_term( $name, Project::TAXONOMY, [
 			'slug'   => $slug,
 			'parent' => 0,
 		] );
@@ -99,41 +116,5 @@ class ProjectEnsureCommand {
 		}
 
 		return get_term( $result['term_id'], Project::TAXONOMY );
-	}
-
-	private static function ensure_child_term( int $parent_id, string $slug, string $name ): \WP_Term|WP_Error {
-		$existing = get_terms( [
-			'taxonomy'   => Project::TAXONOMY,
-			'parent'     => $parent_id,
-			'slug'       => $slug,
-			'hide_empty' => false,
-			'number'     => 1,
-		] );
-
-		if ( is_wp_error( $existing ) ) {
-			return $existing;
-		}
-
-		if ( ! empty( $existing ) ) {
-			WP_CLI::log( "Using existing project: {$slug}" );
-			return $existing[0];
-		}
-
-		WP_CLI::log( "Creating new project: {$slug}" );
-
-		$result = wp_insert_term( $name, Project::TAXONOMY, [
-			'slug'   => $slug,
-			'parent' => $parent_id,
-		] );
-
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return get_term( $result['term_id'], Project::TAXONOMY );
-	}
-
-	private static function get_project_type_from_slug( string $type_slug ): ?string {
-		return $type_slug;
 	}
 }

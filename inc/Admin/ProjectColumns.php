@@ -16,6 +16,8 @@ class ProjectColumns {
 		add_filter( 'manage_edit-project_columns', [ __CLASS__, 'add_columns' ] );
 		add_filter( 'manage_project_custom_column', [ __CLASS__, 'render_column' ], 10, 3 );
 		add_filter( 'manage_edit-project_sortable_columns', [ __CLASS__, 'sortable_columns' ] );
+		add_action( 'project_edit_form_fields', [ __CLASS__, 'add_project_type_field' ] );
+		add_action( 'edited_project', [ __CLASS__, 'save_project_type_field' ] );
 	}
 
 	/**
@@ -54,7 +56,7 @@ class ProjectColumns {
 			return $content;
 		}
 
-		if ( Project::get_term_depth( $term ) !== 1 ) {
+		if ( Project::get_term_depth( $term ) !== 0 ) {
 			return '&mdash;';
 		}
 
@@ -185,5 +187,64 @@ class ProjectColumns {
 		}
 
 		return sprintf( '<span title="%s">%s</span>', esc_attr( $title ), $icon );
+	}
+
+	/**
+	 * Add project type field to term edit form.
+	 *
+	 * @param WP_Term $term Term being edited.
+	 */
+	public static function add_project_type_field( $term ): void {
+		if ( Project::get_term_depth( $term ) !== 0 ) {
+			return;
+		}
+
+		$current_type = get_term_meta( $term->term_id, 'project_type', true );
+		$project_types = get_terms( [
+			'taxonomy'   => 'project_type',
+			'hide_empty' => false,
+			'orderby'    => 'name',
+			'order'      => 'ASC',
+		] );
+
+		if ( is_wp_error( $project_types ) ) {
+			$project_types = [];
+		}
+
+		?>
+		<tr class="form-field">
+			<th scope="row"><label for="project_type"><?php esc_html_e( 'Project Type', 'chubes-docs' ); ?></label></th>
+			<td>
+				<select name="project_type" id="project_type">
+					<option value=""><?php esc_html_e( 'Select a project type', 'chubes-docs' ); ?></option>
+					<?php foreach ( $project_types as $type_term ) : ?>
+						<option value="<?php echo esc_attr( $type_term->slug ); ?>" <?php selected( $current_type, $type_term->slug ); ?>>
+							<?php echo esc_html( $type_term->name ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+				<p class="description"><?php esc_html_e( 'Select the type of project this is.', 'chubes-docs' ); ?></p>
+			</td>
+		</tr>
+		<?php
+	}
+
+	/**
+	 * Save project type field.
+	 *
+	 * @param int $term_id Term ID.
+	 */
+	public static function save_project_type_field( int $term_id ): void {
+		if ( ! isset( $_POST['project_type'] ) ) {
+			return;
+		}
+
+		$project_type = sanitize_text_field( $_POST['project_type'] );
+
+		if ( empty( $project_type ) ) {
+			delete_term_meta( $term_id, 'project_type' );
+		} else {
+			update_term_meta( $term_id, 'project_type', $project_type );
+		}
 	}
 }

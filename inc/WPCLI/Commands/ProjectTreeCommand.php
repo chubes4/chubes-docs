@@ -11,63 +11,70 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class ProjectTreeCommand {
 	public static function run( array $args, array $assoc_args ): void {
-		$top_level_terms = get_terms( [
-			'taxonomy'   => Project::TAXONOMY,
-			'parent'     => 0,
+		$project_type_terms = get_terms( [
+			'taxonomy'   => 'project_type',
 			'hide_empty' => false,
 			'orderby'    => 'name',
 			'order'      => 'ASC',
 		] );
 
-		if ( is_wp_error( $top_level_terms ) ) {
-			WP_CLI::error( $top_level_terms->get_error_message() );
+		if ( is_wp_error( $project_type_terms ) ) {
+			WP_CLI::error( $project_type_terms->get_error_message() );
 		}
 
-		if ( empty( $top_level_terms ) ) {
-			WP_CLI::warning( 'No project terms found.' );
+		if ( empty( $project_type_terms ) ) {
+			WP_CLI::warning( 'No project type terms found.' );
 			return;
 		}
 
-		foreach ( $top_level_terms as $type_term ) {
-			WP_CLI::line( self::format_term_line( $type_term, false ) );
+		foreach ( $project_type_terms as $type_term ) {
+			WP_CLI::line( self::format_type_line( $type_term ) );
 
-			$children = get_terms( [
+			$projects = get_terms( [
 				'taxonomy'   => Project::TAXONOMY,
-				'parent'     => $type_term->term_id,
+				'parent'     => 0,
 				'hide_empty' => false,
+				'meta_query' => [
+					[
+						'key'   => 'project_type',
+						'value' => $type_term->slug,
+					],
+				],
 				'orderby'    => 'name',
 				'order'      => 'ASC',
 			] );
 
-			if ( is_wp_error( $children ) || empty( $children ) ) {
+			if ( is_wp_error( $projects ) || empty( $projects ) ) {
 				WP_CLI::line( '' );
 				continue;
 			}
 
-			$count = count( $children );
-			foreach ( $children as $index => $child ) {
+			$count = count( $projects );
+			foreach ( $projects as $index => $project ) {
 				$is_last = ( $index === $count - 1 );
 				$prefix = $is_last ? '└── ' : '├── ';
-				WP_CLI::line( $prefix . self::format_term_line( $child, true ) );
+				WP_CLI::line( $prefix . self::format_project_line( $project ) );
 			}
 
 			WP_CLI::line( '' );
 		}
 	}
 
-	private static function format_term_line( \WP_Term $term, bool $is_project ): string {
+	private static function format_type_line( \WP_Term $term ): string {
+		return "{$term->name} ({$term->slug})";
+	}
+
+	private static function format_project_line( \WP_Term $term ): string {
 		$parts = [ "{$term->slug} ({$term->term_id})" ];
 
-		if ( $is_project ) {
-			$doc_count = self::get_doc_count( $term->term_id );
-			if ( $doc_count > 0 ) {
-				$parts[] = "[{$doc_count} docs]";
-			}
+		$doc_count = self::get_doc_count( $term->term_id );
+		if ( $doc_count > 0 ) {
+			$parts[] = "[{$doc_count} docs]";
+		}
 
-			$github_url = Project::get_github_url( $term->term_id );
-			if ( $github_url ) {
-				$parts[] = $github_url;
-			}
+		$github_url = Project::get_github_url( $term->term_id );
+		if ( $github_url ) {
+			$parts[] = $github_url;
 		}
 
 		return implode( ' ', $parts );

@@ -32,13 +32,14 @@ class Archive {
 
 		$term = get_queried_object();
 
-		if ( $term->parent === 0 ) {
+		if ( $term->parent !== 0 ) {
 			return;
 		}
 
 		$repo_info = Project::get_repository_info( $term );
-		$parent_term = get_term( $term->parent, 'project' );
-		$category_name = $parent_term && ! is_wp_error( $parent_term ) ? $parent_term->name : 'Project';
+		$project_type = Project::get_project_type( $term );
+		$type_term = get_term_by( 'slug', $project_type, 'project_type' );
+		$category_name = $type_term && ! is_wp_error( $type_term ) ? $type_term->name : 'Project';
 		$singular_type = rtrim( $category_name, 's' );
 		$has_download = ! empty( $repo_info['wp_url'] );
 		$download_text = $has_download ? 'Download ' . $singular_type : 'View ' . $singular_type;
@@ -120,54 +121,44 @@ class Archive {
 	/**
 	 * Render project taxonomy content
 	 * 
-	 * Category terms (depth 0): Grid of project cards
+	 * Project terms (depth 0): Project info and hierarchical documentation
 	 * All other terms (depth 1+): Hierarchical documentation listing
 	 */
 	private static function render_codebase_content() {
 		$term = get_queried_object();
 
 		if ( $term->parent === 0 ) {
-			self::render_category_content( $term );
+			self::render_project_content( $term );
 		} else {
 			self::render_term_content( $term );
 		}
 	}
 
 	/**
-	 * Render category page content (depth 0 term)
+	 * Render project page content (depth 0 term)
 	 * 
-	 * Shows grid of project cards for all child terms.
+	 * Shows hierarchical documentation for the project.
 	 */
-	private static function render_category_content( $term ) {
-		$project_terms = get_terms( [
-			'taxonomy'   => 'project',
-			'hide_empty' => false,
-			'parent'     => $term->term_id,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
-		] );
+	private static function render_project_content( $term ) {
+		// Render the hierarchical documentation
+		$direct_posts = self::get_direct_posts_for_term( $term );
+		$child_terms = self::get_sorted_child_terms( $term );
+		$has_content = $direct_posts->have_posts() || ! empty( $child_terms );
 
-		if ( empty( $project_terms ) || is_wp_error( $project_terms ) ) : ?>
-			<div class="no-content">
-				<p><?php echo esc_html( $term->name ); ?> will be listed here soon.</p>
-			</div>
-			<?php
+		if ( ! $has_content ) {
+			self::render_no_content_message( $term );
 			return;
-		endif;
-		?>
+		}
 
-		<div class="cards-grid">
-			<?php
-			foreach ( $project_terms as $project ) :
-				$repo_info = Project::get_repository_info( $project );
+		// Render posts directly under this term (no header)
+		if ( $direct_posts->have_posts() ) {
+			self::render_documentation_cards( $direct_posts );
+		}
 
-				if ( $repo_info['has_content'] ) :
-					ProjectCard::render( $project, $repo_info );
-				endif;
-			endforeach;
-			?>
-		</div>
-		<?php
+		// Render child term sections
+		foreach ( $child_terms as $child_term ) {
+			self::render_term_hierarchy_section( $child_term, 1 );
+		}
 	}
 
 	/**
@@ -447,15 +438,15 @@ class Archive {
 		// Group projects by their project_type term meta
 		$projects_by_type = [];
 		foreach ( $project_terms as $project_term ) {
-			if ( Project::get_term_depth( $project_term ) !== 1 ) {
-				continue; // Only depth 1 terms (actual projects)
+			if ( Project::get_term_depth( $project_term ) !== 0 ) {
+				continue; // Only depth 0 terms (actual projects)
 			}
 
 			$repo_info = Project::get_repository_info( $project_term );
 			$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
 
 			if ( $doc_count > 0 ) {
-				$project_type = Project::get_project_type_from_meta( $project_term );
+				$project_type = Project::get_project_type( $project_term );
 				if ( ! $project_type ) {
 					continue; // Skip projects without project_type meta
 				}
@@ -477,8 +468,9 @@ class Archive {
 		}
 
 		foreach ( $projects_by_type as $project_type => $projects ) :
-			// Convert slug to display name
-			$display_name = self::get_project_type_display_name( $project_type );
+			// Get display name from project_type taxonomy term
+			$type_term = get_term_by( 'slug', $project_type, 'project_type' );
+			$display_name = $type_term && ! is_wp_error( $type_term ) ? $type_term->name : ucfirst( str_replace( '-', ' ', $project_type ) );
 			?>
 
 			<section class="documentation-category-section">
@@ -552,12 +544,6 @@ class Archive {
 	 * @return string Display name
 	 */
 	private static function get_project_type_display_name( $slug ) {
-		$names = [
-			'wordpress-plugins' => 'WordPress Plugins',
-			'wordpress-themes'  => 'WordPress Themes',
-			'cli'               => 'CLI Tools',
-		];
-
-		return $names[ $slug ] ?? ucfirst( str_replace( '-', ' ', $slug ) );
+		return ucfirst( str_replace( '-', ' ', $slug ) );
 	}
 }

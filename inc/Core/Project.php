@@ -18,37 +18,6 @@ class Project {
 
 	public static function init() {
 		add_action( 'init', [ __CLASS__, 'register' ] );
-		add_action( 'init', [ __CLASS__, 'register_project_type' ] );
-	}
-
-	public static function register_project_type() {
-		$labels = array(
-			'name'              => _x( 'Project Type', 'taxonomy general name', 'chubes-docs' ),
-			'singular_name'     => _x( 'Project Type', 'taxonomy singular name', 'chubes-docs' ),
-			'search_items'      => __( 'Search Project Types', 'chubes-docs' ),
-			'all_items'         => __( 'All Project Types', 'chubes-docs' ),
-			'parent_item'       => null,
-			'parent_item_colon' => null,
-			'edit_item'         => __( 'Edit Project Type', 'chubes-docs' ),
-			'update_item'       => __( 'Update Project Type', 'chubes-docs' ),
-			'add_new_item'      => __( 'Add New Project Type', 'chubes-docs' ),
-			'new_item_name'     => __( 'New Project Type Name', 'chubes-docs' ),
-			'menu_name'         => __( 'Project Type', 'chubes-docs' ),
-		);
-
-		$args = array(
-			'hierarchical'      => false,
-			'labels'            => $labels,
-			'show_ui'           => true,
-			'show_admin_column' => true,
-			'query_var'         => true,
-			'rewrite'           => false,
-			'show_in_rest'      => true,
-		);
-
-		register_taxonomy( 'project_type', array( Documentation::POST_TYPE ), $args );
-
-		do_action( 'chubes_project_type_registered' );
 	}
 
 	public static function register() {
@@ -80,6 +49,33 @@ class Project {
 
 		register_taxonomy( self::TAXONOMY, array( Documentation::POST_TYPE ), $args );
 
+		// Register project_type taxonomy
+		$project_type_labels = array(
+			'name'              => _x( 'Project Types', 'taxonomy general name', 'chubes-docs' ),
+			'singular_name'     => _x( 'Project Type', 'taxonomy singular name', 'chubes-docs' ),
+			'search_items'      => __( 'Search Project Types', 'chubes-docs' ),
+			'all_items'         => __( 'All Project Types', 'chubes-docs' ),
+			'edit_item'         => __( 'Edit Project Type', 'chubes-docs' ),
+			'update_item'       => __( 'Update Project Type', 'chubes-docs' ),
+			'add_new_item'      => __( 'Add New Project Type', 'chubes-docs' ),
+			'new_item_name'     => __( 'New Project Type Name', 'chubes-docs' ),
+			'menu_name'         => __( 'Project Types', 'chubes-docs' ),
+		);
+
+		$project_type_args = array(
+			'hierarchical'      => false,
+			'labels'            => $project_type_labels,
+			'show_ui'           => true,
+			'show_admin_column' => false,
+			'query_var'         => true,
+			'rewrite'           => array( 'slug' => 'project-type' ),
+			'show_in_rest'      => true,
+		);
+
+		$project_type_args = apply_filters( 'chubes_project_type_args', $project_type_args );
+
+		register_taxonomy( 'project_type', array(), $project_type_args );
+
 		do_action( 'chubes_project_registered' );
 	}
 
@@ -106,7 +102,7 @@ class Project {
 	}
 
 	/**
-	 * Get the project-level term (depth 1) from terms
+	 * Get the project-level term (depth 0) from terms
 	 *
 	 * @param array $terms Array of WP_Term objects
 	 * @return WP_Term|null
@@ -117,14 +113,14 @@ class Project {
 		}
 
 		foreach ( $terms as $term ) {
-			if ( self::get_term_depth( $term ) === 1 ) {
+			if ( self::get_term_depth( $term ) === 0 ) {
 				return $term;
 			}
 		}
 
 		$primary = self::get_primary_term( $terms );
 		if ( $primary ) {
-			return self::get_ancestor_at_depth( $primary, 1 );
+			return self::get_ancestor_at_depth( $primary, 0 );
 		}
 
 		return null;
@@ -267,7 +263,7 @@ class Project {
 		$terms     = array();
 
 		foreach ( $parts as $index => $part_name ) {
-			$is_project_level = ( $index === 1 ); // Depth 1 is project level (Category -> Project)
+			$is_project_level = ( $index === 0 ); // Depth 0 is project level
 			
 			// Determine slug
 			if ( $is_project_level && ! empty( $project_slug ) ) {
@@ -407,44 +403,54 @@ class Project {
 	}
 
 	/**
-	 * Get the project type from term meta (for depth 1 project terms)
+	 * Get the project type from term meta
 	 *
-	 * @param WP_Term|int $term Term object or ID
+	 * @param int|WP_Post|WP_Term $input Post ID/object or Term ID/object
 	 * @return string|null
 	 */
-	public static function get_project_type_from_meta( $term ) {
-		$term_id = is_object( $term ) ? $term->term_id : $term;
-		return get_term_meta( $term_id, 'project_type', true ) ?: null;
-	}
+	public static function get_project_type( $input ) {
+		// If it's a term, get meta directly
+		if ( is_object( $input ) && isset( $input->term_id ) ) {
+			return get_term_meta( $input->term_id, 'project_type', true ) ?: null;
+		}
 
-	/**
-	 * Set the project type term meta (for depth 1 project terms)
-	 *
-	 * @param WP_Term|int $term Term object or ID
-	 * @param string $type Project type (wordpress-plugins, wordpress-themes, cli)
-	 * @return bool
-	 */
-	public static function set_project_type_meta( $term, $type ) {
-		$term_id = is_object( $term ) ? $term->term_id : $term;
-		return update_term_meta( $term_id, 'project_type', $type );
-	}
+		// If it's a term ID
+		if ( is_int( $input ) && get_term( $input, self::TAXONOMY ) ) {
+			return get_term_meta( $input, 'project_type', true ) ?: null;
+		}
 
-	/**
-	 * Get the project type term from the new project_type taxonomy for a post
-	 *
-	 * @param int|WP_Post $post Post ID or object
-	 * @return WP_Term|null
-	 */
-	public static function get_project_type_term( $post ) {
-		$post_id = is_object( $post ) ? $post->ID : $post;
-		$terms = get_the_terms( $post_id, 'project_type' );
+		// Otherwise treat as post
+		$post_id = is_object( $input ) ? $input->ID : $input;
+		$terms = get_the_terms( $post_id, self::TAXONOMY );
 
-		if ( ! $terms || is_wp_error( $terms ) || empty( $terms ) ) {
+		if ( ! $terms || is_wp_error( $terms ) ) {
 			return null;
 		}
 
-		return $terms[0]; // Should only have one project type
+		$project_term = self::get_project_term( $terms );
+		return $project_term ? get_term_meta( $project_term->term_id, 'project_type', true ) ?: null : null;
 	}
+
+	/**
+	 * Set the project type term meta for a post's project term
+	 *
+	 * @param int|WP_Post $post Post ID or object
+	 * @param string $type Project type (wordpress-plugins, wordpress-themes, cli)
+	 * @return bool
+	 */
+	public static function set_project_type( $post, $type ) {
+		$post_id = is_object( $post ) ? $post->ID : $post;
+		$terms = get_the_terms( $post_id, self::TAXONOMY );
+
+		if ( ! $terms || is_wp_error( $terms ) ) {
+			return false;
+		}
+
+		$project_term = self::get_project_term( $terms );
+		return $project_term ? update_term_meta( $project_term->term_id, 'project_type', $type ) : false;
+	}
+
+
 
 	/**
 	 * Get repository information for a term
