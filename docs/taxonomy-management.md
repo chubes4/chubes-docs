@@ -15,13 +15,16 @@ Chubes Docs uses two taxonomies to organize documentation:
 
 The `project_type` taxonomy provides non-hierarchical categorization of projects:
 
-### Available Project Types
+### Project Type Taxonomy
 
-- `wordpress-plugin` - WordPress plugins
-- `wordpress-theme` - WordPress themes  
-- `php-library` - PHP libraries and packages
-- `cli-tool` - Command-line tools
-- `javascript-package` - JavaScript/npm packages
+The `project_type` taxonomy provides non-hierarchical categorization of projects by type. Common project types include:
+
+- `wordpress-plugins` - WordPress plugins
+- `wordpress-themes` - WordPress themes  
+- `php-libraries` - PHP libraries and packages
+- `cli-tools` - Command-line tools
+
+Project types are created dynamically as needed and stored as term meta on project terms.
 
 ### Managing Project Types
 
@@ -33,7 +36,7 @@ curl -X PUT /wp-json/chubes/v1/project/{project_term_id} \
   -H "Content-Type: application/json" \
   -d '{
     "meta": {
-      "project_type": "wordpress-plugin"
+      "project_type": "wordpress-plugins"
     }
   }'
 ```
@@ -46,7 +49,7 @@ The docs endpoint includes project type information:
 {
   "id": 123,
   "title": "My Plugin Docs",
-  "project_type": "wordpress-plugin",
+  "project_type": "wordpress-plugins",
   "codebase_path": ["my-plugin", "api"]
 }
 ```
@@ -224,7 +227,6 @@ The `InstallTracker` class automatically:
 
 - Use lowercase slugs with hyphens: `my-wordpress-plugin`
 - Use descriptive project names: `advanced-custom-fields`, not `acf`
-- For project types, use standard slugs: `wordpress-plugin`, `wordpress-theme`, `php-library`, `cli-tool`
 
 ### Hierarchy Organization
 
