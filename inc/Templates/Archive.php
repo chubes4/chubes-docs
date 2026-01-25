@@ -538,6 +538,22 @@ class Archive {
 	}
 
 	/**
+	 * Filter whether to show archive description
+	 * 
+	 * Hide description for archives with custom content (project tax, documentation CPT)
+	 * to avoid duplication with rendered content.
+	 *
+	 * @param bool $show Whether to show the description
+	 * @return bool
+	 */
+	public static function filter_show_description( $show ) {
+		if ( is_tax( 'project' ) || is_post_type_archive( 'documentation' ) ) {
+			return false;
+		}
+		return $show;
+	}
+
+	/**
 	 * Get display name for project type slug
 	 *
 	 * @param string $slug Project type slug
