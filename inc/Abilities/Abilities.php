@@ -19,6 +19,7 @@ class Abilities {
 		add_action( 'wp_abilities_api_init', [ SyncAbilities::class, 'register' ] );
 		add_action( 'wp_abilities_api_init', [ ProjectAbilities::class, 'register' ] );
 		add_action( 'wp_abilities_api_init', [ SearchAbilities::class, 'register' ] );
+		add_action( 'wp_abilities_api_init', [ DocsAbilities::class, 'register' ] );
 	}
 
 	public static function register_categories(): void {

@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- Add DocsAbilities class with targeted documentation reset functionality
+- Register chubes/reset-documentation ability endpoint
+- Deletes all documentation posts while preserving active projects
+- Removes orphaned project terms (those without GitHub URLs)
+- Enables clean documentation rebuild via existing sync mechanisms
+- Provides extensible foundation for future documentation management abilities
+
 ## [0.9.0] - 2026-01-24
 
 - Redesigned chubes/get-projects ability to always return hierarchical structure with bi-directional project type associations
