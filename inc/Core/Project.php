@@ -480,7 +480,7 @@ class Project {
 			'github_url'     => self::get_github_url( $project->term_id ),
 			'wp_url'         => self::get_wp_url( $project->term_id ),
 			'installs'       => self::get_installs( $project->term_id ),
-			'project_type'   => self::get_project_type_from_meta( $project ),
+			'project_type'   => self::get_project_type( $project ),
 			'content_counts' => $content_counts,
 			'has_content'    => $has_content,
 		);
