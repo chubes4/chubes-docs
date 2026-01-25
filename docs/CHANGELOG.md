@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+- Redesigned chubes/get-projects ability to always return hierarchical structure with bi-directional project type associations
+- Created chubes/get-project-types ability to provide dedicated endpoint for project types with associated projects
+- Enhanced project and project type responses to always include full metadata (GitHub URL, WordPress URL, installs, last sync)
+- Removed confusing API flags (tree_format, include_project_types) for simplified, always-complete responses
+
 ## [0.8.5] - 2026-01-24
 
 - ### Fixed

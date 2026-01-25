@@ -2,7 +2,7 @@
 /**
  * Project Abilities
  *
- * Provides WP Abilities API integration for inspecting the project taxonomy
+ * Provides WP Abilities API integration for inspecting project taxonomy
  * hierarchy and metadata. Enables inspection via WP-CLI, REST, or MCP.
  */
 
@@ -19,7 +19,7 @@ class ProjectAbilities {
 	public static function register(): void {
 		wp_register_ability( 'chubes/get-projects', [
 			'label'               => __( 'Get Projects', 'chubes-docs' ),
-			'description'         => __( 'Returns projects with optional filtering by type and hierarchical structure', 'chubes-docs' ),
+			'description'         => __( 'Returns hierarchical projects with project types and bi-directional associations', 'chubes-docs' ),
 			'category'            => 'chubes',
 			'input_schema'        => [
 				'type'       => 'object',
@@ -44,48 +44,97 @@ class ProjectAbilities {
 						'default'     => false,
 						'description' => 'Include projects with no documentation posts',
 					],
-					'include_meta' => [
-						'type'        => 'boolean',
-						'default'     => true,
-						'description' => 'Include repository metadata',
-					],
-					'tree_format' => [
-						'type'        => 'boolean',
-						'default'     => false,
-						'description' => 'Return as hierarchical tree (true) or flat list ordered by count (false)',
-					],
 				],
 			],
 			'output_schema'       => [
 				'type'       => 'object',
 				'properties' => [
 					'success' => [ 'type' => 'boolean' ],
-					'projects' => [
-						'type'  => 'array',
-						'items' => [
-							'type'       => 'object',
-							'properties' => [
-								'term_id' => [ 'type' => 'integer' ],
-								'name' => [ 'type' => 'string' ],
-								'slug' => [ 'type' => 'string' ],
-								'project_type' => [
-									'type' => 'object',
+					'data' => [
+						'type'  => 'object',
+						'properties' => [
+							'projects' => [
+								'type' => 'array',
+								'items' => [
+									'type'       => 'object',
 									'properties' => [
-										'id' => [ 'type' => 'integer' ],
+										'term_id' => [ 'type' => 'integer' ],
 										'name' => [ 'type' => 'string' ],
 										'slug' => [ 'type' => 'string' ],
+										'project_type' => [
+											'type' => 'object',
+											'properties' => [
+												'id' => [ 'type' => 'integer' ],
+												'name' => [ 'type' => 'string' ],
+												'slug' => [ 'type' => 'string' ],
+											],
+										],
+										'depth' => [ 'type' => 'integer' ],
+										'doc_count' => [ 'type' => 'integer' ],
+										'meta' => [ 'type' => 'object' ],
+										'children' => [ 'type' => 'array' ],
 									],
 								],
-								'depth' => [ 'type' => 'integer' ],
-								'doc_count' => [ 'type' => 'integer' ],
-								'meta' => [ 'type' => 'object' ],
-								'children' => [ 'type' => 'array' ], // Only in tree format
 							],
 						],
 					],
 				],
 			],
 			'execute_callback'    => [ self::class, 'get_projects' ],
+			'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+			'meta'                => [ 'show_in_rest' => true ],
+		] );
+
+		wp_register_ability( 'chubes/get-project-types', [
+			'label'               => __( 'Get Project Types', 'chubes-docs' ),
+			'description'         => __( 'Returns all project types with associated projects and full metadata', 'chubes-docs' ),
+			'category'            => 'chubes',
+			'input_schema'        => [
+				'type'       => 'object',
+				'properties' => [
+					'include_empty' => [
+						'type'        => 'boolean',
+						'default'     => false,
+						'description' => 'Include project types with zero associated projects',
+					],
+				],
+			],
+									'output_schema'       => [
+				'type'       => 'object',
+				'properties' => [
+					'success' => [ 'type' => 'boolean' ],
+					'data' => [
+						'type'  => 'object',
+						'properties' => [
+							'project_types' => [
+								'type' => 'array',
+								'items' => [
+									'type' => 'object',
+									'properties' => [
+										'id' => [ 'type' => 'integer' ],
+										'name' => [ 'type' => 'string' ],
+										'slug' => [ 'type' => 'string' ],
+										'project_count' => [ 'type' => 'integer' ],
+										'total_doc_count' => [ 'type' => 'integer' ],
+										'associated_projects' => [
+											'type' => 'array',
+											'items' => [
+												'type' => 'object',
+												'properties' => [
+													'id' => [ 'type' => 'integer' ],
+													'name' => [ 'type' => 'string' ],
+													'slug' => [ 'type' => 'string' ],
+												],
+											],
+										],
+									],
+								],
+							],
+						],
+					],
+				],
+			],
+			'execute_callback'    => [ self::class, 'get_project_types' ],
 			'permission_callback' => fn() => current_user_can( 'edit_posts' ),
 			'meta'                => [ 'show_in_rest' => true ],
 		] );
@@ -96,41 +145,53 @@ class ProjectAbilities {
 		$parent_id     = $input['parent_id'] ?? 0;
 		$post_ids       = $input['post_ids'] ?? [];
 		$include_empty = $input['include_empty'] ?? false;
-		$include_meta  = $input['include_meta'] ?? true;
-		$tree_format   = $input['tree_format'] ?? false;
 
 		// Case 1: Filter by post IDs
 		if ( ! empty( $post_ids ) ) {
-			$projects = self::get_projects_by_post_ids( $post_ids, $include_meta );
-			return [ 'success' => true, 'projects' => $projects ];
+			$projects = self::get_projects_by_post_ids( $post_ids );
+			return [ 
+				'success' => true, 
+				'data' => [
+					'projects' => $projects,
+				]
+			];
 		}
 
 		// Case 2: Filter by project types
 		if ( ! empty( $project_types ) ) {
-			$projects = self::get_projects_by_types( $project_types, $include_empty, $include_meta );
-			if ( $tree_format ) {
-				$projects = self::build_tree_from_projects( $projects, 0, $include_meta );
-			} else {
-				// Sort by doc_count (descending) as default
-				usort( $projects, function( $a, $b ) {
-					return $b['doc_count'] - $a['doc_count'];
-				} );
-			}
-			return [ 'success' => true, 'projects' => $projects ];
+			$projects = self::get_projects_by_types( $project_types, $include_empty );
+			$tree = self::build_tree_from_projects( $projects, 0 );
+			return [ 
+				'success' => true, 
+				'data' => [
+					'projects' => $tree,
+				]
+			];
 		}
 
-		// Case 3: Tree format or all projects (default)
-		if ( $tree_format ) {
-			$tree = self::build_tree( $parent_id, 0, $include_empty, $include_meta );
-			return [ 'success' => true, 'projects' => $tree ];
-		} else {
-			// Get all projects, sorted by doc_count
-			$projects = self::get_all_projects_sorted( $include_empty, $include_meta );
-			return [ 'success' => true, 'projects' => $projects ];
-		}
+		// Case 3: Tree format from parent_id (default)
+		$tree = self::build_tree( $parent_id, 0, $include_empty );
+		
+		return [ 
+			'success' => true, 
+			'data' => [
+				'projects' => $tree,
+			]
+		];
 	}
 
-	private static function get_projects_by_post_ids( array $post_ids, bool $include_meta ): array {
+	public static function get_project_types( array $input ): array {
+		$include_empty = $input['include_empty'] ?? false;
+		
+		return [
+			'success' => true,
+			'data' => [
+				'project_types' => self::get_all_project_types_with_associations( $include_empty )
+			]
+		];
+	}
+
+	private static function get_projects_by_post_ids( array $post_ids ): array {
 		$projects = [];
 		$processed_project_ids = [];
 
@@ -146,14 +207,14 @@ class ProjectAbilities {
 			}
 
 			$processed_project_ids[] = $project_term->term_id;
-			$project_node = self::build_project_node( $project_term, 0, $include_meta );
+			$project_node = self::build_project_node( $project_term, 0 );
 			$projects[] = $project_node;
 		}
 
 		return $projects;
 	}
 
-	private static function get_projects_by_types( array $project_types, bool $include_empty, bool $include_meta ): array {
+	private static function get_projects_by_types( array $project_types, bool $include_empty ): array {
 		$all_projects = get_terms( [
 			'taxonomy'   => Project::TAXONOMY,
 			'hide_empty' => ! $include_empty,
@@ -174,16 +235,58 @@ class ProjectAbilities {
 				continue;
 			}
 
-			$project_node = self::build_project_node( $project, 0, $include_meta );
+			$project_node = self::build_project_node( $project, 0 );
 			$filtered_projects[] = $project_node;
 		}
 
 		return $filtered_projects;
 	}
 
-	private static function get_all_projects_sorted( bool $include_empty, bool $include_meta ): array {
+	private static function get_all_project_types_with_associations( bool $include_empty ): array {
+		$type_terms = get_terms( [
+			'taxonomy'   => 'project_type',
+			'hide_empty' => ! $include_empty,
+			'orderby'    => 'name',
+			'order'      => 'ASC',
+		] );
+
+		if ( is_wp_error( $type_terms ) ) {
+			return [];
+		}
+
+		$project_types = [];
+
+		foreach ( $type_terms as $type_term ) {
+			$project_types[] = self::build_project_type_node( $type_term, $include_empty );
+		}
+
+		return $project_types;
+	}
+
+
+
+	private static function build_project_type_node( \WP_Term $type_term, bool $include_empty ): array {
+		$depth_zero_projects = self::get_depth_zero_projects_by_type( $type_term->slug, $include_empty );
+		
+		$total_doc_count = 0;
+		foreach ( $depth_zero_projects as $project ) {
+			$total_doc_count += $project['doc_count'];
+		}
+
+		return [
+			'id' => $type_term->term_id,
+			'name' => $type_term->name,
+			'slug' => $type_term->slug,
+			'project_count' => count( $depth_zero_projects ),
+			'total_doc_count' => $total_doc_count,
+			'associated_projects' => $depth_zero_projects,
+		];
+	}
+
+	private static function get_depth_zero_projects_by_type( string $type_slug, bool $include_empty ): array {
 		$all_projects = get_terms( [
 			'taxonomy'   => Project::TAXONOMY,
+			'parent'     => 0,  // Only depth-0 projects
 			'hide_empty' => ! $include_empty,
 			'orderby'    => 'name',
 			'order'      => 'ASC',
@@ -193,21 +296,27 @@ class ProjectAbilities {
 			return [];
 		}
 
-		$projects = [];
+		$filtered_projects = [];
+
 		foreach ( $all_projects as $project ) {
-			$project_node = self::build_project_node( $project, 0, $include_meta );
-			$projects[] = $project_node;
+			$project_type = Project::get_project_type( $project );
+			
+			if ( ! $project_type || $project_type !== $type_slug ) {
+				continue;
+			}
+
+			// Return minimal project info for associated_projects array
+			$filtered_projects[] = [
+				'id'   => $project->term_id,
+				'name' => $project->name,
+				'slug' => $project->slug,
+			];
 		}
 
-		// Sort by doc_count (descending)
-		usort( $projects, function( $a, $b ) {
-			return $b['doc_count'] - $a['doc_count'];
-		} );
-
-		return $projects;
+		return $filtered_projects;
 	}
 
-	private static function build_project_node( \WP_Term $project, int $depth, bool $include_meta ): array {
+	private static function build_project_node( \WP_Term $project, int $depth ): array {
 		$project_type = Project::get_project_type( $project );
 		$project_type_obj = null;
 
@@ -229,16 +338,13 @@ class ProjectAbilities {
 			'project_type' => $project_type_obj,
 			'depth'       => $depth,
 			'doc_count'   => (int) $project->count,
+			'meta'        => self::get_term_meta( $project ),
 		];
-
-		if ( $include_meta && $depth === 1 ) {
-			$node['meta'] = self::get_term_meta( $project );
-		}
 
 		return $node;
 	}
 
-	private static function build_tree( int $parent_id, int $depth, bool $include_empty, bool $include_meta ): array {
+	private static function build_tree( int $parent_id, int $depth, bool $include_empty ): array {
 		$terms = get_terms( [
 			'taxonomy'   => Project::TAXONOMY,
 			'parent'     => $parent_id,
@@ -254,15 +360,15 @@ class ProjectAbilities {
 		$tree = [];
 
 		foreach ( $terms as $term ) {
-			$node = self::build_project_node( $term, $depth, $include_meta );
-			$node['children'] = self::build_tree( $term->term_id, $depth + 1, $include_empty, $include_meta );
+			$node = self::build_project_node( $term, $depth );
+			$node['children'] = self::build_tree( $term->term_id, $depth + 1, $include_empty );
 			$tree[] = $node;
 		}
 
 		return $tree;
 	}
 
-	private static function build_tree_from_projects( array $projects, int $depth, bool $include_meta ): array {
+	private static function build_tree_from_projects( array $projects, int $depth ): array {
 		// This is a simplified tree builder - for full hierarchical structure, use parent_id based tree_format
 		return $projects;
 	}
