@@ -1,19 +1,19 @@
 # Taxonomy Management
 
-This guide covers the `codebase` taxonomy system used to organize documentation in Chubes Docs.
+This guide covers the `project` taxonomy system used to organize documentation in Chubes Docs.
 
 For API endpoint details, see the [API Reference](api-reference.md).
 
 ## Overview
 
-The `codebase` taxonomy is a hierarchical system for categorizing documentation by project type and structure. It supports automatic term creation, path resolution, and repository metadata integration.
+The `project` taxonomy is a hierarchical system for categorizing documentation by project type and structure. It supports automatic term creation, path resolution, and repository metadata integration.
 
 ## Taxonomy Structure
 
 ### Hierarchy Levels
 
 ```
-codebase/
+project/
 ├── wordpress-plugins/
 │   ├── my-plugin/
 │   │   ├── api/
@@ -26,8 +26,6 @@ codebase/
 └── discord-bots/
 ```
 
-### Term Types
-
 - **Category Terms**: Top-level groupings (wordpress-plugins, wordpress-themes, etc.)
 - **Project Terms**: Specific projects within categories
 - **Subpath Terms**: Hierarchical organization within projects
@@ -36,14 +34,14 @@ codebase/
 
 ### Creating Terms via API
 
-The REST API does not provide an endpoint to create arbitrary codebase terms directly (there is no `POST /codebase`). Use `POST /codebase/resolve` with `create_missing: true` to create missing segments in a path.
+The REST API does not provide an endpoint to create arbitrary project terms directly (there is no `POST /project`). Use `POST /project/resolve` with `create_missing: true` to create missing segments in a path.
 
 #### Path Resolution
 
 Automatically create hierarchical paths:
 
 ```bash
-curl -X POST /wp-json/chubes/v1/codebase/resolve \
+curl -X POST /wp-json/chubes/v1/project/resolve \
   -H "Content-Type: application/json" \
   -d '{
     "path": ["wordpress-plugins", "my-plugin", "api", "endpoints"],
@@ -57,11 +55,11 @@ curl -X POST /wp-json/chubes/v1/codebase/resolve \
 
 This creates all missing terms in the hierarchy.
 
-Permissions note: `POST /codebase/resolve` is public when `create_missing` is `false`, and requires `manage_categories` when `create_missing` is `true`.
+Permissions note: `POST /project/resolve` is public when `create_missing` is `false`, and requires `manage_categories` when `create_missing` is `true`.
 ### Updating Terms
 
 ```bash
-curl -X PUT /wp-json/chubes/v1/codebase/{term_id} \
+curl -X PUT /wp-json/chubes/v1/project/{term_id} \
   -H "Content-Type: application/json" \
   -d '{
     "name": "Updated Plugin Name",
@@ -73,21 +71,21 @@ curl -X PUT /wp-json/chubes/v1/codebase/{term_id} \
   }'
 ```
 
-> `PUT /codebase/{id}` only updates `name`, `description`, `meta.github_url`, and `meta.wp_url`.
+> `PUT /project/{id}` only updates `name`, `description`, `meta.github_url`, and `meta.wp_url`.
 ### Listing Terms
 
 ```bash
 # Get all terms
-curl /wp-json/chubes/v1/codebase
+curl /wp-json/chubes/v1/project
 
 # Get hierarchical tree
-curl /wp-json/chubes/v1/codebase/tree
+curl /wp-json/chubes/v1/project/tree
 
 # Filter by parent
-curl /wp-json/chubes/v1/codebase?parent=5
+curl /wp-json/chubes/v1/project?parent=5
 
 # Hide empty terms
-curl "/wp-json/chubes/v1/codebase?hide_empty=true"
+curl "/wp-json/chubes/v1/project?hide_empty=true"
 ```
 
 ## Repository Metadata
@@ -96,10 +94,10 @@ curl "/wp-json/chubes/v1/codebase?hide_empty=true"
 
 The term update endpoint supports setting two URLs:
 
-- `meta.github_url` is stored as `codebase_github_url`
-- `meta.wp_url` is stored as `codebase_wp_url`
+- `meta.github_url` is stored as `project_github_url`
+- `meta.wp_url` is stored as `project_wp_url`
 
-The term detail endpoint (`GET /codebase/{id}`) also returns:
+The term detail endpoint (`GET /project/{id}`) also returns:
 
 - `meta.installs`
 - `repository_info` (the computed repository info array returned by `chubes_get_repository_info()`)
@@ -113,13 +111,13 @@ The plugin automatically fetches metadata from APIs:
 
 ### Manual Metadata Updates
 
-`PUT /wp-json/chubes/v1/codebase/{id}` only persists:
+`PUT /wp-json/chubes/v1/project/{id}` only persists:
 
-- `meta.github_url` → `codebase_github_url`
-- `meta.wp_url` → `codebase_wp_url`
+- `meta.github_url` → `project_github_url`
+- `meta.wp_url` → `project_wp_url`
 
 ```bash
-curl -X PUT /wp-json/chubes/v1/codebase/{project_term_id} \
+curl -X PUT /wp-json/chubes/v1/project/{project_term_id} \
   -H "Content-Type: application/json" \
   -d '{
     "meta": {
@@ -169,9 +167,9 @@ curl -X POST /wp-json/chubes/v1/sync/doc \
 ### Taxonomy URLs
 
 Terms generate URLs following the pattern:
-- `/codebase/wordpress-plugins/` - Category archive
-- `/codebase/wordpress-plugins/my-plugin/` - Project archive
-- `/codebase/wordpress-plugins/my-plugin/api/` - Subpath archive
+- `/project/wordpress-plugins/` - Category archive
+- `/project/wordpress-plugins/my-plugin/` - Project archive
+- `/project/wordpress-plugins/my-plugin/api/` - Subpath archive
 
 ### Documentation URLs
 
@@ -237,7 +235,7 @@ The `InstallTracker` class automatically:
 
 **"Term not found"**
 - Check slug spelling and case sensitivity
-- Verify term exists with `GET /codebase/{id}`
+- Verify term exists with `GET /project/{id}`
 
 **"Path resolution failed"**
 - Ensure parent terms exist
@@ -267,7 +265,7 @@ Remove unused terms:
 
 ```bash
 # Find empty terms
-curl /wp-json/chubes/v1/codebase?hide_empty=0
+curl /wp-json/chubes/v1/project?hide_empty=0
 
 # Manual cleanup (use WordPress admin or custom script)
 ```
@@ -293,7 +291,7 @@ Complex queries using WordPress functions:
 
 ```php
 $args = array(
-  'taxonomy' => 'codebase',
+  'taxonomy' => 'project',
   'parent' => 0, // Top level only
   'hide_empty' => false,
   'meta_query' => array(
@@ -313,7 +311,7 @@ Update multiple terms:
 
 ```bash
 # Get all project terms
-curl /wp-json/chubes/v1/codebase?hide_empty=0
+curl /wp-json/chubes/v1/project?hide_empty=0
 
 # Batch update metadata
 # (Implement custom endpoint or use multiple PUT requests)

@@ -407,14 +407,26 @@ class Project {
 	}
 
 	/**
-	 * Get the project type slug for a post (from new project_type taxonomy)
+	 * Get the project type from term meta (for depth 1 project terms)
 	 *
-	 * @param int|WP_Post $post Post ID or object
+	 * @param WP_Term|int $term Term object or ID
 	 * @return string|null
 	 */
-	public static function get_project_type( $post ) {
-		$project_type_term = self::get_project_type_term( $post );
-		return $project_type_term ? $project_type_term->slug : null;
+	public static function get_project_type_from_meta( $term ) {
+		$term_id = is_object( $term ) ? $term->term_id : $term;
+		return get_term_meta( $term_id, 'project_type', true ) ?: null;
+	}
+
+	/**
+	 * Set the project type term meta (for depth 1 project terms)
+	 *
+	 * @param WP_Term|int $term Term object or ID
+	 * @param string $type Project type (wordpress-plugins, wordpress-themes, cli)
+	 * @return bool
+	 */
+	public static function set_project_type_meta( $term, $type ) {
+		$term_id = is_object( $term ) ? $term->term_id : $term;
+		return update_term_meta( $term_id, 'project_type', $type );
 	}
 
 	/**
@@ -462,7 +474,7 @@ class Project {
 			'github_url'     => self::get_github_url( $project->term_id ),
 			'wp_url'         => self::get_wp_url( $project->term_id ),
 			'installs'       => self::get_installs( $project->term_id ),
-			'project_type'   => self::get_project_type( $project ),
+			'project_type'   => self::get_project_type_from_meta( $project ),
 			'content_counts' => $content_counts,
 			'has_content'    => $has_content,
 		);

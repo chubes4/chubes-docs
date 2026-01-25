@@ -12,7 +12,7 @@ class Routes {
 
     public static function register(): void {
         self::register_docs_routes();
-        self::register_codebase_routes();
+        self::register_project_routes();
         self::register_test_routes();
     }
 
@@ -70,7 +70,7 @@ class Routes {
         ]);
     }
 
-    private static function register_codebase_routes(): void {
+    private static function register_project_routes(): void {
         register_rest_route(self::NAMESPACE, '/project', [
             'methods'             => 'GET',
             'callback'            => [ProjectController::class, 'list_terms'],
@@ -217,6 +217,20 @@ class Routes {
                 ],
             ],
         ]);
+
+        register_rest_route(self::NAMESPACE, '/sync/doc', [
+            'methods'             => 'POST',
+            'callback'            => [SyncController::class, 'sync_doc'],
+            'permission_callback' => [self::class, 'check_edit_permission'],
+            'args'                => self::get_sync_doc_args(),
+        ]);
+
+        register_rest_route(self::NAMESPACE, '/sync/batch', [
+            'methods'             => 'POST',
+            'callback'            => [SyncController::class, 'sync_batch'],
+            'permission_callback' => [self::class, 'check_edit_permission'],
+            'args'                => self::get_sync_batch_args(),
+        ]);
     }
 
     public static function check_manage_options_permission(): bool {
@@ -322,6 +336,72 @@ class Routes {
             'meta' => [
                 'type'    => 'object',
                 'default' => [],
+            ],
+        ];
+    }
+
+    private static function get_sync_doc_args(): array {
+        return [
+            'source_file' => [
+                'type'     => 'string',
+                'required' => true,
+            ],
+            'title' => [
+                'type'     => 'string',
+                'required' => true,
+            ],
+            'content' => [
+                'type'     => 'string',
+                'required' => true,
+            ],
+            'project_term_id' => [
+                'type'              => 'integer',
+                'required'          => true,
+                'sanitize_callback' => 'absint',
+            ],
+            'filesize' => [
+                'type'              => 'integer',
+                'required'          => true,
+                'sanitize_callback' => 'absint',
+            ],
+            'timestamp' => [
+                'type'     => 'string',
+                'required' => true,
+            ],
+            'subpath' => [
+                'type'    => 'array',
+                'default' => [],
+                'items'   => ['type' => 'string'],
+            ],
+            'excerpt' => [
+                'type' => 'string',
+            ],
+            'force' => [
+                'type'    => 'boolean',
+                'default' => false,
+            ],
+        ];
+    }
+
+    private static function get_sync_batch_args(): array {
+        return [
+            'docs' => [
+                'type'     => 'array',
+                'required' => true,
+                'items'    => [
+                    'type'       => 'object',
+                    'properties' => [
+                        'source_file' => ['type' => 'string'],
+                        'title'       => ['type' => 'string'],
+                        'content'     => ['type' => 'string'],
+                        'project_term_id' => ['type' => 'integer'],
+                        'filesize'    => ['type' => 'integer'],
+                        'timestamp'   => ['type' => 'string'],
+                        'subpath'     => ['type' => 'array', 'items' => ['type' => 'string']],
+                        'excerpt'     => ['type' => 'string'],
+                        'force'       => ['type' => 'boolean'],
+                    ],
+                ],
             ],
         ];
     }

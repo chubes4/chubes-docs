@@ -196,4 +196,113 @@ class SyncController {
             'docs'          => $docs,
         ]);
     }
+
+    public static function sync_doc(WP_REST_Request $request): WP_REST_Response|WP_Error {
+        $source_file = sanitize_text_field($request->get_param('source_file'));
+        $title = sanitize_text_field($request->get_param('title'));
+        $content = wp_kses_post($request->get_param('content'));
+        $project_term_id = absint($request->get_param('project_term_id'));
+        $filesize = absint($request->get_param('filesize'));
+        $timestamp = sanitize_text_field($request->get_param('timestamp'));
+        $subpath = $request->get_param('subpath');
+        $excerpt = sanitize_textarea_field($request->get_param('excerpt') ?? '');
+        $force = (bool) $request->get_param('force');
+
+        if (empty($source_file) || empty($title) || empty($content) || !$project_term_id) {
+            return new WP_Error('missing_required_params', 'Missing required parameters', ['status' => 400]);
+        }
+
+        $result = SyncManager::sync_post(
+            $source_file,
+            $title,
+            $content,
+            $project_term_id,
+            $filesize,
+            $timestamp,
+            $subpath ?: [],
+            $excerpt,
+            $force
+        );
+
+        if (!$result['success']) {
+            return new WP_Error('sync_failed', $result['error'], ['status' => 500]);
+        }
+
+        return rest_ensure_response($result);
+    }
+
+    public static function sync_batch(WP_REST_Request $request): WP_REST_Response|WP_Error {
+        $docs = $request->get_param('docs');
+
+        if (!is_array($docs) || empty($docs)) {
+            return new WP_Error('invalid_docs', 'docs parameter must be a non-empty array', ['status' => 400]);
+        }
+
+        $results = [];
+        $errors = [];
+        $counts = [
+            'created' => 0,
+            'updated' => 0,
+            'unchanged' => 0,
+            'failed' => 0,
+        ];
+
+        foreach ($docs as $index => $doc) {
+            $source_file = sanitize_text_field($doc['source_file'] ?? '');
+            $title = sanitize_text_field($doc['title'] ?? '');
+            $content = wp_kses_post($doc['content'] ?? '');
+            $project_term_id = absint($doc['project_term_id'] ?? 0);
+            $filesize = absint($doc['filesize'] ?? 0);
+            $timestamp = sanitize_text_field($doc['timestamp'] ?? '');
+            $subpath = $doc['subpath'] ?? [];
+            $excerpt = sanitize_textarea_field($doc['excerpt'] ?? '');
+            $force = (bool) ($doc['force'] ?? false);
+
+            if (empty($source_file) || empty($title) || empty($content) || !$project_term_id) {
+                $errors[] = [
+                    'index' => $index,
+                    'error' => 'Missing required parameters',
+                ];
+                $counts['failed']++;
+                continue;
+            }
+
+            $result = SyncManager::sync_post(
+                $source_file,
+                $title,
+                $content,
+                $project_term_id,
+                $filesize,
+                $timestamp,
+                $subpath,
+                $excerpt,
+                $force
+            );
+
+            if ($result['success']) {
+                $results[] = $result;
+                $action = $result['action'] ?? 'unknown';
+                if (isset($counts[$action])) {
+                    $counts[$action]++;
+                }
+            } else {
+                $errors[] = [
+                    'index' => $index,
+                    'source_file' => $source_file,
+                    'error' => $result['error'],
+                ];
+                $counts['failed']++;
+            }
+        }
+
+        return rest_ensure_response([
+            'total' => count($docs),
+            'created' => $counts['created'],
+            'updated' => $counts['updated'],
+            'unchanged' => $counts['unchanged'],
+            'failed' => $counts['failed'],
+            'results' => $results,
+            'errors' => $errors,
+        ]);
+    }
 }

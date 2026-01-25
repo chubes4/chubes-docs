@@ -111,7 +111,7 @@ class ProjectController {
 	private static function prepare_term( \WP_Term $term, bool $include_repo_info = false ): array {
 		$top_level    = Project::get_top_level_term( $term );
 		$project      = Project::get_project_term( $term );
-		$project_type = Project::get_project_type( $term );
+		$project_type = Project::get_term_depth( $term ) === 1 ? Project::get_project_type_from_meta( $term ) : null;
 
 		$item = array(
 			'id'           => $term->term_id,

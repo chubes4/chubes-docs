@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+- Switched project type storage from taxonomy to term meta on depth-1 category terms
+- Renamed codebase taxonomy to project throughout the system
+- Updated archive template to group projects by term meta instead of taxonomy
+- Added new sync/doc and sync/batch REST API endpoints
+- Removed TaxonomyMigrateCommand and related migration logic
+
 ## [0.7.0] - 2026-01-24
 
 ### Fixed
@@ -23,7 +32,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Add project_type taxonomy for explicit project categorization (wordpress-plugins, wordpress-themes, cli)
-- Add TaxonomyMigrateCommand for automated data migration from codebase to project taxonomy
 
 ### Changed
 - Rename codebase taxonomy to project, update all references and API endpoints

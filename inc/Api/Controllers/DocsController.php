@@ -18,13 +18,13 @@ class DocsController {
             'paged'          => absint($request->get_param('page') ?? 1),
         ];
 
-        $codebase = $request->get_param('codebase');
-        if ($codebase) {
+        $project = $request->get_param('project');
+        if ($project) {
             $args['tax_query'] = [
                 [
                     'taxonomy' => Project::TAXONOMY,
-                    'field'    => is_numeric($codebase) ? 'term_id' : 'slug',
-                    'terms'    => $codebase,
+                    'field'    => is_numeric($project) ? 'term_id' : 'slug',
+                    'terms'    => $project,
                 ],
             ];
         }
@@ -80,9 +80,9 @@ class DocsController {
             return $post_id;
         }
 
-        $codebase_path = $request->get_param('codebase_path');
-        if (!empty($codebase_path) && is_array($codebase_path)) {
-            $resolved = Project::resolve_path($codebase_path, true);
+        $project_path = $request->get_param('project_path');
+        if (!empty($project_path) && is_array($project_path)) {
+            $resolved = Project::resolve_path($project_path, true);
             if ($resolved['success'] && $resolved['leaf_term_id']) {
                 wp_set_object_terms($post_id, $resolved['leaf_term_id'], Project::TAXONOMY);
             }
@@ -138,9 +138,9 @@ class DocsController {
             return $result;
         }
 
-        $codebase_path = $request->get_param('codebase_path');
-        if (!empty($codebase_path) && is_array($codebase_path)) {
-            $resolved = Project::resolve_path($codebase_path, true);
+        $project_path = $request->get_param('project_path');
+        if (!empty($project_path) && is_array($project_path)) {
+            $resolved = Project::resolve_path($project_path, true);
             if ($resolved['success'] && $resolved['leaf_term_id']) {
                 wp_set_object_terms($post_id, $resolved['leaf_term_id'], Project::TAXONOMY);
             }
@@ -189,7 +189,7 @@ class DocsController {
 
     private static function prepare_item(\WP_Post $post, bool $include_content = false): array {
         $terms = get_the_terms($post->ID, Project::TAXONOMY);
-        $codebase_data = self::prepare_project_data($terms ?: []);
+        $project_data = self::prepare_project_data($terms ?: []);
 
         $item = [
             'id'       => $post->ID,
@@ -198,7 +198,7 @@ class DocsController {
             'excerpt'  => $post->post_excerpt,
             'status'   => $post->post_status,
             'link'     => get_permalink($post->ID),
-            'codebase' => $codebase_data,
+            'project' => $project_data,
             'meta'     => [
                 'sync_source_file' => get_post_meta($post->ID, '_sync_source_file', true),
                 'sync_hash'        => get_post_meta($post->ID, '_sync_hash', true),

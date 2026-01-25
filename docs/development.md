@@ -105,7 +105,7 @@ inc/
 ├── Core/                  # Plugin core systems
 │   ├── Assets.php         # Asset management
 │   ├── Breadcrumbs.php    # Breadcrumb generation
-│   ├── Codebase.php       # Taxonomy management
+│   ├── Project.php        # Taxonomy management
 │   ├── Documentation.php  # Post type handling
 │   └── RewriteRules.php   # URL routing
 ├── Fields/                # Admin interface
@@ -174,10 +174,10 @@ $value = get_post_meta($post_id, '_custom_field', true);
 
 ```php
 // Set terms
-wp_set_object_terms($post_id, $term_ids, Codebase::TAXONOMY);
+wp_set_object_terms($post_id, $term_ids, Project::TAXONOMY);
 
 // Get terms
-$terms = get_the_terms($post_id, Codebase::TAXONOMY);
+$terms = get_the_terms($post_id, Project::TAXONOMY);
 ```
 
 ## Security Considerations

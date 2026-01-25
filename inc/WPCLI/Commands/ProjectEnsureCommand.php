@@ -54,6 +54,12 @@ class ProjectEnsureCommand {
 			update_term_meta( $project_term->term_id, 'project_wp_url', $wporg_url );
 		}
 
+		// Set project type meta based on the type slug
+		$project_type = self::get_project_type_from_slug( $type_slug );
+		if ( $project_type ) {
+			Project::set_project_type_meta( $project_term, $project_type );
+		}
+
 		WP_CLI::success( 'Project terms ensured.' );
 
 		$rows = [
@@ -64,7 +70,7 @@ class ProjectEnsureCommand {
 				'project_term_id'  => (string) $project_term->term_id,
 				'github_url'       => Project::get_github_url( $project_term->term_id ) ?? '',
 				'wporg_url'        => Project::get_wp_url( $project_term->term_id ) ?? '',
-				'project_type'     => Project::get_project_type( $project_term ),
+				'project_type'     => Project::get_project_type_from_meta( $project_term ),
 			],
 		];
 
@@ -125,5 +131,9 @@ class ProjectEnsureCommand {
 		}
 
 		return get_term( $result['term_id'], Project::TAXONOMY );
+	}
+
+	private static function get_project_type_from_slug( string $type_slug ): ?string {
+		return $type_slug;
 	}
 }

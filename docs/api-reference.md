@@ -27,7 +27,7 @@ List documentation posts.
 **Query parameters:**
 - `per_page` (int, default `10`)
 - `page` (int, default `1`)
-- `codebase` (string): Project term slug or numeric term ID
+- `project` (string): Project term slug or numeric term ID
 - `status` (string, default `publish`)
 - `search` (string)
 
@@ -73,7 +73,7 @@ Create a new documentation post.
 - `content` (string, required): Documentation content (supports Markdown)
 - `excerpt` (string): Brief description
 - `status` (string): Post status (default: "publish")
-- `codebase_path` (array): Taxonomy path as array (e.g., ["wordpress-plugins", "my-plugin"])
+- `project_path` (array): Taxonomy path as array (e.g., ["wordpress-plugins", "my-plugin"])
 - `meta` (object): Additional metadata
 
 **Response:**
@@ -82,7 +82,7 @@ Create a new documentation post.
   "id": 124,
   "title": "New Documentation",
   "status": "publish",
-  "codebase": {
+  "project": {
     "assigned_term": {
       "id": 15,
       "slug": "my-plugin",
@@ -254,8 +254,8 @@ Update a taxonomy term.
 - `name` (string, optional)
 - `description` (string, optional)
 - `meta` (object, optional): only these keys are applied:
-  - `github_url` (stored as term meta `codebase_github_url`)
-  - `wp_url` (stored as term meta `codebase_wp_url`)
+  - `github_url` (stored as term meta `project_github_url`)
+  - `wp_url` (stored as term meta `project_wp_url`)
 
 **Response:** Updated term object (includes `meta` and `repository_info`).
 ## Sync Endpoints

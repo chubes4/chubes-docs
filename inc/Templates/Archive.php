@@ -2,7 +2,7 @@
 /**
  * Archive Template Hooks
  * 
- * Hooks into theme's archive.php to render documentation and codebase content.
+ * Hooks into theme's archive.php to render documentation and project content.
  * Provides hierarchical archive rendering for the documentation system.
  */
 
@@ -21,7 +21,7 @@ class Archive {
 	}
 
 	/**
-	 * Render header extras for codebase project pages
+	 * Render header extras for project pages
 	 *
 	 * Renders a project info card with description, stats, and action buttons.
 	 */
@@ -92,9 +92,9 @@ class Archive {
 	}
 
 	/**
-	 * Filter archive content for documentation and codebase contexts
+	 * Filter archive content for documentation and project contexts
 	 * 
-	 * Returns custom HTML for codebase taxonomy and documentation archives.
+	 * Returns custom HTML for project taxonomy and documentation archives.
 	 * Returns unmodified content for other archive types.
 	 *
 	 * @param string $content        The current archive content
@@ -118,7 +118,7 @@ class Archive {
 	}
 
 	/**
-	 * Render codebase taxonomy content
+	 * Render project taxonomy content
 	 * 
 	 * Category terms (depth 0): Grid of project cards
 	 * All other terms (depth 1+): Hierarchical documentation listing
@@ -428,71 +428,66 @@ class Archive {
 	 * Shows all documentation grouped by project type.
 	 */
 	private static function render_documentation_archive() {
-		$project_types = get_terms( [
-			'taxonomy'   => 'project_type',
-			'hide_empty' => true,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
+		// Get all project terms (depth 1) that have project_type meta
+		$project_terms = get_terms( [
+			'taxonomy'   => 'project',
+			'hide_empty' => false,
+			'meta_query' => [
+				[
+					'key'     => 'project_type',
+					'compare' => 'EXISTS',
+				],
+			],
 		] );
 
-		if ( ! $project_types || is_wp_error( $project_types ) ) {
+		if ( ! $project_terms || is_wp_error( $project_terms ) ) {
 			return;
 		}
 
-		foreach ( $project_types as $project_type ) :
-			// Find documentation posts with this project_type
-			$posts = get_posts( [
-				'post_type'      => Documentation::POST_TYPE,
-				'tax_query'      => [
-					[
-						'taxonomy' => 'project_type',
-						'terms'    => $project_type->term_id,
-					],
-				],
-				'posts_per_page' => -1,
-				'fields'         => 'ids',
-			] );
+		// Group projects by their project_type term meta
+		$projects_by_type = [];
+		foreach ( $project_terms as $project_term ) {
+			if ( Project::get_term_depth( $project_term ) !== 1 ) {
+				continue; // Only depth 1 terms (actual projects)
+			}
 
-			$project_terms = [];
-			foreach ( $posts as $post_id ) {
-				$terms = get_the_terms( $post_id, 'project' );
-				if ( $terms && ! is_wp_error( $terms ) ) {
-					$project_term = Project::get_project_term( $terms );
-					if ( $project_term && ! in_array( $project_term->term_id, array_column( $project_terms, 'term_id' ) ) ) {
-						$project_terms[] = $project_term;
-					}
+			$repo_info = Project::get_repository_info( $project_term );
+			$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
+
+			if ( $doc_count > 0 ) {
+				$project_type = Project::get_project_type_from_meta( $project_term );
+				if ( ! $project_type ) {
+					continue; // Skip projects without project_type meta
 				}
-			}
 
-			$projects_with_docs = [];
-			foreach ( $project_terms as $project_term ) {
-				$repo_info = Project::get_repository_info( $project_term );
-				$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
-
-				if ( $doc_count > 0 ) {
-					$projects_with_docs[] = [
-						'term'      => $project_term,
-						'repo_info' => $repo_info,
-						'doc_count' => $doc_count,
-					];
+				if ( ! isset( $projects_by_type[ $project_type ] ) ) {
+					$projects_by_type[ $project_type ] = [];
 				}
-			}
 
-			if ( empty( $projects_with_docs ) ) {
-				continue;
+				$projects_by_type[ $project_type ][] = [
+					'term'      => $project_term,
+					'repo_info' => $repo_info,
+					'doc_count' => $doc_count,
+				];
 			}
+		}
+
+		if ( empty( $projects_by_type ) ) {
+			return;
+		}
+
+		foreach ( $projects_by_type as $project_type => $projects ) :
+			// Convert slug to display name
+			$display_name = self::get_project_type_display_name( $project_type );
 			?>
 
 			<section class="documentation-category-section">
 				<div class="category-header">
-					<h2><?php echo esc_html( ucfirst( $project_type->name ) ); ?></h2>
-					<?php if ( $project_type->description ) : ?>
-						<p><?php echo esc_html( $project_type->description ); ?></p>
-					<?php endif; ?>
+					<h2><?php echo esc_html( $display_name ); ?></h2>
 				</div>
 
 				<div class="cards-grid">
-					<?php foreach ( $projects_with_docs as $project ) : ?>
+					<?php foreach ( $projects as $project ) : ?>
 						<div class="doc-card">
 							<div class="card-header">
 								<h3><a href="<?php echo esc_url( get_term_link( $project['term'] ) ); ?>"><?php echo esc_html( $project['term']->name ); ?></a></h3>
@@ -551,22 +546,18 @@ class Archive {
 	}
 
 	/**
-	 * Filter whether to show archive description in theme header
+	 * Get display name for project type slug
 	 *
-	 * Suppresses the default archive description for non-root codebase terms
-	 * since we display it in the project-info-card instead.
+	 * @param string $slug Project type slug
+	 * @return string Display name
 	 */
-	public static function filter_show_description( $show ) {
-		if ( ! is_tax( 'project' ) ) {
-			return $show;
-		}
+	private static function get_project_type_display_name( $slug ) {
+		$names = [
+			'wordpress-plugins' => 'WordPress Plugins',
+			'wordpress-themes'  => 'WordPress Themes',
+			'cli'               => 'CLI Tools',
+		];
 
-		$term = get_queried_object();
-
-		if ( $term->parent !== 0 ) {
-			return false;
-		}
-
-		return $show;
+		return $names[ $slug ] ?? ucfirst( str_replace( '-', ' ', $slug ) );
 	}
 }

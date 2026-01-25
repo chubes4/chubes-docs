@@ -185,5 +185,5 @@ Monitor sync operations:
 curl /wp-json/chubes/v1/sync/status?project=my-plugin
 
 # List recent documentation
-curl /wp-json/chubes/v1/docs?codebase=my-plugin&per_page=10
+curl /wp-json/chubes/v1/docs?project=my-plugin&per_page=10
 ```
