@@ -17,14 +17,7 @@ The `project_type` taxonomy provides non-hierarchical categorization of projects
 
 ### Project Type Taxonomy
 
-The `project_type` taxonomy provides non-hierarchical categorization of projects by type. Common project types include:
-
-- `wordpress-plugins` - WordPress plugins
-- `wordpress-themes` - WordPress themes  
-- `php-libraries` - PHP libraries and packages
-- `cli-tools` - Command-line tools
-
-Project types are created dynamically as needed and stored as term meta on project terms.
+The `project_type` taxonomy provides non-hierarchical categorization of projects by type. Project types are created dynamically as needed and stored as term meta on project terms.
 
 ### Managing Project Types
 
