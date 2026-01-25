@@ -1,38 +1,59 @@
 # Taxonomy Management
 
-This guide covers the `project` taxonomy system used to organize documentation in Chubes Docs.
+This guide covers the taxonomy system used to organize documentation in Chubes Docs.
 
 For API endpoint details, see the [API Reference](api-reference.md).
 
 ## Overview
 
-The `project` taxonomy is a hierarchical system for categorizing documentation by project type and structure. It supports automatic term creation, path resolution, and repository metadata integration.
+Chubes Docs uses two taxonomies to organize documentation:
 
-## Taxonomy Structure
+- **`project`** taxonomy: Hierarchical system for organizing documentation by project structure
+- **`project_type`** taxonomy: Non-hierarchical system for categorizing project types
 
-### Hierarchy Levels
+## Project Type Taxonomy
 
+The `project_type` taxonomy provides non-hierarchical categorization of projects:
+
+### Available Project Types
+
+- `wordpress-plugin` - WordPress plugins
+- `wordpress-theme` - WordPress themes  
+- `php-library` - PHP libraries and packages
+- `cli-tool` - Command-line tools
+- `javascript-package` - JavaScript/npm packages
+
+### Managing Project Types
+
+Project types are stored as term meta on project terms (depth 0 in the `project` taxonomy). Use the Project API to set project types:
+
+```bash
+# Set project type for a project term
+curl -X PUT /wp-json/chubes/v1/project/{project_term_id} \
+  -H "Content-Type: application/json" \
+  -d '{
+    "meta": {
+      "project_type": "wordpress-plugin"
+    }
+  }'
 ```
-project/
-├── wordpress-plugins/
-│   ├── my-plugin/
-│   │   ├── api/
-│   │   ├── guides/
-│   │   └── examples/
-│   └── another-plugin/
-├── wordpress-themes/
-│   └── my-theme/
-├── php-libraries/
-└── discord-bots/
-```
 
-- **Category Terms**: Top-level groupings (wordpress-plugins, wordpress-themes, etc.)
-- **Project Terms**: Specific projects within categories
-- **Subpath Terms**: Hierarchical organization within projects
+### Project Type in REST API
+
+The docs endpoint includes project type information:
+
+```json
+{
+  "id": 123,
+  "title": "My Plugin Docs",
+  "project_type": "wordpress-plugin",
+  "codebase_path": ["my-plugin", "api"]
+}
+```
 
 ## Managing Taxonomy Terms
 
-### Creating Terms via API
+### Managing Terms via API
 
 The REST API does not provide an endpoint to create arbitrary project terms directly (there is no `POST /project`). Use `POST /project/resolve` with `create_missing: true` to create missing segments in a path.
 
@@ -44,7 +65,7 @@ Automatically create hierarchical paths:
 curl -X POST /wp-json/chubes/v1/project/resolve \
   -H "Content-Type: application/json" \
   -d '{
-    "path": ["wordpress-plugins", "my-plugin", "api", "endpoints"],
+    "path": ["my-plugin", "api", "endpoints"],
     "create_missing": true,
     "project_meta": {
       "github_url": "https://github.com/user/my-plugin",
@@ -53,7 +74,7 @@ curl -X POST /wp-json/chubes/v1/project/resolve \
   }'
 ```
 
-This creates all missing terms in the hierarchy.
+This creates all missing terms in the hierarchy. The first segment ("my-plugin") becomes a project term at depth 0.
 
 Permissions note: `POST /project/resolve` is public when `create_missing` is `false`, and requires `manage_categories` when `create_missing` is `true`.
 ### Updating Terms
@@ -139,11 +160,11 @@ curl -X POST /wp-json/chubes/v1/docs \
   -d '{
     "title": "API Documentation",
     "content": "# API Docs...",
-    "codebase_path": ["wordpress-plugins", "my-plugin", "api"]
+    "codebase_path": ["my-plugin", "api"]
   }'
 ```
 
-The `codebase_path` parameter automatically resolves to the appropriate taxonomy terms.
+The `codebase_path` parameter automatically resolves to the appropriate taxonomy terms. The first segment creates or finds a project term at depth 0.
 
 ### Sync System Integration
 
@@ -167,15 +188,15 @@ curl -X POST /wp-json/chubes/v1/sync/doc \
 ### Taxonomy URLs
 
 Terms generate URLs following the pattern:
-- `/project/wordpress-plugins/` - Category archive
-- `/project/wordpress-plugins/my-plugin/` - Project archive
-- `/project/wordpress-plugins/my-plugin/api/` - Subpath archive
+- `/project/my-plugin/` - Project archive
+- `/project/my-plugin/api/` - Subpath archive
+- `/project/my-plugin/api/endpoints/` - Deeper subpath archive
 
 ### Documentation URLs
 
 Documentation posts use hierarchical URLs:
-- `/docs/wordpress-plugins/my-plugin/readme/` - Project README
-- `/docs/wordpress-plugins/my-plugin/api/endpoints/` - API docs
+- `/docs/my-plugin/readme/` - Project README
+- `/docs/my-plugin/api/endpoints/` - API docs
 
 ## Admin Interface
 
@@ -202,14 +223,13 @@ The `InstallTracker` class automatically:
 ### Naming Conventions
 
 - Use lowercase slugs with hyphens: `my-wordpress-plugin`
-- Keep category names consistent: `wordpress-plugins`, `php-libraries`
 - Use descriptive project names: `advanced-custom-fields`, not `acf`
+- For project types, use standard slugs: `wordpress-plugin`, `wordpress-theme`, `php-library`, `cli-tool`
 
 ### Hierarchy Organization
 
-- **Categories**: Group by technology/platform
-- **Projects**: One term per repository
-- **Subpaths**: Logical content organization
+- **Project Terms**: One term per repository at depth 0
+- **Subpaths**: Logical content organization within projects
   - `api/` - API reference
   - `docs/` - Documentation
   - `examples/` - Code examples
