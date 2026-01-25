@@ -176,7 +176,7 @@ class Archive {
 	 * Shows posts directly under the term at top (no header),
 	 * then child terms as sections with headers, recursively.
 	 *
-	 * @param \WP_Term $term The codebase term
+	 * @param \WP_Term $term The project term
 	 */
 	private static function render_term_content( $term ) {
 		$direct_posts = self::get_direct_posts_for_term( $term );
@@ -202,7 +202,7 @@ class Archive {
 	/**
 	 * Render a term section with header and recursive children
 	 *
-	 * @param \WP_Term $term  The codebase term
+	 * @param \WP_Term $term  The project term
 	 * @param int      $depth The current depth level (1 = h3, 2 = h4, 3+ = h5)
 	 */
 	private static function render_term_hierarchy_section( $term, $depth ) {
@@ -307,7 +307,7 @@ class Archive {
 	/**
 	 * Render no content message for a term
 	 *
-	 * @param \WP_Term $term The codebase term
+	 * @param \WP_Term $term The project term
 	 */
 	private static function render_no_content_message( $term ) {
 		$project_term = Project::get_project_term( [ $term ] );
@@ -325,7 +325,7 @@ class Archive {
 	/**
 	 * Get posts directly assigned to a term (not inherited from children)
 	 *
-	 * @param \WP_Term $term The codebase term
+	 * @param \WP_Term $term The project term
 	 * @return \WP_Query
 	 */
 	private static function get_direct_posts_for_term( $term ) {
@@ -393,7 +393,7 @@ class Archive {
 	/**
 	 * Get the most recent post modified date under a term (including children)
 	 *
-	 * @param \WP_Term $term The codebase term
+	 * @param \WP_Term $term The project term
 	 * @return string|null The modified date or null if no posts
 	 */
 	private static function get_term_latest_modified_date( $term ) {
@@ -530,7 +530,7 @@ class Archive {
 	}
 
 	/**
-	 * Filter archive title for documentation and codebase contexts
+	 * Filter archive title for documentation and project contexts
 	 */
 	public static function filter_archive_title( $title ) {
 		if ( is_post_type_archive( 'documentation' ) ) {
