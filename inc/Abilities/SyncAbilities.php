@@ -142,7 +142,7 @@ class SyncAbilities {
 		$syncable = [];
 
 		foreach ( $all_terms as $term ) {
-			if ( Project::get_term_depth( $term ) !== 1 ) {
+			if ( Project::get_term_depth( $term ) !== 0 ) {
 				continue;
 			}
 
