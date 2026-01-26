@@ -224,7 +224,7 @@ class SettingsPage {
 			<hr />
 
 			<h2><?php esc_html_e( 'Manual Sync', 'chubes-docs' ); ?></h2>
-			<p><?php esc_html_e( 'Run a sync for all configured codebases now.', 'chubes-docs' ); ?></p>
+			<p><?php esc_html_e( 'Run a sync for all configured projects now.', 'chubes-docs' ); ?></p>
 			<button type="button" class="button button-secondary" id="chubes-docs-sync-all">
 				<?php esc_html_e( 'Sync All Now', 'chubes-docs' ); ?>
 			</button>

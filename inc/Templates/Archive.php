@@ -105,7 +105,7 @@ class Archive {
 	public static function filter_content( $content, $queried_object ) {
 		if ( is_tax( 'project' ) ) {
 			ob_start();
-			self::render_codebase_content();
+			self::render_project_content();
 			return ob_get_clean();
 		}
 
@@ -118,17 +118,17 @@ class Archive {
 		return $content;
 	}
 
-	/**
-	 * Render project taxonomy content
-	 * 
-	 * Project terms (depth 0): Project info and hierarchical documentation
-	 * All other terms (depth 1+): Hierarchical documentation listing
-	 */
-	private static function render_codebase_content() {
+		/**
+		 * Render project taxonomy content
+		 * 
+		 * Project terms (depth 0): Project info and hierarchical documentation
+		 * All other terms (depth 1+): Hierarchical documentation listing
+		 */
+		private static function render_project_content() {
 		$term = get_queried_object();
 
 		if ( $term->parent === 0 ) {
-			self::render_project_content( $term );
+			self::render_top_level_project_content( $term );
 		} else {
 			self::render_term_content( $term );
 		}
@@ -139,7 +139,7 @@ class Archive {
 	 * 
 	 * Shows hierarchical documentation for the project.
 	 */
-	private static function render_project_content( $term ) {
+	private static function render_top_level_project_content( $term ) {
 		// Render the hierarchical documentation
 		$direct_posts = self::get_direct_posts_for_term( $term );
 		$child_terms = self::get_sorted_child_terms( $term );

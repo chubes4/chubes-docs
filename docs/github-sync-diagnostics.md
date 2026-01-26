@@ -32,7 +32,7 @@ Test access to a repository URL.
 
 ### POST /wp-json/chubes/v1/sync/all
 
-Run GitHub sync across all codebase terms that have a GitHub URL configured.
+Run GitHub sync across all project terms that have a GitHub URL configured.
 
 - **Permissions:** requires `manage_options`
 - **Response:**
@@ -49,7 +49,7 @@ Run GitHub sync across all codebase terms that have a GitHub URL configured.
 
 ### POST /wp-json/chubes/v1/sync/term/{id}
 
-Run GitHub sync for a single codebase term.
+Run GitHub sync for a single project term.
 
 - **Permissions:** requires `manage_options`
 - **Body parameters:**
