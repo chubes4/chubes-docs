@@ -17,31 +17,34 @@ class DocsAbilities {
 	public static function register(): void {
 		wp_register_ability( 'chubes/reset-documentation', [
 			'label'               => __( 'Reset Documentation', 'chubes-docs' ),
-			'description'         => __( 'Deletes all documentation posts and orphaned project terms, preserving active projects with GitHub URLs', 'chubes-docs' ),
+			'description'         => __( 'Deletes all documentation posts and child terms, preserving top-level projects with GitHub URLs', 'chubes-docs' ),
 			'category'            => 'chubes',
 			'input_schema'        => [
 				'type'       => 'object',
-				'properties' => [
-				],
+				'properties' => [],
 			],
 			'output_schema'       => [
 				'type'       => 'object',
 				'properties' => [
-					'success' => [
+					'success'                     => [
 						'type'        => 'boolean',
 						'description' => 'Whether the reset operation completed successfully',
-					],
-					'active_projects_preserved' => [
-						'type'        => 'integer',
-						'description' => 'Number of active project terms preserved (those with GitHub URLs)',
-					],
-					'orphaned_terms_deleted' => [
-						'type'        => 'integer',
-						'description' => 'Number of orphaned project terms deleted (those without GitHub URLs)',
 					],
 					'documentation_posts_deleted' => [
 						'type'        => 'integer',
 						'description' => 'Total number of documentation posts deleted',
+					],
+					'child_terms_deleted'         => [
+						'type'        => 'integer',
+						'description' => 'Number of child project terms deleted (depth >= 1)',
+					],
+					'orphaned_terms_deleted'      => [
+						'type'        => 'integer',
+						'description' => 'Number of orphaned top-level project terms deleted (no GitHub URL)',
+					],
+					'sync_metadata_reset'         => [
+						'type'        => 'integer',
+						'description' => 'Number of preserved project terms with sync metadata cleared',
 					],
 				],
 			],
@@ -52,75 +55,25 @@ class DocsAbilities {
 	}
 
 	public static function reset_documentation(): array {
-		// Step 1: Get active project terms (depth=0 with github_url)
-		$active_projects = self::get_active_project_terms();
+		// Step 1: Delete all documentation posts
+		$posts_deleted = self::bulk_delete_documentation_posts();
 
-		// Step 2: Delete orphaned project terms (depth=0 without github_url)
+		// Step 2: Delete ALL child terms (depth >= 1)
+		$child_terms_deleted = self::delete_child_terms();
+
+		// Step 3: Delete orphaned top-level terms (no GitHub URL)
 		$orphaned_deleted = self::delete_orphaned_project_terms();
 
-		// Step 3: Delete all documentation posts
-		$posts_deleted = self::bulk_delete_documentation_posts();
+		// Step 4: Reset sync metadata on preserved terms
+		$terms_reset = self::reset_sync_metadata();
 
 		return [
 			'success'                     => true,
-			'active_projects_preserved' => count( $active_projects ),
-			'orphaned_terms_deleted'      => $orphaned_deleted,
 			'documentation_posts_deleted' => $posts_deleted,
+			'child_terms_deleted'         => $child_terms_deleted,
+			'orphaned_terms_deleted'      => $orphaned_deleted,
+			'sync_metadata_reset'         => $terms_reset,
 		];
-	}
-
-	/**
-	 * Get active project terms (depth=0 with non-empty github_url)
-	 *
-	 * @return array Array of WP_Term objects
-	 */
-	private static function get_active_project_terms(): array {
-		return get_terms( [
-			'taxonomy'   => 'project',
-			'parent'     => 0,
-			'meta_query' => [
-				[
-					'key'     => 'project_github_url',
-					'value'   => '',
-					'compare' => '!=',
-					'type'    => 'CHAR',
-				],
-			],
-			'hide_empty' => false,
-		] );
-	}
-
-	/**
-	 * Delete orphaned project terms (depth=0 without github_url)
-	 *
-	 * @return int Number of terms deleted
-	 */
-	private static function delete_orphaned_project_terms(): int {
-		$orphaned = get_terms( [
-			'taxonomy'   => 'project',
-			'parent'     => 0,
-			'meta_query' => [
-				[
-					'key'     => 'project_github_url',
-					'compare' => 'NOT EXISTS',
-				],
-			],
-			'hide_empty' => false,
-		] );
-
-		if ( is_wp_error( $orphaned ) || empty( $orphaned ) ) {
-			return 0;
-		}
-
-		$deleted_count = 0;
-		foreach ( $orphaned as $term ) {
-			$result = wp_delete_term( $term->term_id, 'project' );
-			if ( $result !== false && $result !== null ) {
-				$deleted_count++;
-			}
-		}
-
-		return $deleted_count;
 	}
 
 	/**
@@ -149,5 +102,106 @@ class DocsAbilities {
 		}
 
 		return $deleted_count;
+	}
+
+	/**
+	 * Delete all child terms (depth >= 1)
+	 * Deletes from deepest to shallowest to avoid orphan issues.
+	 *
+	 * @return int Number of terms deleted
+	 */
+	private static function delete_child_terms(): int {
+		$deleted = 0;
+
+		// Loop until no more child terms exist
+		do {
+			$child_terms = get_terms( [
+				'taxonomy'   => 'project',
+				'hide_empty' => false,
+				'childless'  => true,
+				'parent__not_in' => [ 0 ],
+			] );
+
+			if ( is_wp_error( $child_terms ) || empty( $child_terms ) ) {
+				break;
+			}
+
+			foreach ( $child_terms as $term ) {
+				$result = wp_delete_term( $term->term_id, 'project' );
+				if ( $result && ! is_wp_error( $result ) ) {
+					$deleted++;
+				}
+			}
+		} while ( ! empty( $child_terms ) );
+
+		return $deleted;
+	}
+
+	/**
+	 * Delete orphaned top-level project terms (no GitHub URL)
+	 *
+	 * @return int Number of terms deleted
+	 */
+	private static function delete_orphaned_project_terms(): int {
+		$orphaned = get_terms( [
+			'taxonomy'   => 'project',
+			'parent'     => 0,
+			'hide_empty' => false,
+			'meta_query' => [
+				'relation' => 'OR',
+				[
+					'key'     => 'project_github_url',
+					'compare' => 'NOT EXISTS',
+				],
+				[
+					'key'     => 'project_github_url',
+					'value'   => '',
+					'compare' => '=',
+				],
+			],
+		] );
+
+		if ( is_wp_error( $orphaned ) || empty( $orphaned ) ) {
+			return 0;
+		}
+
+		$deleted_count = 0;
+		foreach ( $orphaned as $term ) {
+			$result = wp_delete_term( $term->term_id, 'project' );
+			if ( $result && ! is_wp_error( $result ) ) {
+				$deleted_count++;
+			}
+		}
+
+		return $deleted_count;
+	}
+
+	/**
+	 * Reset sync metadata on preserved top-level project terms
+	 *
+	 * @return int Number of terms with metadata reset
+	 */
+	private static function reset_sync_metadata(): int {
+		$projects = get_terms( [
+			'taxonomy'   => 'project',
+			'parent'     => 0,
+			'hide_empty' => false,
+		] );
+
+		if ( is_wp_error( $projects ) || empty( $projects ) ) {
+			return 0;
+		}
+
+		$reset_count = 0;
+		foreach ( $projects as $term ) {
+			delete_term_meta( $term->term_id, 'project_last_sync_sha' );
+			delete_term_meta( $term->term_id, 'project_last_sync_time' );
+			delete_term_meta( $term->term_id, 'project_files_synced' );
+			delete_term_meta( $term->term_id, 'project_sync_status' );
+			delete_term_meta( $term->term_id, 'project_sync_error' );
+			$reset_count++;
+		}
+
+		return $reset_count;
 	}
 }
