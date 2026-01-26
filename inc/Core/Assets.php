@@ -44,7 +44,7 @@ class Assets {
 
 		$allowed_screens = [
 			'documentation_page_chubes-docs-settings',
-			'edit-codebase',
+			'edit-project',
 		];
 
 		if ( ! in_array( $screen->id, $allowed_screens, true ) ) {
@@ -74,15 +74,15 @@ class Assets {
 	}
 
 	/**
-	 * Enqueue assets for codebase/documentation archives.
+	 * Enqueue assets for project/documentation archives.
 	 */
 	private static function enqueue_archive_assets() {
 		$is_docs_archive = is_post_type_archive( 'documentation' ) ||
-			is_tax( 'codebase' ) ||
+			is_tax( 'project' ) ||
 			get_query_var( 'docs_category_archive' ) ||
 			get_query_var( 'docs_project_archive' ) ||
-			get_query_var( 'codebase_archive' ) ||
-			get_query_var( 'codebase_project' );
+			get_query_var( 'project_archive' ) ||
+			get_query_var( 'project_project' );
 
 		if ( ! $is_docs_archive ) {
 			return;

@@ -19,9 +19,9 @@ class RepoSync {
 	}
 
 	/**
-	 * Sync documentation for a codebase term.
+	 * Sync documentation for a project term.
 	 *
-	 * @param int $term_id The codebase term ID (project level, depth 1).
+	 * @param int $term_id The project term ID (project level, depth 1).
 	 * @return array Sync results with counts and details.
 	 */
 	public function sync( int $term_id ): array {

@@ -277,7 +277,7 @@
    Section Headers
    ========================================================================== */
 
-.codebase-cards-section,
+.project-cards-section,
 .docs-category-cards-section {
     padding: 40px 0;
 }
@@ -670,7 +670,7 @@
     margin-bottom: 4px;
 }
 
-.docs-search-codebase {
+.docs-search-project {
     display: inline-block;
     font-size: var(--chubes-font-size-xs);
     background: var(--chubes-accent-subtle);

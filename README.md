@@ -36,7 +36,7 @@ curl -X POST /wp-json/chubes/v1/sync/doc \
 - **Related Posts**: Hierarchical project-aware related documentation display
 - **Cron Sync**: Scheduled automated synchronization with configurable intervals (hourly/twice daily/daily)
 - **Admin Interface**: GitHub PAT configuration, connection diagnostics, and sync management UI
-- **WP-CLI Commands**: Command-line tools for codebase management and documentation sync
+- **WP-CLI Commands**: Command-line tools for project management and documentation sync
 - **WP Abilities API**: AI agent capabilities for documentation synchronization
 - **Sync Notifications**: Email alerts for sync completion and failures
 

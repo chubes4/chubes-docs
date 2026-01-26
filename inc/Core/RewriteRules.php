@@ -146,10 +146,10 @@ class RewriteRules {
 	}
 
 	/**
-	 * Find a documentation post by slug within a codebase term
+	 * Find a documentation post by slug within a project term
 	 *
 	 * @param string   $slug The post slug
-	 * @param \WP_Term $term The codebase term
+	 * @param \WP_Term $term The project term
 	 * @return \WP_Post|null
 	 */
 	private static function find_documentation_post( $slug, $term ) {
@@ -194,7 +194,7 @@ class RewriteRules {
 	}
 
 	/**
-	 * Filter codebase term permalinks to use hierarchical /docs/ URLs
+	 * Filter project term permalinks to use hierarchical /docs/ URLs
 	 *
 	 * @param string   $termlink The term permalink
 	 * @param \WP_Term $term     The term object
@@ -219,7 +219,7 @@ class RewriteRules {
 	/**
 	 * Build the docs URL path for a term (full hierarchy including category)
 	 *
-	 * @param \WP_Term $term The codebase term
+	 * @param \WP_Term $term The project term
 	 * @return string Path like 'category/project/sub/subsub'
 	 */
 	public static function build_docs_term_path( $term ) {

@@ -28,7 +28,7 @@ class SyncAbilities {
 
 		wp_register_ability( 'chubes/sync-docs', [
 			'label'               => __( 'Sync Documentation', 'chubes-docs' ),
-			'description'         => __( 'Sync codebase documentation from GitHub. Pass term_id for single sync, term_ids for batch, or neither for all syncable terms.', 'chubes-docs' ),
+			'description'         => __( 'Sync documentation from GitHub. Pass term_id for single sync, term_ids for batch, or neither for all syncable terms.', 'chubes-docs' ),
 			'category'            => 'chubes',
 			'input_schema'        => [
 				'type'       => 'object',

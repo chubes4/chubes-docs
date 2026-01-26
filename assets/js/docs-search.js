@@ -58,15 +58,15 @@
 		let html = '<ul class="docs-search-list">';
 
 		items.forEach( item => {
-			const codebaseBadge = item.codebase
-				? `<span class="docs-search-codebase">${ item.codebase.name }</span>`
+			const projectBadge = item.project
+				? `<span class="docs-search-project">${ item.project.name }</span>`
 				: '';
 
 			html += `
 				<li class="docs-search-item" role="option">
 					<a href="${ item.link }" class="docs-search-link">
 						<span class="docs-search-title">${ item.title }</span>
-						${ codebaseBadge }
+						${ projectBadge }
 						<span class="docs-search-excerpt">${ item.excerpt }</span>
 					</a>
 				</li>
@@ -118,7 +118,7 @@
 				title: post.title.rendered,
 				excerpt: post.excerpt.rendered.replace( /<[^>]+>/g, '' ).trim().substring( 0, 100 ) + '...',
 				link: post.link,
-				codebase: post.codebase_info || null,
+				project: post.project_info || null,
 			} ) );
 
 			renderResults( items, total, query );

@@ -20,7 +20,7 @@ class SearchAbilities {
 	public static function register(): void {
 		wp_register_ability( 'chubes/search-docs', [
 			'label'               => __( 'Search Documentation', 'chubes-docs' ),
-			'description'         => __( 'Search published documentation by query string. Optionally filter by codebase.', 'chubes-docs' ),
+			'description'         => __( 'Search published documentation by query string. Optionally filter by project.', 'chubes-docs' ),
 			'category'            => 'chubes',
 			'input_schema'        => [
 				'type'       => 'object',
@@ -30,7 +30,7 @@ class SearchAbilities {
 						'type'        => 'string',
 						'description' => 'Search query string',
 					],
-					'codebase' => [
+					'project' => [
 						'type'        => 'integer',
 						'description' => 'Project term ID to filter results',
 					],
@@ -53,7 +53,7 @@ class SearchAbilities {
 								'title'    => [ 'type' => 'string' ],
 								'excerpt'  => [ 'type' => 'string' ],
 								'link'     => [ 'type' => 'string' ],
-								'codebase' => [
+								'project' => [
 									'type'       => 'object',
 									'properties' => [
 										'id'   => [ 'type' => 'integer' ],
@@ -76,7 +76,7 @@ class SearchAbilities {
 
 	public static function search_callback( array $input ): array {
 		$query    = sanitize_text_field( $input['query'] ?? '' );
-		$codebase = absint( $input['codebase'] ?? 0 );
+		$project  = absint( $input['project'] ?? 0 );
 		$per_page = min( absint( $input['per_page'] ?? 10 ), 50 );
 
 		if ( empty( $query ) ) {
@@ -95,12 +95,12 @@ class SearchAbilities {
 			'orderby'        => 'relevance',
 		];
 
-		if ( $codebase > 0 ) {
+		if ( $project > 0 ) {
 			$args['tax_query'] = [
 				[
 					'taxonomy'         => Project::TAXONOMY,
 					'field'            => 'term_id',
-					'terms'            => $codebase,
+					'terms'            => $project,
 					'include_children' => true,
 				],
 			];
@@ -112,10 +112,10 @@ class SearchAbilities {
 		foreach ( $search_query->posts as $post ) {
 			$terms         = get_the_terms( $post->ID, Project::TAXONOMY );
 			$project_term  = $terms && ! is_wp_error( $terms ) ? Project::get_project_term( $terms ) : null;
-			$codebase_data = null;
+			$project_data  = null;
 
 			if ( $project_term ) {
-				$codebase_data = [
+				$project_data = [
 					'id'   => $project_term->term_id,
 					'name' => $project_term->name,
 					'slug' => $project_term->slug,
@@ -123,11 +123,11 @@ class SearchAbilities {
 			}
 
 			$items[] = [
-				'id'       => $post->ID,
-				'title'    => get_the_title( $post ),
-				'excerpt'  => wp_trim_words( get_the_excerpt( $post ), 20, '...' ),
-				'link'     => get_permalink( $post ),
-				'codebase' => $codebase_data,
+				'id'      => $post->ID,
+				'title'   => get_the_title( $post ),
+				'excerpt' => wp_trim_words( get_the_excerpt( $post ), 20, '...' ),
+				'link'    => get_permalink( $post ),
+				'project' => $project_data,
 			];
 		}
 

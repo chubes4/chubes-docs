@@ -43,7 +43,7 @@ The docs endpoint includes project type information:
   "id": 123,
   "title": "My Plugin Docs",
   "project_type": "wordpress-plugins",
-  "codebase_path": ["my-plugin", "api"]
+    "project_path": ["my-plugin", "api"]
 }
 ```
 
@@ -156,11 +156,11 @@ curl -X POST /wp-json/chubes/v1/docs \
   -d '{
     "title": "API Documentation",
     "content": "# API Docs...",
-    "codebase_path": ["my-plugin", "api"]
+  "project_path": ["my-plugin", "api"]
   }'
 ```
 
-The `codebase_path` parameter automatically resolves to the appropriate taxonomy terms. The first segment creates or finds a project term at depth 0.
+The `project_path` parameter automatically resolves to the appropriate taxonomy terms. The first segment creates or finds a project term at depth 0.
 
 ### Sync System Integration
 
@@ -296,7 +296,7 @@ Add custom fields to taxonomy terms:
 update_term_meta($term_id, 'custom_field', 'value');
 
 // Via API
-curl -X PUT /wp-json/chubes/v1/codebase/{id} \
+curl -X PUT /wp-json/chubes/v1/project/{id} \
   -d '{"meta": {"custom_field": "value"}}'
 ```
 

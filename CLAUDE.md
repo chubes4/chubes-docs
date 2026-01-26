@@ -17,7 +17,7 @@ chubes-docs/
 ├── inc/                     # Core functionality
 │   ├── Api/                # REST API layer
 │   │   ├── Controllers/    # API endpoint handlers
-│   │   │   ├── CodebaseController.php
+│   │   │   ├── ProjectController.php
 │   │   │   ├── DocsController.php
 │   │   │   └── SyncController.php
 │   │   ├── Routes.php      # Route registration
@@ -25,7 +25,7 @@ chubes-docs/
 │   ├── Core/               # Plugin core systems
 │   │   ├── Assets.php      # Asset management
 │   │   ├── Breadcrumbs.php # Breadcrumb generation
-│   │   ├── Codebase.php    # Codebase taxonomy management
+│   │   ├── Project.php    # Project taxonomy management
 │   │   ├── Documentation.php # Documentation post type handling
 │   │   └── RewriteRules.php # URL routing
 │   ├── Fields/             # Admin interface components
@@ -40,17 +40,17 @@ chubes-docs/
 │   │   └── SyncNotifier.php # Email notifications
 │   ├── Templates/          # Frontend enhancements
 │   │   ├── Archive.php     # Archive page enhancements
-│   │   ├── CodebaseCard.php # Project card component
+│   │   ├── ProjectCard.php # Project card component
 │   │   ├── Homepage.php    # Homepage integration
 │   │   └── RelatedPosts.php # Related documentation logic
 │   ├── Admin/              # Admin interface
-│   │   ├── CodebaseColumns.php # Codebase taxonomy admin columns
+│   │   ├── ProjectColumns.php # Project taxonomy admin columns
 │   │   ├── DocumentationColumns.php # Documentation post type admin columns
 │   │   └── SettingsPage.php # Plugin settings page
 │   └── WPCLI/              # WP-CLI commands
 │       ├── CLI.php         # Command registration
 │       └── Commands/       # Command implementations
-│           ├── CodebaseEnsureCommand.php
+│           ├── ProjectEnsureCommand.php
 │           └── DocsSyncCommand.php
 └── assets/                 # Frontend assets
     ├── css/
@@ -74,8 +74,8 @@ chubes-docs/
 - **Sync Capabilities**: External documentation source synchronization with automatic taxonomy term creation
 - **Admin Columns**: Enhanced documentation list screen with relevant metadata display
 
-### Codebase Integration
-- **Taxonomy Management**: Extends theme's `codebase` taxonomy with hierarchical path resolution and automatic term creation
+### Project Integration
+- **Taxonomy Management**: Extends theme's `project` taxonomy with hierarchical path resolution and automatic term creation
 - **Repository Metadata**: GitHub and WordPress.org repository information with auto-fetching capabilities
 - **Install Tracking**: Automatic WordPress.org install count fetching with daily updates
 - **Admin Columns**: Enhanced taxonomy list screen with GitHub URLs, install counts, and sync status
@@ -147,26 +147,26 @@ The build script creates a production-ready WordPress plugin package:
 All endpoints use the `chubes/v1` namespace:
 
 ### Documentation
-- `GET /docs` - List documentation posts (with filters: codebase, status, per_page, page, search)
-- `POST /docs` - Create documentation (with title, content, excerpt, status, codebase_path, meta)
+- `GET /docs` - List documentation posts (with filters: project, status, per_page, page, search)
+- `POST /docs` - Create documentation (with title, content, excerpt, status, project_path, meta)
 - `GET /docs/{id}` - Get specific documentation
 - `PUT /docs/{id}` - Update documentation
 - `DELETE /docs/{id}` - Delete documentation (with force parameter)
 
-### Codebase
-- `GET /codebase` - List project taxonomy terms (with parent, hide_empty)
-- `GET /codebase/tree` - Get hierarchical codebase tree
-- `POST /codebase/resolve` - Resolve or create taxonomy path (with path, create_missing, project_meta)
-- `GET /codebase/{id}` - Get specific taxonomy term
-- `PUT /codebase/{id}` - Update taxonomy term (name, description, meta)
+### Project
+- `GET /project` - List project taxonomy terms (with parent, hide_empty)
+- `GET /project/tree` - Get hierarchical project tree
+- `POST /project/resolve` - Resolve or create taxonomy path (with path, create_missing, project_meta)
+- `GET /project/{id}` - Get specific taxonomy term
+- `PUT /project/{id}` - Update taxonomy term (name, description, meta)
 
 ### Sync
 - `POST /sync/setup` - Setup project and category (project_slug, project_name, category_slug, category_name)
 - `GET /sync/status` - Get sync status (with project filter)
 - `POST /sync/doc` - Sync documentation from external sources (source_file, title, content, project_term_id, filesize, timestamp, subpath, excerpt, force)
 - `POST /sync/batch` - Batch sync multiple documents
-- `POST /sync/all` - Manually sync GitHub docs for all codebases with GitHub URLs
-- `POST /sync/term/{id}` - Manually sync GitHub docs for a single codebase term
+- `POST /sync/all` - Manually sync GitHub docs for all projects with GitHub URLs
+- `POST /sync/term/{id}` - Manually sync GitHub docs for a single project term
 - `GET /sync/test-token` - GitHub token diagnostics
 - `POST /sync/test-repo` - GitHub repo diagnostics (repo_url)
 

@@ -56,7 +56,7 @@ This creates the taxonomy hierarchy and returns the `project_term_id` needed for
 Associate repository information with your project:
 
 ```bash
-curl -X PUT /wp-json/chubes/v1/codebase/{project_term_id} \
+curl -X PUT /wp-json/chubes/v1/project/{project_term_id} \
   -H "Content-Type: application/json" \
   -d '{
     "meta": {
@@ -66,7 +66,7 @@ curl -X PUT /wp-json/chubes/v1/codebase/{project_term_id} \
   }'
 ```
 
-> `PUT /codebase/{id}` only applies `meta.github_url` and `meta.wp_url` (stored as `codebase_github_url` and `codebase_wp_url`).
+> `PUT /project/{id}` only applies `meta.github_url` and `meta.wp_url` (stored as `project_github_url` and `project_wp_url`).
 ## Syncing Documentation
 
 ### Single Document Sync
@@ -151,10 +151,10 @@ curl -X POST /wp-json/chubes/v1/sync/doc \
 
 ### Manual Taxonomy Management
 
-Resolve taxonomy paths manually using the codebase API:
+Resolve taxonomy paths manually using the project API:
 
 ```bash
-curl -X POST /wp-json/chubes/v1/codebase/resolve \
+curl -X POST /wp-json/chubes/v1/project/resolve \
   -H "Content-Type: application/json" \
   -d '{
     "path": ["wordpress-plugins", "my-plugin", "api", "v1"],
@@ -270,7 +270,7 @@ For comprehensive troubleshooting guidance, see the [Troubleshooting Guide](trou
 
 **"Project term not found"**
 - Ensure you've run `/sync/setup` first and used the returned `project_term_id`
-- Verify the project term exists in WordPress admin under Codebase taxonomy
+- Verify the project term exists in WordPress admin under Project taxonomy
 - Check that the term ID is numeric and valid
 
 **"Invalid subpath"**

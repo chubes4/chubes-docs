@@ -3,7 +3,7 @@
  * Cron Sync Runner
  *
  * Handles scheduled sync of all GitHub repositories with documentation.
- * Loops through codebase terms with GitHub URLs and syncs each one.
+ * Loops through project terms with GitHub URLs and syncs each one.
  */
 
 namespace ChubesDocs\Sync;
@@ -55,9 +55,9 @@ class CronSync {
 	}
 
 	/**
-	 * Run the sync for all codebases with GitHub URLs.
+	 * Run the sync for all projects with GitHub URLs.
 	 *
-	 * @return array Results for each synced codebase.
+	 * @return array Results for each synced project.
 	 */
 	public static function run(): array {
 		$pat = get_option( self::OPTION_PAT );
@@ -129,7 +129,7 @@ class CronSync {
 	}
 
 	/**
-	 * Get all codebase terms that have a GitHub URL configured.
+	 * Get all project terms that have a GitHub URL configured.
 	 * Only returns depth-1 terms (project level).
 	 *
 	 * @return array Array of WP_Term objects.
