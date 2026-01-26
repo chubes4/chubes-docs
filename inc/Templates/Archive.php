@@ -419,13 +419,14 @@ class Archive {
 	 * Shows all documentation grouped by project type.
 	 */
 	private static function render_documentation_archive() {
-		// Get all project terms (depth 1) that have project_type meta
+		// Get all depth-0 project terms with GitHub URLs (synced projects)
 		$project_terms = get_terms( [
 			'taxonomy'   => 'project',
+			'parent'     => 0,
 			'hide_empty' => false,
 			'meta_query' => [
 				[
-					'key'     => 'project_type',
+					'key'     => 'project_github_url',
 					'compare' => 'EXISTS',
 				],
 			],
@@ -437,33 +438,32 @@ class Archive {
 
 		// Group projects by their project_type term meta
 		$projects_by_type = [];
-		foreach ( $project_terms as $project_term ) {
-			if ( Project::get_term_depth( $project_term ) !== 0 ) {
-				continue; // Only depth 0 terms (actual projects)
-			}
+		$untyped_projects = [];
 
+		foreach ( $project_terms as $project_term ) {
 			$repo_info = Project::get_repository_info( $project_term );
 			$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
 
 			if ( $doc_count > 0 ) {
-				$project_type = Project::get_project_type( $project_term );
-				if ( ! $project_type ) {
-					continue; // Skip projects without project_type meta
-				}
-
-				if ( ! isset( $projects_by_type[ $project_type ] ) ) {
-					$projects_by_type[ $project_type ] = [];
-				}
-
-				$projects_by_type[ $project_type ][] = [
+				$project_data = [
 					'term'      => $project_term,
 					'repo_info' => $repo_info,
 					'doc_count' => $doc_count,
 				];
+
+				$project_type = Project::get_project_type( $project_term );
+				if ( $project_type ) {
+					if ( ! isset( $projects_by_type[ $project_type ] ) ) {
+						$projects_by_type[ $project_type ] = [];
+					}
+					$projects_by_type[ $project_type ][] = $project_data;
+				} else {
+					$untyped_projects[] = $project_data;
+				}
 			}
 		}
 
-		if ( empty( $projects_by_type ) ) {
+		if ( empty( $projects_by_type ) && empty( $untyped_projects ) ) {
 			return;
 		}
 
@@ -519,6 +519,56 @@ class Archive {
 				</div>
 			</section>
 		<?php endforeach;
+
+		// Render untyped projects at the bottom
+		if ( ! empty( $untyped_projects ) ) :
+			?>
+			<section class="documentation-category-section">
+				<div class="category-header">
+					<h2>Projects</h2>
+				</div>
+
+				<div class="cards-grid">
+					<?php foreach ( $untyped_projects as $project ) : ?>
+						<div class="doc-card">
+							<div class="card-header">
+								<h3><a href="<?php echo esc_url( get_term_link( $project['term'] ) ); ?>"><?php echo esc_html( $project['term']->name ); ?></a></h3>
+								<?php if ( $project['term']->description ) : ?>
+									<p class="card-description"><?php echo esc_html( wp_trim_words( $project['term']->description, 20 ) ); ?></p>
+								<?php endif; ?>
+							</div>
+
+							<div class="card-stats">
+								<span class="stat-item"><?php echo $project['doc_count']; ?> guide<?php echo $project['doc_count'] !== 1 ? 's' : ''; ?></span>
+								<?php if ( $project['repo_info']['installs'] > 0 ) : ?>
+									<span class="stat-item"><?php echo number_format( $project['repo_info']['installs'] ); ?> downloads</span>
+								<?php endif; ?>
+
+								<div class="external-links">
+									<?php if ( $project['repo_info']['wp_url'] ) : ?>
+										<a href="<?php echo esc_url( $project['repo_info']['wp_url'] ); ?>" class="external-link" target="_blank" title="Download from WordPress.org">
+											<svg><use href="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/fonts/social-icons.svg#icon-wordpress"></use></svg>
+										</a>
+									<?php endif; ?>
+
+									<?php if ( $project['repo_info']['github_url'] ) : ?>
+										<a href="<?php echo esc_url( $project['repo_info']['github_url'] ); ?>" class="external-link" target="_blank" title="View on GitHub">
+											<svg><use href="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/fonts/social-icons.svg#icon-github"></use></svg>
+										</a>
+									<?php endif; ?>
+								</div>
+							</div>
+
+							<div class="card-actions">
+								<a href="<?php echo esc_url( get_term_link( $project['term'] ) ); ?>" class="btn primary">
+									View Documentation →
+								</a>
+							</div>
+						</div>
+					<?php endforeach; ?>
+				</div>
+			</section>
+		<?php endif;
 	}
 
 	/**

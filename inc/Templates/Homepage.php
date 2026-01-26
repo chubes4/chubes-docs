@@ -53,13 +53,14 @@ class Homepage {
 	private static function get_documentation_items() {
 		$doc_items = [];
 
-		// Get depth 0 project terms with project_type meta (actual projects)
+		// Get depth 0 project terms with GitHub URLs (synced projects)
 		$project_terms = get_terms( [
 			'taxonomy'   => 'project',
+			'parent'     => 0,
 			'hide_empty' => false,
 			'meta_query' => [
 				[
-					'key'     => 'project_type',
+					'key'     => 'project_github_url',
 					'compare' => 'EXISTS',
 				],
 			],
@@ -70,18 +71,13 @@ class Homepage {
 		}
 
 		foreach ( $project_terms as $project_term ) {
-			// Only depth 0 terms (actual projects)
-			if ( Project::get_term_depth( $project_term ) !== 0 ) {
-				continue;
-			}
-
 			$repo_info = Project::get_repository_info( $project_term );
 			$doc_count = $repo_info['content_counts']['documentation'] ?? 0;
 
 			if ( $doc_count > 0 ) {
 				$project_type = Project::get_project_type( $project_term );
 				$type_term = $project_type ? get_term_by( 'slug', $project_type, 'project_type' ) : null;
-				$type_display = $type_term ? $type_term->name : ucfirst( str_replace( '-', ' ', $project_type ?? 'project' ) );
+				$type_display = $type_term ? $type_term->name : 'Project';
 
 				$doc_items[] = [
 					'name'  => $project_term->name,
