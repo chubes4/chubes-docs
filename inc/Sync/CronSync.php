@@ -130,7 +130,7 @@ class CronSync {
 
 	/**
 	 * Get all project terms that have a GitHub URL configured.
-	 * Only returns depth-1 terms (project level).
+	 * Only returns depth-0 terms (top-level projects).
 	 *
 	 * @return array Array of WP_Term objects.
 	 */
@@ -147,7 +147,7 @@ class CronSync {
 		$syncable = [];
 
 		foreach ( $all_terms as $term ) {
-			if ( Project::get_term_depth( $term ) !== 1 ) {
+			if ( Project::get_term_depth( $term ) !== 0 ) {
 				continue;
 			}
 
