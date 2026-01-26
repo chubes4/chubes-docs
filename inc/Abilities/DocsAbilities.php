@@ -107,32 +107,40 @@ class DocsAbilities {
 	/**
 	 * Delete all child terms (depth >= 1)
 	 * Deletes from deepest to shallowest to avoid orphan issues.
+	 * Note: WordPress get_terms() has no parent__not_in param, so we filter in PHP.
 	 *
 	 * @return int Number of terms deleted
 	 */
 	private static function delete_child_terms(): int {
 		$deleted = 0;
 
-		// Loop until no more child terms exist
 		do {
 			$child_terms = get_terms( [
 				'taxonomy'   => 'project',
 				'hide_empty' => false,
 				'childless'  => true,
-				'parent__not_in' => [ 0 ],
 			] );
 
 			if ( is_wp_error( $child_terms ) || empty( $child_terms ) ) {
 				break;
 			}
 
+			$found_any = false;
 			foreach ( $child_terms as $term ) {
+				if ( $term->parent === 0 ) {
+					continue;
+				}
 				$result = wp_delete_term( $term->term_id, 'project' );
 				if ( $result && ! is_wp_error( $result ) ) {
 					$deleted++;
+					$found_any = true;
 				}
 			}
-		} while ( ! empty( $child_terms ) );
+
+			if ( ! $found_any ) {
+				break;
+			}
+		} while ( true );
 
 		return $deleted;
 	}
