@@ -58,7 +58,12 @@ class RepoSync {
 		$owner = $repo_info['owner'];
 		$repo  = $repo_info['repo'];
 
-		$new_sha = $this->github->get_latest_commit_sha( $owner, $repo, 'main' );
+		$branch = $this->github->get_default_branch( $owner, $repo );
+		if ( empty( $branch ) ) {
+			$branch = 'main';
+		}
+
+		$new_sha = $this->github->get_latest_commit_sha( $owner, $repo, $branch );
 		if ( is_wp_error( $new_sha ) ) {
 			$result['error'] = 'GitHub API: ' . $new_sha->get_error_message();
 			$this->update_sync_status( $term_id, 'failed', $result['error'] );
