@@ -38,6 +38,12 @@ class DocsAbilities {
 						'type'        => 'string',
 						'description' => 'Post slug',
 					],
+					'format' => [
+						'type'        => 'string',
+						'description' => 'Content format: "markdown" (default) or "html"',
+						'enum'        => [ 'markdown', 'html' ],
+						'default'     => 'markdown',
+					],
 				],
 			],
 			'output_schema'       => [
@@ -108,10 +114,21 @@ class DocsAbilities {
 			$excerpt = wp_trim_words( wp_strip_all_tags( $post->post_content ), 30, '...' );
 		}
 
+		$format = $input['format'] ?? 'markdown';
+		if ( $format === 'markdown' ) {
+			$markdown = get_post_meta( $post->ID, '_sync_markdown', true );
+			$content = ! empty( $markdown ) ? $markdown : $post->post_content;
+			$content_format = ! empty( $markdown ) ? 'markdown' : 'html';
+		} else {
+			$content = $post->post_content;
+			$content_format = 'html';
+		}
+
 		return [
-			'id'           => $post->ID,
-			'title'        => get_the_title( $post ),
-			'content'      => $post->post_content,
+			'id'             => $post->ID,
+			'title'          => get_the_title( $post ),
+			'content'        => $content,
+			'content_format' => $content_format,
 			'excerpt'      => $excerpt,
 			'link'         => get_permalink( $post ),
 			'project'      => $project_data,

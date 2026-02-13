@@ -57,7 +57,8 @@ class DocsController {
             return new WP_Error('not_found', 'Documentation not found', ['status' => 404]);
         }
 
-        return rest_ensure_response(self::prepare_item($post, true));
+        $format = sanitize_text_field($request->get_param('format') ?? 'markdown');
+        return rest_ensure_response(self::prepare_item($post, true, $format));
     }
 
     public static function create_item(WP_REST_Request $request): WP_REST_Response|WP_Error {
@@ -187,7 +188,7 @@ class DocsController {
         ]);
     }
 
-    private static function prepare_item(\WP_Post $post, bool $include_content = false): array {
+    private static function prepare_item(\WP_Post $post, bool $include_content = false, string $format = 'html'): array {
         $terms = get_the_terms($post->ID, Project::TAXONOMY);
         $project_data = self::prepare_project_data($terms ?: []);
 
@@ -207,7 +208,14 @@ class DocsController {
         ];
 
         if ($include_content) {
-            $item['content'] = $post->post_content;
+            if ($format === 'markdown' || $format === 'md') {
+                $markdown = get_post_meta($post->ID, '_sync_markdown', true);
+                $item['content'] = !empty($markdown) ? $markdown : $post->post_content;
+                $item['content_format'] = !empty($markdown) ? 'markdown' : 'html';
+            } else {
+                $item['content'] = $post->post_content;
+                $item['content_format'] = 'html';
+            }
         }
 
         return $item;

@@ -26,6 +26,9 @@ class SyncManager {
 		}
 		$project_slug = $project_term->slug;
 
+		// Store raw markdown before HTML conversion
+		$raw_markdown = $content;
+
 		$processor = new MarkdownProcessor( $project_slug, $source_file, $project_term_id );
 		$content   = $processor->process( $content );
 
@@ -75,6 +78,7 @@ class SyncManager {
 			}
 
 			self::update_sync_meta( $existing_post_id, $source_file, $filesize, $timestamp );
+			update_post_meta( $existing_post_id, '_sync_markdown', $raw_markdown );
 			wp_set_object_terms( $existing_post_id, $leaf_term_id, Project::TAXONOMY );
 
 			return [
@@ -104,6 +108,7 @@ class SyncManager {
 		}
 
 		self::update_sync_meta( $post_id, $source_file, $filesize, $timestamp );
+		update_post_meta( $post_id, '_sync_markdown', $raw_markdown );
 		wp_set_object_terms( $post_id, $leaf_term_id, Project::TAXONOMY );
 
 		return [
