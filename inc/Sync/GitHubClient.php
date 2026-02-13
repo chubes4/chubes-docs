@@ -280,6 +280,24 @@ class GitHubClient {
 	}
 
 	/**
+	 * Get the default branch for a repository.
+	 *
+	 * @param string $owner Repository owner.
+	 * @param string $repo  Repository name.
+	 * @return string|null Default branch name or null on failure.
+	 */
+	public function get_default_branch( string $owner, string $repo ): ?string {
+		$endpoint = "/repos/{$owner}/{$repo}";
+		$response = $this->request( $endpoint );
+
+		if ( is_wp_error( $response ) ) {
+			return null;
+		}
+
+		return $response['default_branch'] ?? null;
+	}
+
+	/**
 	 * Get repository description from GitHub.
 	 *
 	 * @param string $owner Repository owner.
