@@ -89,10 +89,15 @@ class RepoSync {
 			return $result;
 		}
 
+		$docs_path = get_term_meta( $term_id, 'project_docs_path', true );
+		if ( empty( $docs_path ) ) {
+			$docs_path = 'docs';
+		}
+
 		if ( empty( $old_sha ) ) {
-			$sync_result = $this->full_sync( $term_id, $owner, $repo, $new_sha );
+			$sync_result = $this->full_sync( $term_id, $owner, $repo, $new_sha, $docs_path );
 		} else {
-			$sync_result = $this->incremental_sync( $term_id, $owner, $repo, $old_sha, $new_sha );
+			$sync_result = $this->incremental_sync( $term_id, $owner, $repo, $old_sha, $new_sha, $docs_path );
 		}
 
 		$result = array_merge( $result, $sync_result );
@@ -119,7 +124,7 @@ class RepoSync {
 	 * @param string $sha     Commit SHA.
 	 * @return array Sync results.
 	 */
-	private function full_sync( int $term_id, string $owner, string $repo, string $sha ): array {
+	private function full_sync( int $term_id, string $owner, string $repo, string $sha, string $docs_path = 'docs' ): array {
 		$result = [
 			'success'       => true,
 			'added'         => [],
@@ -130,9 +135,11 @@ class RepoSync {
 			'error'         => null,
 		];
 
-		$files = $this->github->get_tree( $owner, $repo, 'docs', $sha );
+		$tree_path = $docs_path === '.' ? '' : $docs_path;
+		$files = $this->github->get_tree( $owner, $repo, $tree_path, $sha );
 		if ( empty( $files ) ) {
-			$result['error'] = 'No documentation files found in docs/ directory';
+			$path_label = $docs_path === '.' ? 'repository root' : "{$docs_path}/";
+			$result['error'] = "No documentation files found in {$path_label} directory";
 			$result['success'] = false;
 			return $result;
 		}
@@ -140,7 +147,7 @@ class RepoSync {
 		$synced_source_files = [];
 
 		foreach ( $files as $relative_path => $file_info ) {
-			$process_result = $this->process_file( $term_id, $owner, $repo, $relative_path, $sha );
+			$process_result = $this->process_file( $term_id, $owner, $repo, $relative_path, $sha, $docs_path );
 
 			if ( $process_result['success'] ) {
 				$synced_source_files[] = $relative_path;
@@ -179,14 +186,15 @@ class RepoSync {
 	/**
 	 * Perform an incremental sync based on changed files.
 	 *
-	 * @param int    $term_id Project term ID.
-	 * @param string $owner   Repository owner.
-	 * @param string $repo    Repository name.
-	 * @param string $old_sha Previous commit SHA.
-	 * @param string $new_sha New commit SHA.
+	 * @param int    $term_id   Project term ID.
+	 * @param string $owner     Repository owner.
+	 * @param string $repo      Repository name.
+	 * @param string $old_sha   Previous commit SHA.
+	 * @param string $new_sha   New commit SHA.
+	 * @param string $docs_path Path to docs in the repository.
 	 * @return array Sync results.
 	 */
-	private function incremental_sync( int $term_id, string $owner, string $repo, string $old_sha, string $new_sha ): array {
+	private function incremental_sync( int $term_id, string $owner, string $repo, string $old_sha, string $new_sha, string $docs_path = 'docs' ): array {
 		$result = [
 			'success'       => true,
 			'added'         => [],
@@ -198,12 +206,13 @@ class RepoSync {
 			'error'         => null,
 		];
 
-		$changes = $this->github->compare_commits( $owner, $repo, $old_sha, $new_sha, 'docs' );
+		$filter_path = $docs_path === '.' ? '' : $docs_path;
+		$changes = $this->github->compare_commits( $owner, $repo, $old_sha, $new_sha, $filter_path );
 
 		$files_to_process = array_merge( $changes['added'], $changes['modified'] );
 
 		foreach ( $files_to_process as $relative_path ) {
-			$process_result = $this->process_file( $term_id, $owner, $repo, $relative_path, $new_sha );
+			$process_result = $this->process_file( $term_id, $owner, $repo, $relative_path, $new_sha, $docs_path );
 
 			if ( $process_result['success'] ) {
 				switch ( $process_result['action'] ) {
@@ -237,7 +246,7 @@ class RepoSync {
 			$post_id = SyncManager::find_post_by_source( $rename['previous'], $term_id );
 			if ( $post_id ) {
 				update_post_meta( $post_id, '_sync_source_file', $rename['new'] );
-				$process_result = $this->process_file( $term_id, $owner, $repo, $rename['new'], $new_sha );
+				$process_result = $this->process_file( $term_id, $owner, $repo, $rename['new'], $new_sha, $docs_path );
 				if ( $process_result['success'] ) {
 					$result['renamed'][] = $rename['new'];
 				} else {
@@ -257,11 +266,12 @@ class RepoSync {
 	 * @param int    $term_id       Project term ID.
 	 * @param string $owner         Repository owner.
 	 * @param string $repo          Repository name.
-	 * @param string $relative_path Relative path within docs/.
+	 * @param string $relative_path Relative path within the docs directory.
 	 * @param string $ref           Git reference.
+	 * @param string $docs_path     Path to docs in the repository.
 	 * @return array Process result.
 	 */
-	private function process_file( int $term_id, string $owner, string $repo, string $relative_path, string $ref ): array {
+	private function process_file( int $term_id, string $owner, string $repo, string $relative_path, string $ref, string $docs_path = 'docs' ): array {
 		$result = [
 			'success'       => false,
 			'action'        => null,
@@ -269,7 +279,7 @@ class RepoSync {
 			'error'         => null,
 		];
 
-		$full_path = 'docs/' . $relative_path;
+		$full_path = $docs_path === '.' ? $relative_path : $docs_path . '/' . $relative_path;
 		$content = $this->github->get_file_content( $owner, $repo, $full_path, $ref );
 
 		if ( $content === null ) {

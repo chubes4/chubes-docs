@@ -108,6 +108,15 @@ class DocsSyncCommand {
 		$rows = [];
 		foreach ( $result['results'] as $term_id => $term_result ) {
 			$term   = get_term( $term_id );
+			$status = $term_result['success'] ? 'OK' : 'FAIL';
+			$error  = $term_result['error'] ?? '';
+
+			// Show inline warning for failed projects
+			if ( ! $term_result['success'] && ! empty( $error ) ) {
+				$project_name = $term ? $term->name : "term {$term_id}";
+				WP_CLI::warning( "{$project_name}: {$error}" );
+			}
+
 			$rows[] = [
 				'term_id'   => (string) $term_id,
 				'project'   => $term ? $term->name : '',
@@ -115,7 +124,7 @@ class DocsSyncCommand {
 				'updated'   => (string) count( $term_result['updated'] ?? [] ),
 				'removed'   => (string) count( $term_result['removed'] ?? [] ),
 				'unchanged' => (string) count( $term_result['unchanged'] ?? [] ),
-				'status'    => $term_result['success'] ? 'OK' : 'FAIL',
+				'status'    => $status,
 			];
 		}
 

@@ -21,6 +21,11 @@ class RepositoryFields {
             <p class="description"><?php esc_html_e('GitHub repository URL', 'chubes-docs'); ?></p>
         </div>
         <div class="form-field">
+            <label for="project_docs_path"><?php esc_html_e('Docs Path', 'chubes-docs'); ?></label>
+            <input type="text" name="project_docs_path" id="project_docs_path" value="">
+            <p class="description"><?php esc_html_e('Path to documentation files in the repository. Defaults to "docs". Use "." for root.', 'chubes-docs'); ?></p>
+        </div>
+        <div class="form-field">
             <label for="project_wp_url"><?php esc_html_e('WordPress.org URL', 'chubes-docs'); ?></label>
             <input type="url" name="project_wp_url" id="project_wp_url" value="">
             <p class="description"><?php esc_html_e('WordPress.org plugin or theme URL', 'chubes-docs'); ?></p>
@@ -30,6 +35,7 @@ class RepositoryFields {
 
     public static function edit_fields(\WP_Term $term): void {
         $github_url = Project::get_github_url($term->term_id);
+        $docs_path = get_term_meta($term->term_id, 'project_docs_path', true);
         $wp_url = Project::get_wp_url($term->term_id);
         ?>
         <tr class="form-field">
@@ -37,6 +43,13 @@ class RepositoryFields {
             <td>
                 <input type="url" name="project_github_url" id="project_github_url" value="<?php echo esc_attr($github_url); ?>">
                 <p class="description"><?php esc_html_e('GitHub repository URL', 'chubes-docs'); ?></p>
+            </td>
+        </tr>
+        <tr class="form-field">
+            <th scope="row"><label for="project_docs_path"><?php esc_html_e('Docs Path', 'chubes-docs'); ?></label></th>
+            <td>
+                <input type="text" name="project_docs_path" id="project_docs_path" value="<?php echo esc_attr($docs_path); ?>" placeholder="docs">
+                <p class="description"><?php esc_html_e('Path to documentation files in the repository. Defaults to "docs". Use "." for root.', 'chubes-docs'); ?></p>
             </td>
         </tr>
         <tr class="form-field">
@@ -128,6 +141,15 @@ class RepositoryFields {
         if (isset($_POST['project_github_url'])) {
             $github_url = esc_url_raw(wp_unslash($_POST['project_github_url']));
             update_term_meta($term_id, 'project_github_url', $github_url);
+        }
+
+        if (isset($_POST['project_docs_path'])) {
+            $docs_path = sanitize_text_field(wp_unslash($_POST['project_docs_path']));
+            if (empty($docs_path) || $docs_path === 'docs') {
+                delete_term_meta($term_id, 'project_docs_path');
+            } else {
+                update_term_meta($term_id, 'project_docs_path', $docs_path);
+            }
         }
 
         if (isset($_POST['project_wp_url'])) {
