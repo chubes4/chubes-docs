@@ -219,7 +219,7 @@ class DocsController {
                 'assigned_term'  => null,
                 'project'        => null,
                 'category'       => null,
-                'project_type'   => '',
+                'project_type'   => null,
                 'hierarchy_path' => '',
             ];
         }
@@ -227,6 +227,21 @@ class DocsController {
         $primary = Project::get_primary_term($terms);
         $project = Project::get_project_term($terms);
         $category = Project::get_top_level_term($terms);
+
+        $project_type_data = null;
+        if ( $project ) {
+            $type_slug = Project::get_project_type( $project );
+            if ( $type_slug ) {
+                $type_term = get_term_by( 'slug', $type_slug, 'project_type' );
+                if ( $type_term && ! is_wp_error( $type_term ) ) {
+                    $project_type_data = [
+                        'id'   => $type_term->term_id,
+                        'name' => $type_term->name,
+                        'slug' => $type_term->slug,
+                    ];
+                }
+            }
+        }
 
         return [
             'assigned_term'  => $primary ? [
@@ -244,7 +259,7 @@ class DocsController {
                 'slug' => $category->slug,
                 'name' => $category->name,
             ] : null,
-            'project_type'   => $primary ? Project::get_project_type($primary) : '',
+            'project_type'   => $project_type_data,
             'hierarchy_path' => Project::build_term_hierarchy_path($terms),
         ];
     }

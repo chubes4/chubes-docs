@@ -8,6 +8,9 @@
 
 namespace ChubesDocs\Abilities;
 
+use ChubesDocs\Core\Documentation;
+use ChubesDocs\Core\Project;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -15,6 +18,113 @@ if ( ! defined( 'ABSPATH' ) ) {
 class DocsAbilities {
 
 	public static function register(): void {
+		self::register_get_doc();
+		self::register_reset_documentation();
+	}
+
+	private static function register_get_doc(): void {
+		wp_register_ability( 'chubes/get-doc', [
+			'label'               => __( 'Get Documentation', 'chubes-docs' ),
+			'description'         => __( 'Fetch a single documentation post by ID or slug', 'chubes-docs' ),
+			'category'            => 'chubes',
+			'input_schema'        => [
+				'type'       => 'object',
+				'properties' => [
+					'id' => [
+						'type'        => 'integer',
+						'description' => 'Post ID',
+					],
+					'slug' => [
+						'type'        => 'string',
+						'description' => 'Post slug',
+					],
+				],
+			],
+			'output_schema'       => [
+				'type'       => 'object',
+				'properties' => [
+					'id'           => [ 'type' => 'integer' ],
+					'title'        => [ 'type' => 'string' ],
+					'content'      => [ 'type' => 'string' ],
+					'excerpt'      => [ 'type' => 'string' ],
+					'link'         => [ 'type' => 'string' ],
+					'project'      => [ 'type' => [ 'object', 'null' ] ],
+					'project_type' => [ 'type' => [ 'object', 'null' ] ],
+					'meta'         => [ 'type' => 'object' ],
+				],
+			],
+			'execute_callback'    => [ self::class, 'get_doc_callback' ],
+			'permission_callback' => '__return_true',
+			'meta'                => [ 'show_in_rest' => true ],
+		] );
+	}
+
+	public static function get_doc_callback( array $input ): array {
+		$post = null;
+
+		if ( ! empty( $input['id'] ) ) {
+			$post = get_post( absint( $input['id'] ) );
+		} elseif ( ! empty( $input['slug'] ) ) {
+			$posts = get_posts( [
+				'post_type'      => Documentation::POST_TYPE,
+				'post_status'    => 'publish',
+				'name'           => sanitize_title( $input['slug'] ),
+				'posts_per_page' => 1,
+			] );
+			$post = ! empty( $posts ) ? $posts[0] : null;
+		}
+
+		if ( ! $post || $post->post_type !== Documentation::POST_TYPE ) {
+			return [ 'error' => 'Documentation not found' ];
+		}
+
+		$terms        = get_the_terms( $post->ID, Project::TAXONOMY );
+		$project_term = $terms && ! is_wp_error( $terms ) ? Project::get_project_term( $terms ) : null;
+		$project_data = null;
+		$project_type_data = null;
+
+		if ( $project_term ) {
+			$project_data = [
+				'id'   => $project_term->term_id,
+				'name' => $project_term->name,
+				'slug' => $project_term->slug,
+			];
+
+			$type_slug = Project::get_project_type( $project_term );
+			if ( $type_slug ) {
+				$type_term = get_term_by( 'slug', $type_slug, 'project_type' );
+				if ( $type_term && ! is_wp_error( $type_term ) ) {
+					$project_type_data = [
+						'id'   => $type_term->term_id,
+						'name' => $type_term->name,
+						'slug' => $type_term->slug,
+					];
+				}
+			}
+		}
+
+		$excerpt = $post->post_excerpt;
+		if ( empty( $excerpt ) && ! empty( $post->post_content ) ) {
+			$excerpt = wp_trim_words( wp_strip_all_tags( $post->post_content ), 30, '...' );
+		}
+
+		return [
+			'id'           => $post->ID,
+			'title'        => get_the_title( $post ),
+			'content'      => $post->post_content,
+			'excerpt'      => $excerpt,
+			'link'         => get_permalink( $post ),
+			'project'      => $project_data,
+			'project_type' => $project_type_data,
+			'meta'         => [
+				'sync_source_file' => get_post_meta( $post->ID, '_sync_source_file', true ),
+				'sync_hash'        => get_post_meta( $post->ID, '_sync_hash', true ),
+				'sync_timestamp'   => get_post_meta( $post->ID, '_sync_timestamp', true ),
+			],
+		];
+	}
+
+	private static function register_reset_documentation(): void {
 		wp_register_ability( 'chubes/reset-documentation', [
 			'label'               => __( 'Reset Documentation', 'chubes-docs' ),
 			'description'         => __( 'Deletes all documentation posts and child terms, preserving top-level projects with GitHub URLs', 'chubes-docs' ),

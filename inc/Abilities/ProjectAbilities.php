@@ -62,7 +62,7 @@ class ProjectAbilities {
 										'name' => [ 'type' => 'string' ],
 										'slug' => [ 'type' => 'string' ],
 										'project_type' => [
-											'type' => 'object',
+											'type' => [ 'object', 'null' ],
 											'properties' => [
 												'id' => [ 'type' => 'integer' ],
 												'name' => [ 'type' => 'string' ],
@@ -81,7 +81,7 @@ class ProjectAbilities {
 				],
 			],
 			'execute_callback'    => [ self::class, 'get_projects' ],
-			'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+			'permission_callback' => '__return_true',
 			'meta'                => [ 'show_in_rest' => true ],
 		] );
 
@@ -135,7 +135,7 @@ class ProjectAbilities {
 				],
 			],
 			'execute_callback'    => [ self::class, 'get_project_types' ],
-			'permission_callback' => fn() => current_user_can( 'edit_posts' ),
+			'permission_callback' => '__return_true',
 			'meta'                => [ 'show_in_rest' => true ],
 		] );
 	}

@@ -54,7 +54,15 @@ class SearchAbilities {
 								'excerpt'  => [ 'type' => 'string' ],
 								'link'     => [ 'type' => 'string' ],
 								'project' => [
-									'type'       => 'object',
+									'type'       => [ 'object', 'null' ],
+									'properties' => [
+										'id'   => [ 'type' => 'integer' ],
+										'name' => [ 'type' => 'string' ],
+										'slug' => [ 'type' => 'string' ],
+									],
+								],
+								'project_type' => [
+									'type'       => [ 'object', 'null' ],
 									'properties' => [
 										'id'   => [ 'type' => 'integer' ],
 										'name' => [ 'type' => 'string' ],
@@ -122,12 +130,35 @@ class SearchAbilities {
 				];
 			}
 
+			$project_type_data = null;
+			if ( $project_term ) {
+				$type_slug = Project::get_project_type( $project_term );
+				if ( $type_slug ) {
+					$type_term = get_term_by( 'slug', $type_slug, 'project_type' );
+					if ( $type_term && ! is_wp_error( $type_term ) ) {
+						$project_type_data = [
+							'id'   => $type_term->term_id,
+							'name' => $type_term->name,
+							'slug' => $type_term->slug,
+						];
+					}
+				}
+			}
+
+			$excerpt = get_the_excerpt( $post );
+			if ( empty( $excerpt ) && ! empty( $post->post_content ) ) {
+				$excerpt = wp_trim_words( wp_strip_all_tags( $post->post_content ), 30, '...' );
+			} else {
+				$excerpt = wp_trim_words( $excerpt, 20, '...' );
+			}
+
 			$items[] = [
-				'id'      => $post->ID,
-				'title'   => get_the_title( $post ),
-				'excerpt' => wp_trim_words( get_the_excerpt( $post ), 20, '...' ),
-				'link'    => get_permalink( $post ),
-				'project' => $project_data,
+				'id'           => $post->ID,
+				'title'        => get_the_title( $post ),
+				'excerpt'      => $excerpt,
+				'link'         => get_permalink( $post ),
+				'project'      => $project_data,
+				'project_type' => $project_type_data,
 			];
 		}
 
