@@ -111,7 +111,18 @@ class ProjectController {
 	private static function prepare_term( \WP_Term $term, bool $include_repo_info = false ): array {
 		$top_level    = Project::get_top_level_term( $term );
 		$project      = Project::get_project_term( $term );
-		$project_type = Project::get_term_depth( $term ) === 1 ? Project::get_project_type_from_meta( $term ) : null;
+		$project_type_slug = Project::get_project_type( $term );
+		$project_type_data = null;
+		if ( $project_type_slug ) {
+			$type_term = get_term_by( 'slug', $project_type_slug, 'project_type' );
+			if ( $type_term && ! is_wp_error( $type_term ) ) {
+				$project_type_data = [
+					'id'   => $type_term->term_id,
+					'name' => $type_term->name,
+					'slug' => $type_term->slug,
+				];
+			}
+		}
 
 		$item = array(
 			'id'           => $term->term_id,
@@ -120,7 +131,7 @@ class ProjectController {
 			'description'  => $term->description,
 			'parent'       => $term->parent,
 			'count'        => $term->count,
-			'project_type' => $project_type,
+			'project_type' => $project_type_data,
 			'is_top_level' => Project::is_top_level_term( $term ),
 			'is_project'   => $project && $project->term_id === $term->term_id,
 		);

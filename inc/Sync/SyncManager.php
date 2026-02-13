@@ -29,6 +29,11 @@ class SyncManager {
 		$processor = new MarkdownProcessor( $project_slug, $source_file, $project_term_id );
 		$content   = $processor->process( $content );
 
+		// Auto-generate excerpt if empty
+		if ( empty( $excerpt ) && ! empty( $content ) ) {
+			$excerpt = wp_trim_words( wp_strip_all_tags( $content ), 30, '...' );
+		}
+
 		$leaf_term_id = self::resolve_subpath( $project_term_id, $subpath );
 		if ( is_wp_error( $leaf_term_id ) ) {
 			return [
