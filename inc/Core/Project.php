@@ -55,6 +55,8 @@ class Project {
 			'singular_name'     => _x( 'Project Type', 'taxonomy singular name', 'chubes-docs' ),
 			'search_items'      => __( 'Search Project Types', 'chubes-docs' ),
 			'all_items'         => __( 'All Project Types', 'chubes-docs' ),
+			'parent_item'       => __( 'Parent Project Type', 'chubes-docs' ),
+			'parent_item_colon' => __( 'Parent Project Type:', 'chubes-docs' ),
 			'edit_item'         => __( 'Edit Project Type', 'chubes-docs' ),
 			'update_item'       => __( 'Update Project Type', 'chubes-docs' ),
 			'add_new_item'      => __( 'Add New Project Type', 'chubes-docs' ),
@@ -63,7 +65,7 @@ class Project {
 		);
 
 		$project_type_args = array(
-			'hierarchical'      => false,
+			'hierarchical'      => true,
 			'labels'            => $project_type_labels,
 			'show_ui'           => true,
 			'show_admin_column' => true,
