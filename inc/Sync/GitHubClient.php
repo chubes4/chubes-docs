@@ -60,14 +60,14 @@ class GitHubClient {
 		}
 
 		$files = [];
-		$path_prefix = rtrim( $path, '/' ) . '/';
+		$path_prefix = empty( $path ) ? '' : rtrim( $path, '/' ) . '/';
 
 		foreach ( $response['tree'] as $item ) {
 			if ( $item['type'] !== 'blob' ) {
 				continue;
 			}
 
-			if ( strpos( $item['path'], $path_prefix ) !== 0 ) {
+			if ( $path_prefix !== '' && strpos( $item['path'], $path_prefix ) !== 0 ) {
 				continue;
 			}
 
@@ -75,7 +75,12 @@ class GitHubClient {
 				continue;
 			}
 
-			$relative_path = substr( $item['path'], strlen( $path_prefix ) );
+			// Skip root-level README.md when syncing from root
+			if ( empty( $path ) && $item['path'] === 'README.md' ) {
+				continue;
+			}
+
+			$relative_path = $path_prefix !== '' ? substr( $item['path'], strlen( $path_prefix ) ) : $item['path'];
 
 			$files[ $relative_path ] = [
 				'path' => $item['path'],
@@ -138,10 +143,10 @@ class GitHubClient {
 			return $result;
 		}
 
-		$path_prefix = rtrim( $path, '/' ) . '/';
+		$path_prefix = empty( $path ) ? '' : rtrim( $path, '/' ) . '/';
 
 		foreach ( $response['files'] as $file ) {
-			if ( strpos( $file['filename'], $path_prefix ) !== 0 ) {
+			if ( $path_prefix !== '' && strpos( $file['filename'], $path_prefix ) !== 0 ) {
 				continue;
 			}
 
@@ -149,7 +154,12 @@ class GitHubClient {
 				continue;
 			}
 
-			$relative_path = substr( $file['filename'], strlen( $path_prefix ) );
+			// Skip root-level README.md when syncing from root
+			if ( empty( $path ) && $file['filename'] === 'README.md' ) {
+				continue;
+			}
+
+			$relative_path = $path_prefix !== '' ? substr( $file['filename'], strlen( $path_prefix ) ) : $file['filename'];
 
 			switch ( $file['status'] ) {
 				case 'added':
@@ -162,8 +172,9 @@ class GitHubClient {
 					$result['removed'][] = $relative_path;
 					break;
 				case 'renamed':
+					$previous = $path_prefix !== '' ? substr( $file['previous_filename'], strlen( $path_prefix ) ) : $file['previous_filename'];
 					$result['renamed'][] = [
-						'previous' => substr( $file['previous_filename'], strlen( $path_prefix ) ),
+						'previous' => $previous,
 						'new'      => $relative_path,
 					];
 					break;
