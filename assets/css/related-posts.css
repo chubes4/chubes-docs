@@ -35,18 +35,21 @@
 
 .related-posts-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: var(--chubes-space-lg);
 }
 
 .related-post-item {
     padding: var(--chubes-space-md);
     border-radius: 6px;
-    transition: background 0.2s ease;
+    background: var(--chubes-background-card);
+    border: 1px solid var(--chubes-border-default);
+    transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .related-post-item:hover {
     background: var(--chubes-accent-subtle);
+    border-color: var(--chubes-accent-color-2);
 }
 
 .related-post-item h4 {

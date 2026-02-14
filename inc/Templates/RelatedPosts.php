@@ -50,7 +50,7 @@ class RelatedPosts {
 			$current_level_term = Project::get_primary_term( $terms );
 		}
 
-		$related_posts = self::get_related_documentation( $post_id, 3 );
+		$related_posts = self::get_related_documentation( $post_id, 4 );
 
 		$section_title = 'Related Documentation';
 		if ( $current_level_term ) {
