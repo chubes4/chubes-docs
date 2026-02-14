@@ -268,7 +268,7 @@ class DocsController {
                 'name' => $category->name,
             ] : null,
             'project_type'   => $project_type_data,
-            'hierarchy_path' => Project::build_term_hierarchy_path($terms),
+            'hierarchy_path' => $primary ? Project::build_term_hierarchy_path($primary) : '',
         ];
     }
 }

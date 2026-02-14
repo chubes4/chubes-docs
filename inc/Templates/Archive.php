@@ -289,12 +289,18 @@ class Archive {
 					<div class="card-header">
 						<h4><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h4>
 						<?php if ( has_excerpt() ) : ?>
-							<p class="card-description"><?php the_excerpt(); ?></p>
+							<p class="card-description"><?php echo wp_trim_words( get_the_excerpt(), 20, '...' ); ?></p>
 						<?php endif; ?>
 					</div>
-					<div class="card-footer">
-						<span class="card-meta">Updated <?php echo get_the_modified_date(); ?></span>
-						<a href="<?php the_permalink(); ?>" class="button-2">View docs →</a>
+
+					<div class="card-stats">
+						<span class="stat-item">Updated <?php echo get_the_modified_date(); ?></span>
+					</div>
+
+					<div class="card-actions">
+						<a href="<?php the_permalink(); ?>" class="btn primary">
+							View Docs →
+						</a>
 					</div>
 				</div>
 			<?php endwhile; ?>

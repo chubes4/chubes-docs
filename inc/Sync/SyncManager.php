@@ -77,7 +77,7 @@ class SyncManager {
 				];
 			}
 
-			self::update_sync_meta( $existing_post_id, $source_file, $filesize, $timestamp );
+			self::update_sync_meta( $existing_post_id, $source_file, $filesize, $timestamp, $raw_markdown );
 			update_post_meta( $existing_post_id, '_sync_markdown', $raw_markdown );
 			wp_set_object_terms( $existing_post_id, $leaf_term_id, Project::TAXONOMY );
 
@@ -107,7 +107,7 @@ class SyncManager {
 			];
 		}
 
-		self::update_sync_meta( $post_id, $source_file, $filesize, $timestamp );
+		self::update_sync_meta( $post_id, $source_file, $filesize, $timestamp, $raw_markdown );
 		update_post_meta( $post_id, '_sync_markdown', $raw_markdown );
 		wp_set_object_terms( $post_id, $leaf_term_id, Project::TAXONOMY );
 
@@ -191,9 +191,12 @@ class SyncManager {
 		return ! empty( $posts ) ? $posts[0]->ID : null;
 	}
 
-	public static function update_sync_meta( int $post_id, string $source_file, int $filesize, string $timestamp ): void {
+	public static function update_sync_meta( int $post_id, string $source_file, int $filesize, string $timestamp, string $markdown_content = '' ): void {
 		update_post_meta( $post_id, '_sync_source_file', $source_file );
 		update_post_meta( $post_id, '_sync_filesize', $filesize );
 		update_post_meta( $post_id, '_sync_timestamp', $timestamp );
+		if ( ! empty( $markdown_content ) ) {
+			update_post_meta( $post_id, '_sync_hash', md5( $markdown_content ) );
+		}
 	}
 }
