@@ -21,11 +21,17 @@ class Archive {
 	}
 
 	/**
-	 * Render header extras for project pages
+	 * Render header extras for project pages and docs archive
 	 *
-	 * Renders a project info card with description, stats, and action buttons.
+	 * Renders a project info card with description, stats, and action buttons
+	 * on project pages. On the main docs archive, renders an API help block.
 	 */
 	public static function render_header_extras() {
+		if ( is_post_type_archive( 'documentation' ) ) {
+			self::render_api_help_block();
+			return;
+		}
+
 		if ( ! is_tax( 'project' ) ) {
 			return;
 		}
@@ -411,6 +417,22 @@ class Archive {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Render API help block on the main docs archive
+	 */
+	private static function render_api_help_block() {
+		?>
+		<aside class="docs-api-help" style="margin: 1.5rem 0; padding: 1.25rem 1.5rem; border: 1px solid var(--color-border, #e2e2e2); border-radius: 8px; font-size: 0.9em; line-height: 1.6; background: var(--color-surface-alt, #f9f9f9);">
+			<p style="margin: 0 0 0.75rem;"><strong>For developers &amp; AI agents:</strong> All documentation is available via our REST API. Search docs, browse projects, and fetch full content in markdown.</p>
+			<pre style="margin: 0 0 0.75rem; padding: 0.75rem 1rem; background: var(--color-surface, #fff); border-radius: 4px; overflow-x: auto; font-size: 0.88em; line-height: 1.7; border: 1px solid var(--color-border, #e2e2e2);"><code>GET /wp-json/chubes/v1/docs?search=query        — Search documentation
+GET /wp-json/chubes/v1/docs/{id}                 — Get a doc (markdown default, ?format=html for HTML)
+POST /wp-json/wp-abilities/v1/abilities/chubes/search-docs/run  — Search via Abilities API
+POST /wp-json/wp-abilities/v1/abilities/chubes/get-doc/run      — Fetch doc via Abilities API</code></pre>
+			<p style="margin: 0;"><a href="/docs/chubes-docs/api-reference/">View API Reference →</a></p>
+		</aside>
+		<?php
 	}
 
 	/**

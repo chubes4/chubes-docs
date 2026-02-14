@@ -284,34 +284,60 @@ class ProjectAbilities {
 	}
 
 	private static function get_depth_zero_projects_by_type( string $type_slug, bool $include_empty ): array {
-		$all_projects = get_terms( [
-			'taxonomy'   => Project::TAXONOMY,
-			'parent'     => 0,  // Only depth-0 projects
-			'hide_empty' => ! $include_empty,
-			'orderby'    => 'name',
-			'order'      => 'ASC',
+		// Query documentation posts tagged with this project_type
+		$docs = get_posts( [
+			'post_type'      => 'documentation',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'fields'         => 'ids',
+			'tax_query'      => [
+				[
+					'taxonomy' => 'project_type',
+					'field'    => 'slug',
+					'terms'    => $type_slug,
+				],
+			],
 		] );
 
-		if ( is_wp_error( $all_projects ) ) {
+		if ( empty( $docs ) ) {
 			return [];
 		}
 
-		$filtered_projects = [];
+		// Group by depth-0 project term and count docs per project
+		$project_counts = [];
+		$project_terms  = [];
 
-		foreach ( $all_projects as $project ) {
-			$project_type = Project::get_project_type( $project );
-			
-			if ( ! $project_type || $project_type !== $type_slug ) {
+		foreach ( $docs as $doc_id ) {
+			$terms = get_the_terms( $doc_id, Project::TAXONOMY );
+			if ( ! $terms || is_wp_error( $terms ) ) {
 				continue;
 			}
 
-			// Return minimal project info for associated_projects array
+			$project_term = Project::get_project_term( $terms );
+			if ( ! $project_term ) {
+				continue;
+			}
+
+			$tid = $project_term->term_id;
+			if ( ! isset( $project_counts[ $tid ] ) ) {
+				$project_counts[ $tid ] = 0;
+				$project_terms[ $tid ]  = $project_term;
+			}
+			$project_counts[ $tid ]++;
+		}
+
+		$filtered_projects = [];
+		foreach ( $project_terms as $tid => $term ) {
 			$filtered_projects[] = [
-				'id'   => $project->term_id,
-				'name' => $project->name,
-				'slug' => $project->slug,
+				'id'        => $term->term_id,
+				'name'      => $term->name,
+				'slug'      => $term->slug,
+				'doc_count' => $project_counts[ $tid ],
 			];
 		}
+
+		// Sort by name
+		usort( $filtered_projects, fn( $a, $b ) => strcmp( $a['name'], $b['name'] ) );
 
 		return $filtered_projects;
 	}

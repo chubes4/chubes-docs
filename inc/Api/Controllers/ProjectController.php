@@ -109,8 +109,8 @@ class ProjectController {
 	}
 
 	private static function prepare_term( \WP_Term $term, bool $include_repo_info = false ): array {
-		$top_level    = Project::get_top_level_term( $term );
-		$project      = Project::get_project_term( $term );
+		$top_level    = Project::get_top_level_term( [ $term ] );
+		$project      = Project::get_project_term( [ $term ] );
 		$project_type_slug = Project::get_project_type( $term );
 		$project_type_data = null;
 		if ( $project_type_slug ) {
