@@ -284,17 +284,18 @@ class Archive {
 		?>
 		<div class="cards-grid">
 			<?php while ( $query->have_posts() ) : $query->the_post(); ?>
-				<a href="<?php the_permalink(); ?>" class="doc-card doc-card--link doc-card--compact">
+				<div class="doc-card doc-card--compact">
 					<div class="card-header">
-						<h4><?php the_title(); ?></h4>
+						<h4><a href="<?php the_permalink(); ?>"><?php the_title(); ?></a></h4>
 						<?php if ( has_excerpt() ) : ?>
 							<p class="card-description"><?php the_excerpt(); ?></p>
 						<?php endif; ?>
 					</div>
-					<div class="card-stats">
-						<span class="stat-item">Last updated: <?php echo get_the_modified_date(); ?></span>
+					<div class="card-footer">
+						<span class="card-meta">Updated <?php echo get_the_modified_date(); ?></span>
+						<a href="<?php the_permalink(); ?>" class="button-2">View docs →</a>
 					</div>
-				</a>
+				</div>
 			<?php endwhile; ?>
 		</div>
 		<?php
