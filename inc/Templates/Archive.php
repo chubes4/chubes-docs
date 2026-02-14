@@ -424,13 +424,11 @@ class Archive {
 	 */
 	private static function render_api_help_block() {
 		?>
-		<aside class="docs-api-help" style="margin: 1.5rem 0; padding: 1.25rem 1.5rem; border: 1px solid var(--color-border, #e2e2e2); border-radius: 8px; font-size: 0.9em; line-height: 1.6; background: var(--color-surface-alt, #f9f9f9);">
-			<p style="margin: 0 0 0.75rem;"><strong>For developers &amp; AI agents:</strong> All documentation is available via our REST API. Search docs, browse projects, and fetch full content in markdown.</p>
-			<pre style="margin: 0 0 0.75rem; padding: 0.75rem 1rem; background: var(--color-surface, #fff); border-radius: 4px; overflow-x: auto; font-size: 0.88em; line-height: 1.7; border: 1px solid var(--color-border, #e2e2e2);"><code>GET /wp-json/chubes/v1/docs?search=query        — Search documentation
-GET /wp-json/chubes/v1/docs/{id}                 — Get a doc (markdown default, ?format=html for HTML)
-POST /wp-json/wp-abilities/v1/abilities/chubes/search-docs/run  — Search via Abilities API
-POST /wp-json/wp-abilities/v1/abilities/chubes/get-doc/run      — Fetch doc via Abilities API</code></pre>
-			<p style="margin: 0;"><a href="/docs/chubes-docs/api-reference/">View API Reference →</a></p>
+		<aside class="docs-api-help" style="margin: var(--chubes-space-xl) 0; padding: var(--chubes-space-lg) var(--chubes-space-xl); border: 1px solid var(--chubes-border-default); border-radius: 8px; font-size: var(--chubes-font-size-sm); line-height: 1.6; background: var(--chubes-background-card);">
+			<p style="margin: 0 0 var(--chubes-space-md); color: var(--chubes-text-secondary);"><strong style="color: var(--chubes-text-primary);">For developers &amp; AI agents</strong> — All documentation is available programmatically in markdown.</p>
+			<pre style="margin: 0 0 var(--chubes-space-md); padding: var(--chubes-space-md) var(--chubes-space-base); background: var(--chubes-background-primary); border-radius: 6px; overflow-x: auto; font-size: var(--chubes-font-size-xs); line-height: 1.8; border: 1px solid var(--chubes-border-default); color: var(--chubes-body-text-color);"><code><span style="color: var(--chubes-accent-color-2);">GET</span>  /wp-json/chubes/v1/docs?search=<span style="color: var(--chubes-muted-text-color);">{query}</span>
+<span style="color: var(--chubes-accent-color-2);">GET</span>  /wp-json/chubes/v1/docs/<span style="color: var(--chubes-muted-text-color);">{id}</span>          <span style="color: var(--chubes-muted-text-color);">— markdown by default, ?format=html for HTML</span></code></pre>
+			<p style="margin: 0;"><a href="/docs/chubes-docs/api-reference/" style="color: var(--chubes-link-color); text-decoration: none;">View API Reference →</a></p>
 		</aside>
 		<?php
 	}
