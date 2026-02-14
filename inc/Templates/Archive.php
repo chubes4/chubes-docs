@@ -81,14 +81,14 @@ class Archive {
 			<?php if ( $has_actions ) : ?>
 				<div class="project-actions">
 					<?php if ( ! empty( $repo_info['wp_url'] ) ) : ?>
-						<a href="<?php echo esc_url( $repo_info['wp_url'] ); ?>" class="button-1" target="_blank">
+						<a href="<?php echo esc_url( $repo_info['wp_url'] ); ?>" class="btn primary" target="_blank">
 							<svg class="btn-icon"><use href="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/fonts/social-icons.svg#icon-wordpress"></use></svg>
 							<?php echo esc_html( $download_text ); ?>
 						</a>
 					<?php endif; ?>
 
 					<?php if ( ! empty( $repo_info['github_url'] ) ) : ?>
-						<a href="<?php echo esc_url( $repo_info['github_url'] ); ?>" class="button-2" target="_blank">
+						<a href="<?php echo esc_url( $repo_info['github_url'] ); ?>" class="btn secondary" target="_blank">
 							<svg class="btn-icon"><use href="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/fonts/social-icons.svg#icon-github"></use></svg>
 							View on GitHub
 						</a>
@@ -229,7 +229,7 @@ class Archive {
 			<?php if ( $has_direct_posts ) : ?>
 				<?php self::render_documentation_cards( $direct_posts ); ?>
 				<div class="view-all-wrapper">
-					<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="button-2">View all →</a>
+					<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="btn secondary">View all →</a>
 				</div>
 			<?php endif; ?>
 
@@ -532,7 +532,7 @@ class Archive {
 							</div>
 
 							<div class="card-actions">
-								<a href="<?php echo esc_url( get_term_link( $project['term'] ) ); ?>" class="button-1">
+								<a href="<?php echo esc_url( get_term_link( $project['term'] ) ); ?>" class="btn primary">
 									View Documentation →
 								</a>
 							</div>
@@ -582,7 +582,7 @@ class Archive {
 							</div>
 
 							<div class="card-actions">
-								<a href="<?php echo esc_url( get_term_link( $project['term'] ) ); ?>" class="button-1">
+								<a href="<?php echo esc_url( get_term_link( $project['term'] ) ); ?>" class="btn primary">
 									View Documentation →
 								</a>
 							</div>

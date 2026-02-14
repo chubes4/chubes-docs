@@ -74,25 +74,29 @@ class ProjectCard {
 				</div>
 			</div>
 
-			<div class="card-buttons">
-				<?php if ( ! empty( $content_buttons ) ) : ?>
+			<?php if ( ! empty( $content_buttons ) ) : ?>
+				<div class="content-buttons">
 					<?php foreach ( $content_buttons as $button ) : ?>
-						<a href="<?php echo esc_url( $button['url'] ); ?>" class="button-2" data-type="<?php echo esc_attr( $button['type'] ); ?>">
-							<?php echo esc_html( $button['count'] . ' ' . $button['label'] ); ?>
+						<a href="<?php echo esc_url( $button['url'] ); ?>" class="content-btn" data-type="<?php echo esc_attr( $button['type'] ); ?>">
+							<span class="btn-label">View <?php echo esc_html( $button['label'] ); ?></span>
+							<span class="btn-count"><?php echo $button['count']; ?></span>
 						</a>
 					<?php endforeach; ?>
-				<?php endif; ?>
+				</div>
+			<?php endif; ?>
 
-				<?php if ( $repo_info['github_url'] ) : ?>
-					<a href="<?php echo esc_url( $repo_info['github_url'] ); ?>" class="button-3" target="_blank" rel="noopener">
-						<svg class="btn-icon" style="width:16px;height:16px;fill:currentColor;vertical-align:middle;margin-right:4px;"><use href="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/fonts/social-icons.svg#icon-github"></use></svg>
-						GitHub
+			<div class="external-buttons">
+				<?php if ( $repo_info['wp_url'] ) : ?>
+					<a href="<?php echo esc_url( $repo_info['wp_url'] ); ?>" class="external-btn primary" target="_blank">
+						<svg class="btn-icon"><use href="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/fonts/social-icons.svg#icon-wordpress"></use></svg>
+						<?php echo esc_html( $download_text ); ?>
 					</a>
 				<?php endif; ?>
 
-				<?php if ( $repo_info['wp_url'] ) : ?>
-					<a href="<?php echo esc_url( $repo_info['wp_url'] ); ?>" class="button-3" target="_blank" rel="noopener">
-						<?php echo esc_html( $download_text ); ?>
+				<?php if ( $repo_info['github_url'] ) : ?>
+					<a href="<?php echo esc_url( $repo_info['github_url'] ); ?>" class="external-btn secondary" target="_blank">
+						<svg class="btn-icon"><use href="<?php echo esc_url( get_stylesheet_directory_uri() ); ?>/assets/fonts/social-icons.svg#icon-github"></use></svg>
+						GitHub
 					</a>
 				<?php endif; ?>
 			</div>

@@ -28,7 +28,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--chubes-space-lg);
-    text-align: left;
+    text-align: center;
     transition: all 0.3s ease;
     position: relative;
 }
@@ -64,7 +64,6 @@
     margin: 0 0 10px;
     font-size: var(--chubes-font-size-xl);
     color: var(--chubes-text-primary);
-    text-align: left;
 }
 
 .card-header h4 {
@@ -90,7 +89,7 @@
     line-height: 1.6;
     margin: 0;
     font-size: var(--chubes-font-size-sm);
-    text-align: left;
+    text-align: center;
 }
 
 /* ==========================================================================
@@ -100,7 +99,7 @@
 .project-stats,
 .card-stats {
     display: flex;
-    justify-content: flex-start;
+    justify-content: center;
     gap: 15px;
     flex-wrap: wrap;
 }
