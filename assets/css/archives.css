@@ -64,6 +64,7 @@
     margin: 0 0 10px;
     font-size: var(--chubes-font-size-xl);
     color: var(--chubes-text-primary);
+    text-align: left;
 }
 
 .card-header h4 {
@@ -89,7 +90,7 @@
     line-height: 1.6;
     margin: 0;
     font-size: var(--chubes-font-size-sm);
-    text-align: center;
+    text-align: left;
 }
 
 /* ==========================================================================
@@ -99,7 +100,7 @@
 .project-stats,
 .card-stats {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 15px;
     flex-wrap: wrap;
 }
@@ -197,6 +198,7 @@
     flex-wrap: wrap;
     border-top: 1px solid var(--chubes-border-light);
     padding-top: var(--chubes-space-lg);
+    margin-top: auto;
 }
 
 .card-actions {
