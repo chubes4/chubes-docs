@@ -736,3 +736,88 @@
         padding: 12px 14px;
     }
 }
+
+/* ==========================================================================
+   Documentation Content Tables
+   ========================================================================== */
+
+.documentation-content table,
+.entry-content table,
+.single-documentation table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--chubes-space-xl) 0;
+    font-size: var(--chubes-font-size-sm);
+    overflow-x: auto;
+    display: block;
+}
+
+.documentation-content thead,
+.entry-content thead,
+.single-documentation thead {
+    display: table-header-group;
+}
+
+.documentation-content tbody,
+.entry-content tbody,
+.single-documentation tbody {
+    display: table-row-group;
+}
+
+.documentation-content tr,
+.entry-content tr,
+.single-documentation tr {
+    display: table-row;
+}
+
+.documentation-content table,
+.entry-content table,
+.single-documentation table {
+    display: table;
+    overflow-x: auto;
+}
+
+.documentation-content th,
+.entry-content th,
+.single-documentation th {
+    background: var(--chubes-background-secondary);
+    color: var(--chubes-text-primary);
+    font-weight: 600;
+    font-family: 'Space Grotesk', sans-serif;
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 2px solid var(--chubes-accent-medium);
+    white-space: nowrap;
+}
+
+.documentation-content td,
+.entry-content td,
+.single-documentation td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--chubes-border-default);
+    color: var(--chubes-body-text-color);
+    text-align: left;
+}
+
+.documentation-content tbody tr:nth-child(even),
+.entry-content tbody tr:nth-child(even),
+.single-documentation tbody tr:nth-child(even) {
+    background: var(--chubes-background-muted);
+}
+
+.documentation-content tbody tr:hover,
+.entry-content tbody tr:hover,
+.single-documentation tbody tr:hover {
+    background: var(--chubes-accent-subtle);
+}
+
+/* Responsive table wrapper */
+.table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: var(--chubes-space-xl) 0;
+}
+
+.table-responsive table {
+    margin: 0;
+}

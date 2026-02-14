@@ -18,6 +18,7 @@ class Archive {
 		add_filter( 'chubes_archive_content', [ self::class, 'filter_content' ], 10, 2 );
 		add_filter( 'get_the_archive_title', [ self::class, 'filter_archive_title' ], 15 );
 		add_filter( 'chubes_show_archive_description', [ self::class, 'filter_show_description' ] );
+		add_action( 'chubes_single_after_content', [ self::class, 'render_github_link' ], 10, 2 );
 	}
 
 	/**
@@ -633,4 +634,64 @@ class Archive {
 	private static function get_project_type_display_name( $slug ) {
 		return ucfirst( str_replace( '-', ' ', $slug ) );
 	}
+
+	/**
+	 * Render "View on GitHub" link for single documentation posts.
+	 *
+	 * Hooks into chubes_single_after_content.
+	 */
+	public static function render_github_link( $post_id, $post_type ) {
+		if ( $post_type !== 'documentation' ) {
+			return;
+		}
+
+		$source_file = get_post_meta( $post_id, '_sync_source_file', true );
+		if ( empty( $source_file ) ) {
+			return;
+		}
+
+		$terms = get_the_terms( $post_id, 'project' );
+		if ( ! $terms || is_wp_error( $terms ) ) {
+			return;
+		}
+
+		// Find the top-level project term
+		$project_term = null;
+		foreach ( $terms as $term ) {
+			if ( $term->parent === 0 ) {
+				$project_term = $term;
+				break;
+			}
+		}
+		if ( ! $project_term ) {
+			// Try parent of first term
+			foreach ( $terms as $term ) {
+				$parent = get_term( $term->parent, 'project' );
+				if ( $parent && ! is_wp_error( $parent ) && $parent->parent === 0 ) {
+					$project_term = $parent;
+					break;
+				}
+			}
+		}
+
+		if ( ! $project_term ) {
+			return;
+		}
+
+		$github_url = get_term_meta( $project_term->term_id, 'project_github_url', true );
+		if ( empty( $github_url ) ) {
+			return;
+		}
+
+		$full_url = rtrim( $github_url, '/' ) . '/blob/main/docs/' . $source_file;
+		?>
+		<div class="docs-github-link" style="margin-top: var(--chubes-space-xl); padding-top: var(--chubes-space-xl); border-top: 1px solid var(--chubes-border-default);">
+			<a href="<?php echo esc_url( $full_url ); ?>" target="_blank" rel="noopener" class="button-3" style="display: inline-flex; align-items: center; gap: 8px;">
+				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+				View on GitHub
+			</a>
+		</div>
+		<?php
+	}
+
 }
