@@ -57,8 +57,8 @@ class DocsController {
             return new WP_Error('not_found', 'Documentation not found', ['status' => 404]);
         }
 
-        $format = sanitize_text_field($request->get_param('format') ?? 'markdown');
-        return rest_ensure_response(self::prepare_item($post, true, $format));
+        // Docs API is markdown-only. We do not support returning HTML from this endpoint.
+        return rest_ensure_response(self::prepare_item($post, true));
     }
 
     public static function create_item(WP_REST_Request $request): WP_REST_Response|WP_Error {
@@ -188,7 +188,7 @@ class DocsController {
         ]);
     }
 
-    private static function prepare_item(\WP_Post $post, bool $include_content = false, string $format = 'html'): array {
+    private static function prepare_item(\WP_Post $post, bool $include_content = false): array {
         $terms = get_the_terms($post->ID, Project::TAXONOMY);
         $project_data = self::prepare_project_data($terms ?: []);
 
@@ -208,14 +208,12 @@ class DocsController {
         ];
 
         if ($include_content) {
-            if ($format === 'markdown' || $format === 'md') {
-                $markdown = get_post_meta($post->ID, '_sync_markdown', true);
-                $item['content'] = !empty($markdown) ? $markdown : $post->post_content;
-                $item['content_format'] = !empty($markdown) ? 'markdown' : 'html';
-            } else {
-                $item['content'] = $post->post_content;
-                $item['content_format'] = 'html';
-            }
+            $markdown = get_post_meta($post->ID, '_sync_markdown', true);
+
+            // Markdown-only API contract.
+            $item['content'] = !empty($markdown) ? $markdown : '';
+            $item['content_format'] = 'markdown';
+            $item['meta']['has_sync_markdown'] = !empty($markdown);
         }
 
         return $item;

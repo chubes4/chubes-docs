@@ -114,15 +114,10 @@ class DocsAbilities {
 			$excerpt = wp_trim_words( wp_strip_all_tags( $post->post_content ), 30, '...' );
 		}
 
-		$format = $input['format'] ?? 'markdown';
-		if ( $format === 'markdown' ) {
-			$markdown = get_post_meta( $post->ID, '_sync_markdown', true );
-			$content = ! empty( $markdown ) ? $markdown : $post->post_content;
-			$content_format = ! empty( $markdown ) ? 'markdown' : 'html';
-		} else {
-			$content = $post->post_content;
-			$content_format = 'html';
-		}
+		// Markdown-only output contract.
+		$markdown = get_post_meta( $post->ID, '_sync_markdown', true );
+		$content = ! empty( $markdown ) ? $markdown : '';
+		$content_format = 'markdown';
 
 		return [
 			'id'             => $post->ID,
