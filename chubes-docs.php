@@ -16,7 +16,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'CHUBES_DOCS_VERSION', '0.9.6' );
+define( 'CHUBES_DOCS_VERSION', '0.9.7' );
 define( 'CHUBES_DOCS_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CHUBES_DOCS_URL', plugin_dir_url( __FILE__ ) );
 
