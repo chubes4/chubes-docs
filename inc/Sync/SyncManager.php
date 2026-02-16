@@ -129,21 +129,31 @@ class SyncManager {
 		$current_parent = $parent_term_id;
 
 		foreach ( $subpath as $part_name ) {
-			$slug = sanitize_title( $part_name );
-
-			$existing = get_terms( [
+			// Search by name (case-insensitive) among children of current parent.
+			// We cannot search by slug because WordPress appends suffixes (-2, -3, etc.)
+			// to slugs when terms share a name across different parents.
+			$children = get_terms( [
 				'taxonomy'   => Project::TAXONOMY,
 				'parent'     => $current_parent,
-				'slug'       => $slug,
 				'hide_empty' => false,
-				'number'     => 1,
 			] );
 
-			if ( ! empty( $existing ) && ! is_wp_error( $existing ) ) {
-				$current_parent = $existing[0]->term_id;
+			$found_term = null;
+			if ( ! empty( $children ) && ! is_wp_error( $children ) ) {
+				foreach ( $children as $child ) {
+					if ( strtolower( $child->name ) === strtolower( $part_name ) ) {
+						$found_term = $child;
+						break;
+					}
+				}
+			}
+
+			if ( $found_term ) {
+				$current_parent = $found_term->term_id;
 				continue;
 			}
 
+			$slug = sanitize_title( $part_name );
 			$result = wp_insert_term( $part_name, Project::TAXONOMY, [
 				'parent' => $current_parent,
 				'slug'   => $slug,
