@@ -82,8 +82,8 @@ class RelatedPosts {
 			<?php endif; ?>
 
 			<div class="related-actions">
-				<?php if ( $project_term && $top_level_term ) : 
-					$project_url = home_url( '/docs/' . $top_level_term->slug . '/' . $project_term->slug . '/' );
+				<?php if ( $project_term ) :
+					$project_url = get_term_link( $project_term );
 					?>
 					<a href="<?php echo esc_url( $project_url ); ?>" class="button-2">
 						All <?php echo esc_html( $project_term->name ); ?> Docs
@@ -91,16 +91,7 @@ class RelatedPosts {
 				<?php endif; ?>
 
 				<?php if ( $current_level_term && $project_term && $current_level_term->term_id !== $project_term->term_id ) :
-					$current_level_url = '';
-					if ( $top_level_term ) {
-						if ( $current_level_term->parent === $project_term->term_id ) {
-							$current_level_url = home_url( '/docs/' . $top_level_term->slug . '/' . $project_term->slug . '/' . $current_level_term->slug . '/' );
-						} else {
-							$current_level_url = get_term_link( $current_level_term );
-						}
-					} else {
-						$current_level_url = get_term_link( $current_level_term );
-					}
+					$current_level_url = get_term_link( $current_level_term );
 					?>
 					<a href="<?php echo esc_url( $current_level_url ); ?>" class="button-1">
 						View all <?php echo esc_html( $current_level_term->name ); ?>
