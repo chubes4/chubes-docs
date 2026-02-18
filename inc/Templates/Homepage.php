@@ -41,6 +41,9 @@ class Homepage {
 			<div class="list-cta">
 				<a class="btn secondary" href="<?php echo esc_url( get_post_type_archive_link( 'documentation' ) ); ?>">View all Docs</a>
 			</div>
+			<p class="docs-api-hint">
+				Also available via API: <code>GET /wp-json/chubes/v1/docs</code>
+			</p>
 		</div>
 		<?php
 	}
