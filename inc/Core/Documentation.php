@@ -114,7 +114,7 @@ class Documentation {
 			],
 		] );
 
-		register_rest_field( self::POST_TYPE, 'project_type', [
+		register_rest_field( self::POST_TYPE, 'project_type_info', [
 			'get_callback' => function( $post ) {
 				if ( function_exists( 'wp_abilities_execute' ) ) {
 					$ability_result = wp_abilities_execute( 'chubes/get-projects', [
