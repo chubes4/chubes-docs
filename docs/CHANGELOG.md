@@ -235,7 +235,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Settings UI Cleanup**: Streamlined the GitHub connection diagnostic interface.
 
 ### Removed
-- **Legacy AJAX Handler**: Deleted `inc/Admin/SyncAjax.php` and its associated hooks.
+- **Legacy AJAX Handler**: The legacy AJAX handler and its associated hooks were removed during the AJAX to REST migration.
 
 ## [0.2.7] - 2026-01-02
 

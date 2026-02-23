@@ -26,7 +26,7 @@ For development:
 
 1. Clone the repository
 2. Run `composer install` to install PHP dependencies
-3. Run `./build.sh` to create production build
+3. The plugin is ready for development use
 
 ## Features
 

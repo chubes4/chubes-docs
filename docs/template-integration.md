@@ -36,8 +36,8 @@ The plugin doesn’t provide WordPress template files to override. Instead it ho
 
 Defined in `chubes-docs/chubes-docs.php`:
 
-- `chubes_get_repository_info( $term_or_terms )` is a wrapper for `ChubesDocs\Core\Codebase::get_repository_info()`.
-- `chubes_generate_content_type_url( $post_type, $term )` proxies `ChubesDocs\Templates\CodebaseCard::generate_content_type_url()`.
+- `chubes_get_repository_info( $term_or_terms )` is a wrapper for `ChubesDocs\Core\Project::get_repository_info()`.
+- `chubes_generate_content_type_url( $post_type, $term )` proxies `ChubesDocs\Templates\ProjectCard::generate_content_type_url()`.
 
 ## Assets
 

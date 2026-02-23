@@ -240,7 +240,7 @@ For response shapes and parameters, see [API Reference](api-reference.md) or [Gi
 ## Best Practices
 
 ### File Organization
-- Use consistent subpath structures (e.g., `guides/`, `api/`, `examples/`)
+- Use consistent subpath structures for your documentation
 - Keep source files in a `docs/` directory in your repository
 - Use descriptive filenames that become good URLs
 

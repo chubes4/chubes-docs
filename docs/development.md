@@ -41,18 +41,7 @@ This guide covers development workflows, build processes, and coding standards f
 
 ### Production Build
 
-The `./build.sh` script creates a production-ready WordPress plugin package:
-
-```bash
-./build.sh
-```
-
-**What it does:**
-1. Installs production dependencies (`composer install --no-dev`)
-2. Copies files using `.buildignore` exclusions
-3. Validates required files are present
-4. Creates ZIP file in `build/` directory
-5. Restores development dependencies
+The plugin uses Composer for dependency management. To create a production-ready package:
 
 ### Build Configuration
 
@@ -63,16 +52,26 @@ The `./build.sh` script creates a production-ready WordPress plugin package:
 - Required documentation files
 
 **Excluded from production build:**
-- Development dependencies (`vendor/` after production install)
-- Development files (`.buildignore`, `build.sh`, `README.md`)
+- Development files (`.buildignore`, `README.md`)
 - Source control (`.git/`, `.gitignore`)
-- Development documentation (`CLAUDE.md`, `CLAUDE.md`)
+- Development documentation (`CLAUDE.md`)
 
 ### File Structure
 
 ```
-build/
-└── chubes-docs.zip          # Production plugin package
+inc/
+├── Api/                    # REST API layer
+│   ├── Controllers/       # Endpoint handlers
+│   └── Routes.php         # Route registration
+├── Core/                  # Plugin core systems
+│   ├── Assets.php         # Asset management
+│   ├── Breadcrumbs.php    # Breadcrumb generation
+│   ├── Project.php        # Taxonomy management
+│   ├── Documentation.php  # Post type handling
+│   └── RewriteRules.php   # URL routing
+├── Fields/                # Admin interface
+├── Sync/                  # Synchronization
+└── Templates/             # Frontend enhancements
 ```
 
 ## Coding Standards

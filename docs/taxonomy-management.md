@@ -225,10 +225,7 @@ The `InstallTracker` class automatically:
 
 - **Project Terms**: One term per repository at depth 0
 - **Subpaths**: Logical content organization within projects
-  - `api/` - API reference
-  - `docs/` - Documentation
-  - `examples/` - Code examples
-  - `changelog/` - Version history
+  - Use descriptive subdirectory names that match your content structure
 
 ### Metadata Management
 
