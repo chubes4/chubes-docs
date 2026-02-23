@@ -451,3 +451,183 @@ This plugin uses WordPress REST error responses (see WP REST API). Shapes vary b
   }
 }
 ```
+
+## WP-CLI Commands
+
+The plugin provides three WP-CLI commands for managing documentation and projects from the command line.
+
+### `chubes project ensure`
+
+Ensures a project taxonomy term exists, creating it if necessary.
+
+```bash
+wp chubes project ensure <project-slug> [--name=<display-name>] [--github_url=<url>] [--wp_url=<url>]
+```
+
+**Arguments:**
+- `project-slug` (required): The project term slug
+
+**Options:**
+- `--name`: Display name for the project (defaults to slug)
+- `--github_url`: GitHub repository URL
+- `--wp_url`: WordPress.org plugin/theme URL
+
+**Example:**
+```bash
+wp chubes project ensure my-plugin --name="My Plugin" --github_url="https://github.com/username/my-plugin"
+```
+
+### `chubes project tree`
+
+Displays the project taxonomy as a tree structure.
+
+```bash
+wp chubes project tree [--parent=<term-id>] [--depth=<depth>]
+```
+
+**Options:**
+- `--parent`: Term ID to start from (default: 0 for top-level)
+- `--depth`: Maximum depth to display (default: 3)
+
+**Example:**
+```bash
+wp chubes project tree
+wp chubes project tree --depth=5
+```
+
+### `chubes docs sync`
+
+Manually trigger documentation sync from GitHub.
+
+```bash
+wp chubes docs sync [term-id] [--all] [--force]
+```
+
+**Arguments:**
+- `term-id`: Specific project term ID to sync (optional)
+
+**Options:**
+- `--all`: Sync all projects with GitHub URLs
+- `--force`: Force re-sync even when content hasn't changed
+
+**Example:**
+```bash
+# Sync a specific project
+wp chubes docs sync 15
+
+# Sync all projects
+wp chubes docs sync --all
+
+# Force sync all projects
+wp chubes docs sync --all --force
+```
+
+## Abilities (AI Agent Integration)
+
+The plugin registers Abilities for AI agents (WP Abilities API). These enable AI assistants to interact with documentation programmatically.
+
+### chubes/get-doc
+
+Fetch a single documentation post by ID or slug.
+
+**Input:**
+- `id` (integer): Post ID
+- `slug` (string): Post slug (alternative to id)
+- `format` (string): Content format - "markdown" (default) or "html"
+
+**Output:**
+```json
+{
+  "id": 123,
+  "title": "Getting Started",
+  "content": "# Getting Started\n\n...",
+  "content_format": "markdown",
+  "excerpt": "Brief description",
+  "link": "https://example.com/docs/.../",
+  "project": {
+    "id": 15,
+    "name": "My Plugin",
+    "slug": "my-plugin"
+  },
+  "project_type": {
+    "id": 5,
+    "name": "WordPress Plugin",
+    "slug": "wordpress-plugin"
+  },
+  "meta": {
+    "sync_source_file": "docs/README.md",
+    "sync_hash": "abc123",
+    "sync_timestamp": "2026-01-15T10:00:00Z"
+  }
+}
+```
+
+### chubes/search-docs
+
+Search published documentation by query string, optionally filtered by project.
+
+**Input:**
+- `query` (string, required): Search query string
+- `project` (integer): Project term ID to filter results
+- `per_page` (integer): Number of results (max 50, default 10)
+
+**Output:**
+```json
+{
+  "items": [
+    {
+      "id": 123,
+      "title": "Getting Started",
+      "excerpt": "Brief description...",
+      "link": "https://example.com/docs/.../",
+      "project": {
+        "id": 15,
+        "name": "My Plugin",
+        "slug": "my-plugin"
+      }
+    }
+  ],
+  "total": 5,
+  "query": "getting started"
+}
+```
+
+### chubes/sync-docs
+
+Sync documentation from GitHub. Requires GitHub PAT to be configured.
+
+**Input:**
+- `term_id` (integer): Sync a specific project (optional)
+- `term_ids` (array): Sync multiple projects (optional)
+
+**Output:**
+```json
+{
+  "success": true,
+  "repos_synced": 2,
+  "total_added": 10,
+  "total_updated": 3,
+  "total_removed": 1,
+  "added": ["docs/api.md", "docs/usage.md"],
+  "updated": ["docs/README.md"],
+  "removed": ["docs/old.md"],
+  "errors": []
+}
+```
+
+### chubes/reset-documentation
+
+Delete all documentation posts and child terms, preserving top-level projects with GitHub URLs.
+
+**Input:** None required
+
+**Output:**
+```json
+{
+  "success": true,
+  "documentation_posts_deleted": 25,
+  "child_terms_deleted": 15,
+  "orphaned_terms_deleted": 2,
+  "sync_metadata_reset": 10
+}
+```
