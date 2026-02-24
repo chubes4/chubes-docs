@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-02-24
+
+### Added
+- Add WP-CLI commands: `wp chubes docs list`, `wp chubes docs get`, `wp chubes docs search`
+- CLI get and search commands delegate to Abilities API (`chubes/get-doc`, `chubes/search-docs`)
+
+### Changed
+- Align internal documentation with codebase (fix broken references)
+- Document undocumented features (abilities and WP-CLI commands)
+
+### Fixed
+- Register abilities outside `rest_api_init` so they work in WP-CLI, cron, and all contexts
+
 ## [0.9.11] - 2026-02-18
 
 ### Changed

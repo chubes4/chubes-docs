@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Chubes Docs
  * Description: REST API sync system and admin enhancements for chubes.net documentation. Requires Chubes theme.
- * Version: 0.9.11
+ * Version: 0.10.0
  * Author: Chris Huber
  * Author URI: https://chubes.net
  * License: GPL v2 or later
