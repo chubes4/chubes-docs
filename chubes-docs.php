@@ -64,9 +64,10 @@ add_action( 'init', function() {
 	SearchBar::init();
 } );
 
+Abilities::init();
+
 add_action( 'rest_api_init', function() {
 	Routes::register();
-	Abilities::init();
 } );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {

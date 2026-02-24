@@ -2,6 +2,9 @@
 /**
  * WP-CLI command for listing documentation posts.
  *
+ * Delegates to the chubes/search-docs ability for filtered listing.
+ * Uses direct WP_Query only for unfiltered listing (no search ability needed).
+ *
  * @package ChubesDocs\WPCLI\Commands
  */
 

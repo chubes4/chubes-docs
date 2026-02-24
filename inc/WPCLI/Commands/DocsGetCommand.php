@@ -2,13 +2,13 @@
 /**
  * WP-CLI command for retrieving a single documentation post.
  *
+ * Delegates to the chubes/get-doc ability.
+ *
  * @package ChubesDocs\WPCLI\Commands
  */
 
 namespace ChubesDocs\WPCLI\Commands;
 
-use ChubesDocs\Core\Documentation;
-use ChubesDocs\Core\Project;
 use WP_CLI;
 use WP_CLI\Utils;
 
@@ -22,7 +22,7 @@ class DocsGetCommand {
 	 * Get a single documentation post by ID or slug.
 	 *
 	 * Returns markdown content by default, matching the REST API's
-	 * agent-friendly format.
+	 * agent-friendly format. Delegates to the chubes/get-doc ability.
 	 *
 	 * ## OPTIONS
 	 *
@@ -68,17 +68,32 @@ class DocsGetCommand {
 			WP_CLI::error( 'Provide a post ID or slug.' );
 		}
 
-		$post = self::find_doc( $id_or_slug );
-
-		if ( ! $post ) {
-			WP_CLI::error( "Documentation not found: {$id_or_slug}" );
+		$ability = wp_get_ability( 'chubes/get-doc' );
+		if ( ! $ability ) {
+			WP_CLI::error( 'chubes/get-doc ability not registered.' );
 		}
 
-		$markdown = get_post_meta( $post->ID, '_sync_markdown', true );
+		// Build ability input.
+		$input = [];
+		if ( is_numeric( $id_or_slug ) ) {
+			$input['id'] = absint( $id_or_slug );
+		} else {
+			$input['slug'] = sanitize_title( $id_or_slug );
+		}
+
+		$result = $ability->execute( $input );
+
+		if ( is_wp_error( $result ) ) {
+			WP_CLI::error( $result->get_error_message() );
+		}
+
+		if ( isset( $result['error'] ) ) {
+			WP_CLI::error( $result['error'] );
+		}
 
 		// Single field output.
 		if ( $field ) {
-			$value = self::get_field_value( $post, $field, $markdown );
+			$value = self::extract_field( $result, $field );
 			if ( null === $value ) {
 				WP_CLI::error( "Unknown field: {$field}" );
 			}
@@ -88,37 +103,29 @@ class DocsGetCommand {
 
 		// Markdown format — print title + content for agent consumption.
 		if ( 'markdown' === $format ) {
-			WP_CLI::line( "# {$post->post_title}" );
+			WP_CLI::line( "# {$result['title']}" );
 			WP_CLI::line( '' );
-			if ( ! empty( $post->post_excerpt ) ) {
-				WP_CLI::line( "> {$post->post_excerpt}" );
+			if ( ! empty( $result['excerpt'] ) ) {
+				WP_CLI::line( "> {$result['excerpt']}" );
 				WP_CLI::line( '' );
 			}
-			if ( ! empty( $markdown ) ) {
-				WP_CLI::line( $markdown );
-			} else {
-				WP_CLI::line( wp_strip_all_tags( $post->post_content ) );
+			if ( ! empty( $result['content'] ) ) {
+				WP_CLI::line( $result['content'] );
 			}
 			return;
 		}
 
 		// Structured output (JSON/YAML).
-		$terms        = get_the_terms( $post->ID, Project::TAXONOMY );
-		$project_term = $terms ? Project::get_project_term( $terms ) : null;
-		$primary_term = $terms ? Project::get_primary_term( $terms ) : null;
-
 		$item = [
-			'id'             => $post->ID,
-			'title'          => $post->post_title,
-			'slug'           => $post->post_name,
-			'excerpt'        => $post->post_excerpt,
-			'status'         => $post->post_status,
-			'link'           => get_permalink( $post->ID ),
-			'project'        => $project_term ? $project_term->slug : '',
-			'path'           => $primary_term ? Project::build_term_hierarchy_path( $primary_term ) : '',
-			'source_file'    => get_post_meta( $post->ID, '_sync_source_file', true ),
-			'sync_timestamp' => get_post_meta( $post->ID, '_sync_timestamp', true ),
-			'content_format' => ! empty( $markdown ) ? 'markdown' : 'html',
+			'id'             => $result['id'],
+			'title'          => $result['title'],
+			'slug'           => $result['meta']['sync_source_file'] ?? '',
+			'excerpt'        => $result['excerpt'],
+			'link'           => $result['link'],
+			'project'        => $result['project']['slug'] ?? '',
+			'source_file'    => $result['meta']['sync_source_file'] ?? '',
+			'sync_timestamp' => $result['meta']['sync_timestamp'] ?? '',
+			'content_format' => $result['content_format'] ?? 'markdown',
 		];
 
 		if ( 'json' === $format ) {
@@ -129,50 +136,19 @@ class DocsGetCommand {
 	}
 
 	/**
-	 * Find a documentation post by ID or slug.
+	 * Extract a specific field from the ability result.
 	 *
-	 * @param string $id_or_slug Post ID or slug.
-	 * @return \WP_Post|null
-	 */
-	private static function find_doc( string $id_or_slug ): ?\WP_Post {
-		// Try as numeric ID first.
-		if ( is_numeric( $id_or_slug ) ) {
-			$post = get_post( absint( $id_or_slug ) );
-			if ( $post && Documentation::POST_TYPE === $post->post_type ) {
-				return $post;
-			}
-		}
-
-		// Try as slug.
-		$posts = get_posts( [
-			'post_type'   => Documentation::POST_TYPE,
-			'name'        => sanitize_title( $id_or_slug ),
-			'post_status' => 'any',
-			'numberposts' => 1,
-		] );
-
-		return ! empty( $posts ) ? $posts[0] : null;
-	}
-
-	/**
-	 * Get a specific field value from a doc.
-	 *
-	 * @param \WP_Post $post     The documentation post.
-	 * @param string   $field    Field name.
-	 * @param string   $markdown Stored markdown content.
+	 * @param array  $result Ability result.
+	 * @param string $field  Field name.
 	 * @return string|null
 	 */
-	private static function get_field_value( \WP_Post $post, string $field, string $markdown ): ?string {
-		$terms        = get_the_terms( $post->ID, Project::TAXONOMY );
-		$project_term = $terms ? Project::get_project_term( $terms ) : null;
-
+	private static function extract_field( array $result, string $field ): ?string {
 		return match ( $field ) {
-			'title'   => $post->post_title,
-			'content' => ! empty( $markdown ) ? $markdown : wp_strip_all_tags( $post->post_content ),
-			'excerpt' => $post->post_excerpt,
-			'slug'    => $post->post_name,
-			'link'    => get_permalink( $post->ID ),
-			'project' => $project_term ? $project_term->slug : '',
+			'title'   => $result['title'] ?? '',
+			'content' => $result['content'] ?? '',
+			'excerpt' => $result['excerpt'] ?? '',
+			'link'    => $result['link'] ?? '',
+			'project' => $result['project']['slug'] ?? '',
 			default   => null,
 		};
 	}

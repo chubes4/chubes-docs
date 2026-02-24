@@ -2,12 +2,13 @@
 /**
  * WP-CLI command for searching documentation.
  *
+ * Delegates to the chubes/search-docs ability.
+ *
  * @package ChubesDocs\WPCLI\Commands
  */
 
 namespace ChubesDocs\WPCLI\Commands;
 
-use ChubesDocs\Core\Documentation;
 use ChubesDocs\Core\Project;
 use WP_CLI;
 use WP_CLI\Utils;
@@ -21,7 +22,8 @@ class DocsSearchCommand {
 	/**
 	 * Search documentation by keyword.
 	 *
-	 * Performs a WordPress search across doc titles and content.
+	 * Delegates to the chubes/search-docs ability for full-text search
+	 * across doc titles and content.
 	 *
 	 * ## OPTIONS
 	 *
@@ -29,7 +31,7 @@ class DocsSearchCommand {
 	 * : Search query string
 	 *
 	 * [--project=<slug>]
-	 * : Limit search to a specific project
+	 * : Limit search to a specific project (slug or term ID)
 	 *
 	 * [--per-page=<number>]
 	 * : Number of results
@@ -72,47 +74,52 @@ class DocsSearchCommand {
 			WP_CLI::error( 'Provide a search query.' );
 		}
 
-		$query_args = [
-			'post_type'      => Documentation::POST_TYPE,
-			'post_status'    => 'publish',
-			's'              => sanitize_text_field( $query ),
-			'posts_per_page' => $per_page,
-			'orderby'        => 'relevance',
-		];
-
-		if ( $project ) {
-			$query_args['tax_query'] = [
-				[
-					'taxonomy' => Project::TAXONOMY,
-					'field'    => is_numeric( $project ) ? 'term_id' : 'slug',
-					'terms'    => $project,
-				],
-			];
+		$ability = wp_get_ability( 'chubes/search-docs' );
+		if ( ! $ability ) {
+			WP_CLI::error( 'chubes/search-docs ability not registered.' );
 		}
 
-		$wp_query = new \WP_Query( $query_args );
+		// Build ability input.
+		$input = [
+			'query'    => $query,
+			'per_page' => min( $per_page, 50 ),
+		];
 
-		if ( empty( $wp_query->posts ) ) {
+		// Resolve project slug to term ID if needed.
+		if ( $project ) {
+			if ( is_numeric( $project ) ) {
+				$input['project'] = absint( $project );
+			} else {
+				$term = get_term_by( 'slug', sanitize_title( $project ), Project::TAXONOMY );
+				if ( ! $term || is_wp_error( $term ) ) {
+					WP_CLI::error( "Project not found: {$project}" );
+				}
+				$input['project'] = $term->term_id;
+			}
+		}
+
+		$result = $ability->execute( $input );
+
+		if ( is_wp_error( $result ) ) {
+			WP_CLI::error( $result->get_error_message() );
+		}
+
+		if ( empty( $result['items'] ) ) {
 			WP_CLI::warning( "No docs found for: {$query}" );
 			return;
 		}
 
 		$rows = [];
-		foreach ( $wp_query->posts as $post ) {
-			$terms        = get_the_terms( $post->ID, Project::TAXONOMY );
-			$project_term = $terms ? Project::get_project_term( $terms ) : null;
-			$primary_term = $terms ? Project::get_primary_term( $terms ) : null;
-
+		foreach ( $result['items'] as $item ) {
 			$rows[] = [
-				'id'      => $post->ID,
-				'title'   => $post->post_title,
-				'project' => $project_term ? $project_term->slug : '',
-				'path'    => $primary_term ? Project::build_term_hierarchy_path( $primary_term ) : '',
-				'excerpt' => mb_strimwidth( $post->post_excerpt, 0, 80, '...' ),
+				'id'      => $item['id'],
+				'title'   => $item['title'],
+				'project' => $item['project']['slug'] ?? '',
+				'excerpt' => mb_strimwidth( $item['excerpt'] ?? '', 0, 80, '...' ),
 			];
 		}
 
-		WP_CLI::log( sprintf( 'Found %d docs matching "%s"', $wp_query->found_posts, $query ) );
+		WP_CLI::log( sprintf( 'Found %d docs matching "%s"', $result['total'], $query ) );
 		Utils\format_items( $format, $rows, array_keys( $rows[0] ) );
 	}
 }
