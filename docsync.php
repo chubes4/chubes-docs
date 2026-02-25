@@ -3,7 +3,7 @@
  * Plugin Name: DocSync
  * Plugin URI: https://github.com/chubes4/docsync
  * Description: GitHub-to-WordPress documentation sync system with REST API, WP-CLI, and hierarchical project organization.
- * Version: 1.0.0
+ * Version: 0.1.0
  * Author: Chris Huber
  * Author URI: https://chubes.net
  * License: GPL v2 or later
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit;
 }
 
-define( 'DOCSYNC_VERSION', '1.0.0' );
+define( 'DOCSYNC_VERSION', '0.1.0' );
 define( 'DOCSYNC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'DOCSYNC_URL', plugin_dir_url( __FILE__ ) );
 
@@ -114,7 +114,7 @@ register_activation_hook( __FILE__, function() {
  * Runs on activation. Safe to call multiple times — only migrates
  * if old options exist and new ones don't.
  *
- * @since 1.0.0
+ * @since 0.1.0
  */
 function docsync_maybe_migrate_options() {
 	$migrations = [
