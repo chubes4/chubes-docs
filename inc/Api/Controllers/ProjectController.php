@@ -148,6 +148,145 @@ class ProjectController {
 		return $item;
 	}
 
+	/**
+	 * Get the full documentation tree for a single project.
+	 *
+	 * Returns hierarchical sections (sub-terms) with their docs, structured
+	 * for sidebar navigation and AI agent consumption.
+	 *
+	 * GET /docsync/v1/project/{slug}/tree
+	 */
+	public static function get_doc_tree( WP_REST_Request $request ): WP_REST_Response|WP_Error {
+		$slug = sanitize_text_field( $request->get_param( 'slug' ) );
+		$term = get_term_by( 'slug', $slug, Project::TAXONOMY );
+
+		if ( ! $term || is_wp_error( $term ) ) {
+			return new WP_Error( 'project_not_found', "Project '{$slug}' not found.", [ 'status' => 404 ] );
+		}
+
+		$tree = self::build_doc_tree( $term->term_id );
+		$total_docs = self::count_tree_docs( $tree );
+
+		return rest_ensure_response( [
+			'project'    => $slug,
+			'term_id'    => $term->term_id,
+			'name'       => $term->name,
+			'sections'   => $tree,
+			'total_docs' => $total_docs,
+		] );
+	}
+
+	/**
+	 * Build the documentation tree for a project term.
+	 *
+	 * Returns docs directly under this term plus child sections recursively.
+	 * This is the shared data builder used by both the REST API and the
+	 * sidebar template.
+	 *
+	 * @param int $term_id Parent term ID.
+	 * @return array Tree structure with sections and docs.
+	 */
+	public static function build_doc_tree( int $term_id ): array {
+		$children = get_terms( [
+			'taxonomy'   => Project::TAXONOMY,
+			'parent'     => $term_id,
+			'hide_empty' => false,
+			'orderby'    => 'name',
+			'order'      => 'ASC',
+		] );
+
+		$sections = [];
+
+		// Docs directly under this term (not in a child section).
+		$root_docs = self::get_docs_for_term( $term_id, false );
+		if ( ! empty( $root_docs ) ) {
+			$sections[] = [
+				'term'     => null,
+				'docs'     => $root_docs,
+				'children' => [],
+			];
+		}
+
+		if ( ! is_wp_error( $children ) && ! empty( $children ) ) {
+			foreach ( $children as $child ) {
+				$child_docs     = self::get_docs_for_term( $child->term_id, false );
+				$child_sections = self::build_doc_tree( $child->term_id );
+
+				// The recursive call returns root_docs (term=null) for this
+				// child's direct docs. We already have those in $child_docs,
+				// so filter them out to avoid duplicates.
+				$sub_sections = array_values( array_filter(
+					$child_sections,
+					fn( $s ) => $s['term'] !== null
+				) );
+
+				// Only include sections that have docs or non-empty children.
+				if ( ! empty( $child_docs ) || ! empty( $sub_sections ) ) {
+					$sections[] = [
+						'term'     => [
+							'id'   => $child->term_id,
+							'slug' => $child->slug,
+							'name' => $child->name,
+						],
+						'docs'     => $child_docs,
+						'children' => $sub_sections,
+					];
+				}
+			}
+		}
+
+		return $sections;
+	}
+
+	/**
+	 * Get documentation posts for a specific term.
+	 *
+	 * @param int  $term_id          Term ID.
+	 * @param bool $include_children Include docs from child terms.
+	 * @return array Array of doc items.
+	 */
+	private static function get_docs_for_term( int $term_id, bool $include_children = false ): array {
+		$posts = get_posts( [
+			'post_type'      => 'documentation',
+			'post_status'    => 'publish',
+			'posts_per_page' => -1,
+			'orderby'        => 'title',
+			'order'          => 'ASC',
+			'tax_query'      => [
+				[
+					'taxonomy'         => Project::TAXONOMY,
+					'field'            => 'term_id',
+					'terms'            => $term_id,
+					'include_children' => $include_children,
+				],
+			],
+		] );
+
+		return array_map( function( $post ) {
+			return [
+				'id'    => $post->ID,
+				'title' => $post->post_title,
+				'slug'  => $post->post_name,
+				'url'   => get_permalink( $post->ID ),
+			];
+		}, $posts );
+	}
+
+	/**
+	 * Count total docs in a tree structure.
+	 *
+	 * @param array $sections Tree sections.
+	 * @return int Total doc count.
+	 */
+	private static function count_tree_docs( array $sections ): int {
+		$count = 0;
+		foreach ( $sections as $section ) {
+			$count += count( $section['docs'] ?? [] );
+			$count += self::count_tree_docs( $section['children'] ?? [] );
+		}
+		return $count;
+	}
+
 	private static function build_tree( int $parent_id ): array {
 		$terms = get_terms( array(
 			'taxonomy'   => Project::TAXONOMY,

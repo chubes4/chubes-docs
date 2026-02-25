@@ -167,7 +167,41 @@ class Assets {
 			filemtime( DOCSYNC_PATH . 'assets/css/related-posts.css' )
 		);
 
+		self::enqueue_layout_assets();
+		self::enqueue_project_tree_assets();
 		self::enqueue_toc_assets();
+	}
+
+	/**
+	 * Enqueue documentation layout assets (content + sidebar grid).
+	 */
+	private static function enqueue_layout_assets() {
+		wp_enqueue_style(
+			'docsync-layout',
+			DOCSYNC_URL . 'assets/css/layout.css',
+			[ 'docsync-tokens' ],
+			filemtime( DOCSYNC_PATH . 'assets/css/layout.css' )
+		);
+	}
+
+	/**
+	 * Enqueue project tree sidebar assets.
+	 */
+	private static function enqueue_project_tree_assets() {
+		wp_enqueue_style(
+			'docsync-project-tree',
+			DOCSYNC_URL . 'assets/css/project-tree.css',
+			[ 'docsync-tokens' ],
+			filemtime( DOCSYNC_PATH . 'assets/css/project-tree.css' )
+		);
+
+		wp_enqueue_script(
+			'docsync-project-tree',
+			DOCSYNC_URL . 'assets/js/docsync-project-tree.js',
+			[],
+			filemtime( DOCSYNC_PATH . 'assets/js/docsync-project-tree.js' ),
+			true
+		);
 	}
 
 	/**

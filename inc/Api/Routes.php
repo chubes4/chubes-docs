@@ -117,6 +117,19 @@ class Routes {
             ],
         ]);
 
+        register_rest_route( self::NAMESPACE, '/project/(?P<slug>[a-z0-9-]+)/tree', [
+            'methods'             => 'GET',
+            'callback'            => [ ProjectController::class, 'get_doc_tree' ],
+            'permission_callback' => '__return_true',
+            'args'                => [
+                'slug' => [
+                    'type'              => 'string',
+                    'required'          => true,
+                    'sanitize_callback' => 'sanitize_title',
+                ],
+            ],
+        ] );
+
         register_rest_route(self::NAMESPACE, '/project/(?P<id>\d+)', [
             [
                 'methods'             => 'GET',

@@ -1,0 +1,55 @@
+/**
+ * DocSync Documentation Layout
+ *
+ * Two-column grid: content + sidebar. The sidebar contains the project
+ * tree navigation and table of contents. On mobile, stacks vertically
+ * with sidebar below content.
+ */
+
+.docsync-doc-layout {
+	display: grid;
+	grid-template-columns: 1fr 260px;
+	gap: var(--docsync-space-xl, 2rem);
+	align-items: start;
+}
+
+.docsync-doc-content {
+	min-width: 0; /* Prevent content overflow in grid */
+}
+
+.docsync-doc-sidebar {
+	position: sticky;
+	top: 2rem;
+	max-height: calc(100vh - 4rem);
+	overflow-y: auto;
+	display: flex;
+	flex-direction: column;
+	gap: var(--docsync-space-lg, 1.5rem);
+}
+
+/* Scrollbar styling for sidebar */
+.docsync-doc-sidebar::-webkit-scrollbar {
+	width: 4px;
+}
+
+.docsync-doc-sidebar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.docsync-doc-sidebar::-webkit-scrollbar-thumb {
+	background: var(--docsync-border-light, #e9ecef);
+	border-radius: 2px;
+}
+
+/* Mobile: stack vertically, sidebar goes below content */
+@media (max-width: 1024px) {
+	.docsync-doc-layout {
+		grid-template-columns: 1fr;
+	}
+
+	.docsync-doc-sidebar {
+		position: static;
+		max-height: none;
+		overflow-y: visible;
+	}
+}
