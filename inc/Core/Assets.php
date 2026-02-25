@@ -166,5 +166,27 @@ class Assets {
 			[ 'docsync-tokens' ],
 			filemtime( DOCSYNC_PATH . 'assets/css/related-posts.css' )
 		);
+
+		self::enqueue_toc_assets();
+	}
+
+	/**
+	 * Enqueue Table of Contents sidebar assets.
+	 */
+	private static function enqueue_toc_assets() {
+		wp_enqueue_style(
+			'docsync-toc',
+			DOCSYNC_URL . 'assets/css/toc.css',
+			[ 'docsync-tokens' ],
+			filemtime( DOCSYNC_PATH . 'assets/css/toc.css' )
+		);
+
+		wp_enqueue_script(
+			'docsync-toc',
+			DOCSYNC_URL . 'assets/js/docsync-toc.js',
+			[],
+			filemtime( DOCSYNC_PATH . 'assets/js/docsync-toc.js' ),
+			true
+		);
 	}
 }
