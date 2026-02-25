@@ -20,8 +20,15 @@ class Assets {
 
 	/**
 	 * Handle all frontend asset enqueues.
+	 *
+	 * Only loads when the theme has opted into docsync-templates.
+	 * Without theme support, zero frontend assets are enqueued.
 	 */
 	public static function enqueue_frontend_assets() {
+		if ( ! current_theme_supports( 'docsync-templates' ) ) {
+			return;
+		}
+
 		self::enqueue_archive_assets();
 		self::enqueue_single_assets();
 	}
