@@ -68,6 +68,14 @@ class RewriteRules {
 		}
 
 		$path = trim( $wp->query_vars['docsync_path'], '/' );
+
+		// Extract pagination: strip trailing page/N from the path.
+		$paged = 1;
+		if ( preg_match( '#^(.+)/page/(\d+)$#', $path, $m ) ) {
+			$path  = $m[1];
+			$paged = (int) $m[2];
+		}
+
 		$segments = array_filter( explode( '/', $path ) );
 
 		if ( empty( $segments ) ) {
@@ -87,6 +95,9 @@ class RewriteRules {
 		if ( count( $segments ) === 1 ) {
 			unset( $wp->query_vars['docsync_path'] );
 			$wp->query_vars['project'] = $current_term->slug;
+			if ( $paged > 1 ) {
+				$wp->query_vars['paged'] = $paged;
+			}
 			return;
 		}
 
@@ -120,6 +131,9 @@ class RewriteRules {
 		// All segments matched terms - show deepest term archive
 		unset( $wp->query_vars['docsync_path'] );
 		$wp->query_vars['project'] = $current_term->slug;
+		if ( $paged > 1 ) {
+			$wp->query_vars['paged'] = $paged;
+		}
 	}
 
 	/**

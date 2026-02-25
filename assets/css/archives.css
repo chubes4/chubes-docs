@@ -750,6 +750,7 @@
    Documentation Content Tables
    ========================================================================== */
 
+/* Wrap tables in a scrollable container for mobile */
 .documentation-content table,
 .entry-content table,
 .single-documentation table {
@@ -757,33 +758,6 @@
     border-collapse: collapse;
     margin: var(--docsync-space-xl) 0;
     font-size: var(--docsync-font-size-sm);
-    overflow-x: auto;
-    display: block;
-}
-
-.documentation-content thead,
-.entry-content thead,
-.single-documentation thead {
-    display: table-header-group;
-}
-
-.documentation-content tbody,
-.entry-content tbody,
-.single-documentation tbody {
-    display: table-row-group;
-}
-
-.documentation-content tr,
-.entry-content tr,
-.single-documentation tr {
-    display: table-row;
-}
-
-.documentation-content table,
-.entry-content table,
-.single-documentation table {
-    display: table;
-    overflow-x: auto;
 }
 
 .documentation-content th,
@@ -829,4 +803,108 @@
 
 .table-responsive table {
     margin: 0;
+}
+
+/* ==========================================================================
+   Content Overflow Protection
+   ========================================================================== */
+
+/* Pre/code blocks scroll horizontally instead of stretching the page */
+.single-documentation pre,
+.documentation-content pre,
+.entry-content pre {
+    overflow-x: auto;
+    max-width: 100%;
+    -webkit-overflow-scrolling: touch;
+}
+
+.single-documentation code,
+.documentation-content code,
+.entry-content code {
+    word-break: break-all;
+}
+
+/* Long URLs and text don't break layout */
+.single-documentation .post-content,
+.documentation-content,
+.entry-content {
+    overflow-wrap: break-word;
+    word-break: break-word;
+}
+
+/* Images constrained to content width */
+.single-documentation img,
+.documentation-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* ==========================================================================
+   Pagination
+   ========================================================================== */
+
+.docsync-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 2rem 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--docsync-border-light, #e9ecef);
+    flex-wrap: wrap;
+}
+
+.docsync-pagination a,
+.docsync-pagination span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.25rem;
+    height: 2.25rem;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--docsync-border-default, #dee2e6);
+    border-radius: 6px;
+    font-size: var(--docsync-font-size-sm, 0.875rem);
+    text-decoration: none;
+    transition: all 0.15s ease;
+}
+
+.docsync-pagination a {
+    color: var(--docsync-text-secondary, #495057);
+    background: var(--docsync-background-card, #ffffff);
+}
+
+.docsync-pagination a:hover {
+    color: var(--docsync-accent-strong, #0066cc);
+    border-color: var(--docsync-accent-strong, #0066cc);
+    background: var(--docsync-accent-subtle, #e6f0fa);
+}
+
+.docsync-pagination .current {
+    color: var(--docsync-text-contrast, #ffffff);
+    background: var(--docsync-accent-strong, #0066cc);
+    border-color: var(--docsync-accent-strong, #0066cc);
+    font-weight: 600;
+}
+
+.docsync-pagination .dots {
+    border: none;
+    background: none;
+    color: var(--docsync-text-secondary, #495057);
+    min-width: auto;
+    padding: 0 0.25rem;
+}
+
+@media (max-width: 768px) {
+    .docsync-pagination {
+        gap: 0.35rem;
+    }
+
+    .docsync-pagination a,
+    .docsync-pagination span {
+        min-width: 2rem;
+        height: 2rem;
+        padding: 0.25rem 0.5rem;
+        font-size: var(--docsync-font-size-xs, 0.75rem);
+    }
 }
