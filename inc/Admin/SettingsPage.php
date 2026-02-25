@@ -8,6 +8,7 @@
 
 namespace DocSync\Admin;
 
+use DocSync\Api\Controllers\SyncTriggerController;
 use DocSync\Sync\CronSync;
 
 class SettingsPage {
@@ -57,6 +58,24 @@ class SettingsPage {
 			]
 		);
 
+		register_setting(
+			self::OPTION_GROUP,
+			SyncTriggerController::OPTION_SYNC_TOKEN,
+			[
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			]
+		);
+
+		register_setting(
+			self::OPTION_GROUP,
+			SyncTriggerController::OPTION_WEBHOOK_SECRET,
+			[
+				'type'              => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+			]
+		);
+
 		add_settings_section(
 			'docsync_github_section',
 			__( 'GitHub Sync', 'docsync' ),
@@ -86,6 +105,30 @@ class SettingsPage {
 			[ __CLASS__, 'render_interval_field' ],
 			self::PAGE_SLUG,
 			'docsync_github_section'
+		);
+
+		// Sync Trigger section.
+		add_settings_section(
+			'docsync_sync_trigger_section',
+			__( 'Sync Trigger', 'docsync' ),
+			[ __CLASS__, 'render_sync_trigger_section' ],
+			self::PAGE_SLUG
+		);
+
+		add_settings_field(
+			'docsync_sync_token',
+			__( 'Sync Token', 'docsync' ),
+			[ __CLASS__, 'render_sync_token_field' ],
+			self::PAGE_SLUG,
+			'docsync_sync_trigger_section'
+		);
+
+		add_settings_field(
+			'docsync_webhook_secret',
+			__( 'Webhook Secret', 'docsync' ),
+			[ __CLASS__, 'render_webhook_secret_field' ],
+			self::PAGE_SLUG,
+			'docsync_sync_trigger_section'
 		);
 	}
 
@@ -198,6 +241,87 @@ class SettingsPage {
 			);
 			echo '</p>';
 		}
+	}
+
+	/**
+	 * Render sync trigger section description.
+	 */
+	public static function render_sync_trigger_section(): void {
+		$endpoint = rest_url( 'docsync/v1/sync' );
+		echo '<p>';
+		printf(
+			/* translators: %s: REST endpoint URL */
+			esc_html__( 'Configure authentication for the sync trigger endpoint. Any HTTP client can POST to %s to trigger a project sync.', 'docsync' ),
+			'<code>' . esc_html( $endpoint ) . '</code>'
+		);
+		echo '</p>';
+		echo '<p class="description">';
+		esc_html_e( 'Configure at least one of the options below. Bearer token works with any caller. Webhook secret validates GitHub push event signatures.', 'docsync' );
+		echo '</p>';
+	}
+
+	/**
+	 * Render sync token field.
+	 */
+	public static function render_sync_token_field(): void {
+		$value = get_option( SyncTriggerController::OPTION_SYNC_TOKEN, '' );
+		$masked = ! empty( $value ) ? str_repeat( '*', 8 ) . substr( $value, -4 ) : '';
+		?>
+		<input
+			type="password"
+			id="<?php echo esc_attr( SyncTriggerController::OPTION_SYNC_TOKEN ); ?>"
+			name="<?php echo esc_attr( SyncTriggerController::OPTION_SYNC_TOKEN ); ?>"
+			value="<?php echo esc_attr( $value ); ?>"
+			class="regular-text"
+			autocomplete="new-password"
+		/>
+		<?php if ( ! empty( $masked ) ) : ?>
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %s: masked token */
+					esc_html__( 'Current token: %s', 'docsync' ),
+					'<code>' . esc_html( $masked ) . '</code>'
+				);
+				?>
+			</p>
+		<?php endif; ?>
+		<p class="description">
+			<?php esc_html_e( 'Bearer token for authenticating sync requests. Use with: Authorization: Bearer <token>', 'docsync' ); ?>
+		</p>
+		<?php
+	}
+
+	/**
+	 * Render webhook secret field.
+	 */
+	public static function render_webhook_secret_field(): void {
+		$value = get_option( SyncTriggerController::OPTION_WEBHOOK_SECRET, '' );
+		$masked = ! empty( $value ) ? str_repeat( '*', 8 ) . substr( $value, -4 ) : '';
+		?>
+		<input
+			type="password"
+			id="<?php echo esc_attr( SyncTriggerController::OPTION_WEBHOOK_SECRET ); ?>"
+			name="<?php echo esc_attr( SyncTriggerController::OPTION_WEBHOOK_SECRET ); ?>"
+			value="<?php echo esc_attr( $value ); ?>"
+			class="regular-text"
+			autocomplete="new-password"
+		/>
+		<?php if ( ! empty( $masked ) ) : ?>
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %s: masked secret */
+					esc_html__( 'Current secret: %s', 'docsync' ),
+					'<code>' . esc_html( $masked ) . '</code>'
+				);
+				?>
+			</p>
+		<?php endif; ?>
+		<p class="description">
+			<?php esc_html_e( 'GitHub webhook secret for validating x-hub-signature-256 headers. Set the same value in your GitHub repo webhook settings.', 'docsync' ); ?>
+		</p>
+		<?php
 	}
 
 	/**

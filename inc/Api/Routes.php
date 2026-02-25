@@ -5,6 +5,7 @@ namespace DocSync\Api;
 use DocSync\Api\Controllers\DocsController;
 use DocSync\Api\Controllers\ProjectController;
 use DocSync\Api\Controllers\SyncController;
+use DocSync\Api\Controllers\SyncTriggerController;
 
 class Routes {
 
@@ -13,6 +14,7 @@ class Routes {
     public static function register(): void {
         self::register_docs_routes();
         self::register_project_routes();
+        self::register_sync_trigger_route();
         self::register_test_routes();
     }
 
@@ -151,6 +153,21 @@ class Routes {
                 ],
             ],
         ]);
+    }
+
+    /**
+     * Register the generic sync trigger endpoint.
+     *
+     * POST /docsync/v1/sync — triggers a project sync. Accepts project
+     * slug, repo URL, or GitHub push payload. Authenticated via Bearer
+     * token or GitHub webhook signature (no WordPress login required).
+     */
+    private static function register_sync_trigger_route(): void {
+        register_rest_route( self::NAMESPACE, '/sync', [
+            'methods'             => 'POST',
+            'callback'            => [ SyncTriggerController::class, 'handle' ],
+            'permission_callback' => [ SyncTriggerController::class, 'check_auth' ],
+        ] );
     }
 
     private static function register_test_routes(): void {
