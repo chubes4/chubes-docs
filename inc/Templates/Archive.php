@@ -14,11 +14,35 @@ use DocSync\Core\Documentation;
 class Archive {
 
 	public static function init() {
+		add_action( 'pre_get_posts', [ self::class, 'adjust_main_query' ] );
 		add_action( 'chubes_archive_header_after', [ self::class, 'render_header_extras' ] );
 		add_filter( 'chubes_archive_content', [ self::class, 'filter_content' ], 10, 2 );
 		add_filter( 'get_the_archive_title', [ self::class, 'filter_archive_title' ], 15 );
 		add_filter( 'chubes_show_archive_description', [ self::class, 'filter_show_description' ] );
 		add_action( 'chubes_single_after_content', [ self::class, 'render_github_link' ], 10, 2 );
+	}
+
+	/**
+	 * Adjust the main WP query for project taxonomy archives.
+	 *
+	 * We render our own paginated content via filter_content(), so the main
+	 * query must return enough posts for the theme to enter its archive
+	 * template. Without this, page 2+ would return no main-query results
+	 * and the theme would skip our content filter.
+	 *
+	 * @param \WP_Query $query The main query.
+	 */
+	public static function adjust_main_query( $query ) {
+		if ( is_admin() || ! $query->is_main_query() ) {
+			return;
+		}
+
+		if ( $query->is_tax( 'project' ) || $query->is_post_type_archive( 'documentation' ) ) {
+			// Load enough posts so the theme enters its archive template.
+			// We replace the content entirely via chubes_archive_content filter.
+			$query->set( 'posts_per_page', 1 );
+			$query->set( 'no_found_rows', true );
+		}
 	}
 
 	/**
@@ -142,13 +166,22 @@ class Archive {
 	}
 
 	/**
+	 * Number of docs to show per section in hierarchy view.
+	 */
+	const DOCS_PER_SECTION = 6;
+
+	/**
+	 * Number of docs per page on paginated term views.
+	 */
+	const DOCS_PER_PAGE = 12;
+
+	/**
 	 * Render project page content (depth 0 term)
 	 * 
 	 * Shows hierarchical documentation for the project.
 	 */
 	private static function render_top_level_project_content( $term ) {
-		// Render the hierarchical documentation
-		$direct_posts = self::get_direct_posts_for_term( $term );
+		$direct_posts = self::get_direct_posts_for_term( $term, self::DOCS_PER_SECTION );
 		$child_terms = self::get_sorted_child_terms( $term );
 		$has_content = $direct_posts->have_posts() || ! empty( $child_terms );
 
@@ -160,6 +193,7 @@ class Archive {
 		// Render posts directly under this term (no header)
 		if ( $direct_posts->have_posts() ) {
 			self::render_documentation_cards( $direct_posts );
+			self::maybe_render_view_all_link( $direct_posts, $term );
 		}
 
 		// Render child term sections
@@ -169,15 +203,16 @@ class Archive {
 	}
 
 	/**
-	 * Render term content with hierarchical grouping
+	 * Render term content with hierarchical grouping and pagination.
 	 * 
-	 * Shows posts directly under the term at top (no header),
-	 * then child terms as sections with headers, recursively.
+	 * Shows paginated posts directly under the term at top,
+	 * then child terms as sections with limited docs.
 	 *
 	 * @param \WP_Term $term The project term
 	 */
 	private static function render_term_content( $term ) {
-		$direct_posts = self::get_direct_posts_for_term( $term );
+		$paged = max( 1, get_query_var( 'paged', 1 ) );
+		$direct_posts = self::get_direct_posts_for_term( $term, self::DOCS_PER_PAGE, $paged );
 		$child_terms = self::get_sorted_child_terms( $term );
 		$has_content = $direct_posts->have_posts() || ! empty( $child_terms );
 
@@ -186,14 +221,17 @@ class Archive {
 			return;
 		}
 
-		// Render posts directly under this term (no header)
+		// Render paginated posts directly under this term
 		if ( $direct_posts->have_posts() ) {
 			self::render_documentation_cards( $direct_posts );
+			self::render_pagination( $direct_posts );
 		}
 
-		// Render child term sections
-		foreach ( $child_terms as $child_term ) {
-			self::render_term_hierarchy_section( $child_term, 1 );
+		// Only show child sections on page 1
+		if ( $paged <= 1 ) {
+			foreach ( $child_terms as $child_term ) {
+				self::render_term_hierarchy_section( $child_term, 1 );
+			}
 		}
 	}
 
@@ -204,7 +242,7 @@ class Archive {
 	 * @param int      $depth The current depth level (1 = h3, 2 = h4, 3+ = h5)
 	 */
 	private static function render_term_hierarchy_section( $term, $depth ) {
-		$direct_posts = self::get_direct_posts_for_term( $term );
+		$direct_posts = self::get_direct_posts_for_term( $term, self::DOCS_PER_SECTION );
 		$child_terms = self::get_sorted_child_terms( $term );
 
 		$has_direct_posts = $direct_posts->have_posts();
@@ -228,9 +266,7 @@ class Archive {
 
 			<?php if ( $has_direct_posts ) : ?>
 				<?php self::render_documentation_cards( $direct_posts ); ?>
-				<div class="view-all-wrapper">
-					<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="btn secondary">View all →</a>
-				</div>
+				<?php self::maybe_render_view_all_link( $direct_posts, $term ); ?>
 			<?php endif; ?>
 
 			<?php foreach ( $child_terms as $child_term ) : ?>
@@ -330,10 +366,12 @@ class Archive {
 	/**
 	 * Get posts directly assigned to a term (not inherited from children)
 	 *
-	 * @param \WP_Term $term The project term
+	 * @param \WP_Term $term     The project term
+	 * @param int      $per_page Posts per page (-1 for all)
+	 * @param int      $paged    Page number (1-indexed)
 	 * @return \WP_Query
 	 */
-	private static function get_direct_posts_for_term( $term ) {
+	private static function get_direct_posts_for_term( $term, $per_page = -1, $paged = 1 ) {
 		return new \WP_Query( [
 			'post_type'      => Documentation::POST_TYPE,
 			'tax_query'      => [
@@ -344,11 +382,64 @@ class Archive {
 					'include_children' => false,
 				],
 			],
-			'posts_per_page' => -1,
+			'posts_per_page' => $per_page,
+			'paged'          => $paged,
 			'post_status'    => 'publish',
 			'orderby'        => 'modified',
 			'order'          => 'DESC',
 		] );
+	}
+
+	/**
+	 * Render a "View all" link if there are more posts than shown.
+	 *
+	 * @param \WP_Query $query The query with documentation posts.
+	 * @param \WP_Term  $term  The term to link to.
+	 */
+	private static function maybe_render_view_all_link( $query, $term ) {
+		if ( $query->found_posts <= $query->post_count ) {
+			return;
+		}
+		?>
+		<div class="view-all-wrapper">
+			<a href="<?php echo esc_url( get_term_link( $term ) ); ?>" class="btn secondary">
+				View all <?php echo (int) $query->found_posts; ?> docs →
+			</a>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Render pagination links for a paginated query.
+	 *
+	 * @param \WP_Query $query The paginated query.
+	 */
+	private static function render_pagination( $query ) {
+		if ( $query->max_num_pages <= 1 ) {
+			return;
+		}
+
+		$paged = max( 1, get_query_var( 'paged', 1 ) );
+
+		$links = paginate_links( [
+			'total'     => $query->max_num_pages,
+			'current'   => $paged,
+			'mid_size'  => 2,
+			'prev_text' => '&laquo; Prev',
+			'next_text' => 'Next &raquo;',
+			'type'      => 'array',
+		] );
+
+		if ( ! $links ) {
+			return;
+		}
+		?>
+		<nav class="docsync-pagination" aria-label="<?php esc_attr_e( 'Documentation pagination', 'docsync' ); ?>">
+			<?php foreach ( $links as $link ) : ?>
+				<?php echo $link; ?>
+			<?php endforeach; ?>
+		</nav>
+		<?php
 	}
 
 	/**
@@ -691,8 +782,8 @@ class Archive {
 
 		$full_url = rtrim( $github_url, '/' ) . '/blob/main/docs/' . $source_file;
 		?>
-		<div class="docs-github-link" style="margin-top: var(--docsync-space-xl); padding-top: var(--docsync-space-xl); border-top: 1px solid var(--docsync-border-default);">
-			<a href="<?php echo esc_url( $full_url ); ?>" target="_blank" rel="noopener" class="button-3" style="display: inline-flex; align-items: center; gap: 8px;">
+		<div class="docs-github-link">
+			<a href="<?php echo esc_url( $full_url ); ?>" target="_blank" rel="noopener" class="button-3">
 				<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
 				View on GitHub
 			</a>

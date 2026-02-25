@@ -2,8 +2,8 @@
  * DocSync Documentation Layout
  *
  * Two-column grid: content + sidebar. The sidebar contains the project
- * tree navigation and table of contents. On mobile, stacks vertically
- * with sidebar below content.
+ * tree navigation and table of contents. On mobile, the sidebar moves
+ * above content as a collapsible panel.
  */
 
 .docsync-doc-layout {
@@ -15,6 +15,8 @@
 
 .docsync-doc-content {
 	min-width: 0; /* Prevent content overflow in grid */
+	overflow-wrap: break-word;
+	word-break: break-word;
 }
 
 .docsync-doc-sidebar {
@@ -41,15 +43,92 @@
 	border-radius: 2px;
 }
 
-/* Mobile: stack vertically, sidebar goes below content */
+/* === Mobile sidebar toggle === */
+
+.docsync-sidebar-toggle {
+	display: none;
+}
+
+/* Mobile: sidebar above content as collapsible panel */
 @media (max-width: 1024px) {
 	.docsync-doc-layout {
-		grid-template-columns: 1fr;
+		display: flex;
+		flex-direction: column;
 	}
 
 	.docsync-doc-sidebar {
+		order: -1; /* Sidebar above content */
 		position: static;
 		max-height: none;
 		overflow-y: visible;
+	}
+
+	.docsync-sidebar-toggle {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		width: 100%;
+		padding: 0.75rem 1rem;
+		margin-bottom: 0;
+		border: 1px solid var(--docsync-border-light, #e9ecef);
+		border-radius: 8px;
+		background: var(--docsync-background-card, #ffffff);
+		color: var(--docsync-text-secondary, #495057);
+		font-family: inherit;
+		font-size: var(--docsync-font-size-sm, 0.875rem);
+		font-weight: 600;
+		cursor: pointer;
+		transition: background 0.15s ease;
+	}
+
+	.docsync-sidebar-toggle:hover {
+		background: var(--docsync-accent-subtle, #e6f0fa);
+	}
+
+	.docsync-sidebar-toggle-icon {
+		transition: transform 0.2s ease;
+		font-size: 0.7em;
+	}
+
+	.docsync-sidebar-toggle[aria-expanded="true"] .docsync-sidebar-toggle-icon {
+		transform: rotate(90deg);
+	}
+
+	/* Hide sidebar content by default on mobile */
+	.docsync-doc-sidebar .docsync-project-tree,
+	.docsync-doc-sidebar .docsync-toc {
+		display: none;
+	}
+
+	.docsync-doc-sidebar.docsync-sidebar-open .docsync-project-tree,
+	.docsync-doc-sidebar.docsync-sidebar-open .docsync-toc {
+		display: block;
+	}
+}
+
+/* === Global overflow protection for doc content === */
+
+.single-documentation .post-content {
+	overflow-x: hidden;
+}
+
+/* GitHub link on single docs */
+.docs-github-link {
+	margin-top: var(--docsync-space-xl, 1.5rem);
+	padding-top: var(--docsync-space-xl, 1.5rem);
+	border-top: 1px solid var(--docsync-border-default, #dee2e6);
+	overflow: hidden;
+}
+
+.docs-github-link a {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	max-width: 100%;
+}
+
+@media (max-width: 768px) {
+	.docs-github-link {
+		text-align: center;
 	}
 }

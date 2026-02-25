@@ -68,9 +68,14 @@ class DocumentationLayout {
 			return $content;
 		}
 
+		$toggle = '<button class="docsync-sidebar-toggle" aria-expanded="false" aria-controls="docsync-sidebar">'
+			. '<span class="docsync-sidebar-toggle-icon">&#9654;</span> '
+			. esc_html__( 'Navigation', 'docsync' )
+			. '</button>';
+
 		return '<div class="docsync-doc-layout">'
 			. '<div class="docsync-doc-content">' . $content . '</div>'
-			. '<aside class="docsync-doc-sidebar">' . $sidebar . '</aside>'
+			. '<aside class="docsync-doc-sidebar" id="docsync-sidebar">' . $toggle . $sidebar . '</aside>'
 			. '</div>';
 	}
 }
