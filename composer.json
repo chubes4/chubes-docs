@@ -1,7 +1,7 @@
 {
-    "name": "chubes/chubes-docs",
-    "description": "Documentation post type, project taxonomy, and REST API sync system for chubes.net",
-    "version": "0.9.11",
+    "name": "docsync/docsync",
+    "description": "GitHub-to-WordPress documentation sync system with REST API, WP-CLI, and hierarchical project organization.",
+    "version": "1.0.0",
     "type": "wordpress-plugin",
     "license": "GPL-2.0-or-later",
     "authors": [
@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-4": {
-            "ChubesDocs\\": "inc/"
+            "DocSync\\": "inc/"
         }
     },
     "config": {

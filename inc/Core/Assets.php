@@ -6,7 +6,7 @@
  * Centralizes all frontend, admin, and conditional asset loading logic.
  */
 
-namespace ChubesDocs\Core;
+namespace DocSync\Core;
 
 class Assets {
 
@@ -43,7 +43,7 @@ class Assets {
 		}
 
 		$allowed_screens = [
-			'documentation_page_chubes-docs-settings',
+			'documentation_page_docsync-settings',
 			'edit-project',
 		];
 
@@ -52,23 +52,23 @@ class Assets {
 		}
 
 		wp_enqueue_script(
-			'chubes-docs-sync',
-			CHUBES_DOCS_URL . 'assets/js/admin-sync.js',
+			'docsync-sync',
+			DOCSYNC_URL . 'assets/js/admin-sync.js',
 			[],
-			filemtime( CHUBES_DOCS_PATH . 'assets/js/admin-sync.js' ),
+			filemtime( DOCSYNC_PATH . 'assets/js/admin-sync.js' ),
 			true
 		);
 
-		wp_localize_script( 'chubes-docs-sync', 'chubesDocsSync', [
-			'restUrl' => rest_url( 'chubes/v1' ),
+		wp_localize_script( 'docsync-sync', 'docSyncAdmin', [
+			'restUrl' => rest_url( 'docsync/v1' ),
 			'nonce'   => wp_create_nonce( 'wp_rest' ),
 			'strings' => [
-				'syncing'     => __( 'Syncing...', 'chubes-docs' ),
-				'success'     => __( 'Sync complete!', 'chubes-docs' ),
-				'error'       => __( 'Sync failed:', 'chubes-docs' ),
-				'noRepos'     => __( 'No repositories configured for sync.', 'chubes-docs' ),
-				'testing'     => __( 'Testing connection...', 'chubes-docs' ),
-				'testingRepo' => __( 'Testing repository...', 'chubes-docs' ),
+				'syncing'     => __( 'Syncing...', 'docsync' ),
+				'success'     => __( 'Sync complete!', 'docsync' ),
+				'error'       => __( 'Sync failed:', 'docsync' ),
+				'noRepos'     => __( 'No repositories configured for sync.', 'docsync' ),
+				'testing'     => __( 'Testing connection...', 'docsync' ),
+				'testingRepo' => __( 'Testing repository...', 'docsync' ),
 			],
 		] );
 	}
@@ -89,10 +89,10 @@ class Assets {
 		}
 
 		wp_enqueue_style(
-			'chubes-docs-archives',
-			CHUBES_DOCS_URL . 'assets/css/archives.css',
+			'docsync-archives',
+			DOCSYNC_URL . 'assets/css/archives.css',
 			[],
-			filemtime( CHUBES_DOCS_PATH . 'assets/css/archives.css' )
+			filemtime( DOCSYNC_PATH . 'assets/css/archives.css' )
 		);
 
 		if ( is_post_type_archive( 'documentation' ) ) {
@@ -105,20 +105,20 @@ class Assets {
 	 */
 	private static function enqueue_search_assets() {
 		wp_enqueue_script(
-			'chubes-docs-search',
-			CHUBES_DOCS_URL . 'assets/js/docs-search.js',
+			'docsync-search',
+			DOCSYNC_URL . 'assets/js/docs-search.js',
 			[],
-			filemtime( CHUBES_DOCS_PATH . 'assets/js/docs-search.js' ),
+			filemtime( DOCSYNC_PATH . 'assets/js/docs-search.js' ),
 			true
 		);
 
-		wp_localize_script( 'chubes-docs-search', 'chubesDocsSearch', [
+		wp_localize_script( 'docsync-search', 'docSyncSearch', [
 			'restUrl' => rest_url( 'wp/v2/documentation' ),
 			'strings' => [
-				'loading'   => __( 'Searching...', 'chubes-docs' ),
-				'error'     => __( 'Search failed. Please try again.', 'chubes-docs' ),
-				'noResults' => __( 'No results for "%s"', 'chubes-docs' ),
-				'viewAll'   => __( 'View all %d results', 'chubes-docs' ),
+				'loading'   => __( 'Searching...', 'docsync' ),
+				'error'     => __( 'Search failed. Please try again.', 'docsync' ),
+				'noResults' => __( 'No results for "%s"', 'docsync' ),
+				'viewAll'   => __( 'View all %d results', 'docsync' ),
 			],
 		] );
 	}
@@ -132,10 +132,10 @@ class Assets {
 		}
 
 		wp_enqueue_style(
-			'chubes-docs-related',
-			CHUBES_DOCS_URL . 'assets/css/related-posts.css',
+			'docsync-related',
+			DOCSYNC_URL . 'assets/css/related-posts.css',
 			[],
-			filemtime( CHUBES_DOCS_PATH . 'assets/css/related-posts.css' )
+			filemtime( DOCSYNC_PATH . 'assets/css/related-posts.css' )
 		);
 	}
 }

@@ -6,10 +6,10 @@
  * Enables AI agents and external clients to search published documentation.
  */
 
-namespace ChubesDocs\Abilities;
+namespace DocSync\Abilities;
 
-use ChubesDocs\Core\Documentation;
-use ChubesDocs\Core\Project;
+use DocSync\Core\Documentation;
+use DocSync\Core\Project;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -18,10 +18,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SearchAbilities {
 
 	public static function register(): void {
-		wp_register_ability( 'chubes/search-docs', [
-			'label'               => __( 'Search Documentation', 'chubes-docs' ),
-			'description'         => __( 'Search published documentation by query string. Optionally filter by project.', 'chubes-docs' ),
-			'category'            => 'chubes',
+		wp_register_ability( 'docsync/search-docs', [
+			'label'               => __( 'Search Documentation', 'docsync' ),
+			'description'         => __( 'Search published documentation by query string. Optionally filter by project.', 'docsync' ),
+			'category'            => 'docsync',
 			'input_schema'        => [
 				'type'       => 'object',
 				'required'   => [ 'query' ],

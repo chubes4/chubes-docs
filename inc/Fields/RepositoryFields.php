@@ -1,8 +1,8 @@
 <?php
 
-namespace ChubesDocs\Fields;
+namespace DocSync\Fields;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 
 class RepositoryFields {
 
@@ -16,19 +16,19 @@ class RepositoryFields {
     public static function add_fields(): void {
         ?>
         <div class="form-field">
-            <label for="project_github_url"><?php esc_html_e('GitHub URL', 'chubes-docs'); ?></label>
+            <label for="project_github_url"><?php esc_html_e('GitHub URL', 'docsync'); ?></label>
             <input type="url" name="project_github_url" id="project_github_url" value="">
-            <p class="description"><?php esc_html_e('GitHub repository URL', 'chubes-docs'); ?></p>
+            <p class="description"><?php esc_html_e('GitHub repository URL', 'docsync'); ?></p>
         </div>
         <div class="form-field">
-            <label for="project_docs_path"><?php esc_html_e('Docs Path', 'chubes-docs'); ?></label>
+            <label for="project_docs_path"><?php esc_html_e('Docs Path', 'docsync'); ?></label>
             <input type="text" name="project_docs_path" id="project_docs_path" value="">
-            <p class="description"><?php esc_html_e('Path to documentation files in the repository. Defaults to "docs". Use "." for root.', 'chubes-docs'); ?></p>
+            <p class="description"><?php esc_html_e('Path to documentation files in the repository. Defaults to "docs". Use "." for root.', 'docsync'); ?></p>
         </div>
         <div class="form-field">
-            <label for="project_wp_url"><?php esc_html_e('WordPress.org URL', 'chubes-docs'); ?></label>
+            <label for="project_wp_url"><?php esc_html_e('WordPress.org URL', 'docsync'); ?></label>
             <input type="url" name="project_wp_url" id="project_wp_url" value="">
-            <p class="description"><?php esc_html_e('WordPress.org plugin or theme URL', 'chubes-docs'); ?></p>
+            <p class="description"><?php esc_html_e('WordPress.org plugin or theme URL', 'docsync'); ?></p>
         </div>
         <?php
     }
@@ -39,24 +39,24 @@ class RepositoryFields {
         $wp_url = Project::get_wp_url($term->term_id);
         ?>
         <tr class="form-field">
-            <th scope="row"><label for="project_github_url"><?php esc_html_e('GitHub URL', 'chubes-docs'); ?></label></th>
+            <th scope="row"><label for="project_github_url"><?php esc_html_e('GitHub URL', 'docsync'); ?></label></th>
             <td>
                 <input type="url" name="project_github_url" id="project_github_url" value="<?php echo esc_attr($github_url); ?>">
-                <p class="description"><?php esc_html_e('GitHub repository URL', 'chubes-docs'); ?></p>
+                <p class="description"><?php esc_html_e('GitHub repository URL', 'docsync'); ?></p>
             </td>
         </tr>
         <tr class="form-field">
-            <th scope="row"><label for="project_docs_path"><?php esc_html_e('Docs Path', 'chubes-docs'); ?></label></th>
+            <th scope="row"><label for="project_docs_path"><?php esc_html_e('Docs Path', 'docsync'); ?></label></th>
             <td>
                 <input type="text" name="project_docs_path" id="project_docs_path" value="<?php echo esc_attr($docs_path); ?>" placeholder="docs">
-                <p class="description"><?php esc_html_e('Path to documentation files in the repository. Defaults to "docs". Use "." for root.', 'chubes-docs'); ?></p>
+                <p class="description"><?php esc_html_e('Path to documentation files in the repository. Defaults to "docs". Use "." for root.', 'docsync'); ?></p>
             </td>
         </tr>
         <tr class="form-field">
-            <th scope="row"><label for="project_wp_url"><?php esc_html_e('WordPress.org URL', 'chubes-docs'); ?></label></th>
+            <th scope="row"><label for="project_wp_url"><?php esc_html_e('WordPress.org URL', 'docsync'); ?></label></th>
             <td>
                 <input type="url" name="project_wp_url" id="project_wp_url" value="<?php echo esc_attr($wp_url); ?>">
-                <p class="description"><?php esc_html_e('WordPress.org plugin or theme URL', 'chubes-docs'); ?></p>
+                <p class="description"><?php esc_html_e('WordPress.org plugin or theme URL', 'docsync'); ?></p>
             </td>
         </tr>
         <?php
@@ -79,31 +79,31 @@ class RepositoryFields {
         }
         ?>
         <tr class="form-field">
-            <th scope="row"><?php esc_html_e('Sync Status', 'chubes-docs'); ?></th>
+            <th scope="row"><?php esc_html_e('Sync Status', 'docsync'); ?></th>
             <td>
-                <div class="chubes-sync-status-box" style="background: #f0f0f1; padding: 12px; border-radius: 4px;">
+                <div class="docsync-status-box" style="background: #f0f0f1; padding: 12px; border-radius: 4px;">
                     <?php if ($status === 'success' && $last_sync): ?>
                         <p style="margin: 0 0 8px;">
                             <span class="dashicons dashicons-yes-alt" style="color: #00a32a;"></span>
-                            <strong><?php esc_html_e('Last sync:', 'chubes-docs'); ?></strong>
-                            <?php echo esc_html(human_time_diff($last_sync) . ' ' . __('ago', 'chubes-docs')); ?>
+                            <strong><?php esc_html_e('Last sync:', 'docsync'); ?></strong>
+                            <?php echo esc_html(human_time_diff($last_sync) . ' ' . __('ago', 'docsync')); ?>
                         </p>
                         <?php if ($last_sha): ?>
                             <p style="margin: 0 0 8px;">
-                                <strong><?php esc_html_e('Commit:', 'chubes-docs'); ?></strong>
+                                <strong><?php esc_html_e('Commit:', 'docsync'); ?></strong>
                                 <code><?php echo esc_html(substr($last_sha, 0, 7)); ?></code>
                             </p>
                         <?php endif; ?>
                         <?php if ($files_synced): ?>
                             <p style="margin: 0;">
-                                <strong><?php esc_html_e('Files synced:', 'chubes-docs'); ?></strong>
+                                <strong><?php esc_html_e('Files synced:', 'docsync'); ?></strong>
                                 <?php echo esc_html($files_synced); ?>
                             </p>
                         <?php endif; ?>
                     <?php elseif ($status === 'failed'): ?>
                         <p style="margin: 0 0 8px;">
                             <span class="dashicons dashicons-warning" style="color: #d63638;"></span>
-                            <strong><?php esc_html_e('Sync failed', 'chubes-docs'); ?></strong>
+                            <strong><?php esc_html_e('Sync failed', 'docsync'); ?></strong>
                         </p>
                         <?php if ($error): ?>
                             <p style="margin: 0; color: #d63638;">
@@ -113,24 +113,24 @@ class RepositoryFields {
                     <?php elseif ($status === 'syncing'): ?>
                         <p style="margin: 0;">
                             <span class="dashicons dashicons-update" style="color: #2271b1;"></span>
-                            <strong><?php esc_html_e('Sync in progress...', 'chubes-docs'); ?></strong>
+                            <strong><?php esc_html_e('Sync in progress...', 'docsync'); ?></strong>
                         </p>
                     <?php else: ?>
                         <p style="margin: 0;">
                             <span class="dashicons dashicons-clock" style="color: #787c82;"></span>
-                            <?php esc_html_e('Never synced', 'chubes-docs'); ?>
+                            <?php esc_html_e('Never synced', 'docsync'); ?>
                         </p>
                     <?php endif; ?>
 
-                    <div class="chubes-term-actions" style="margin-top: 15px; display: flex; gap: 10px;">
-                        <button type="button" class="button button-primary chubes-docs-term-sync" data-term-id="<?php echo esc_attr($term->term_id); ?>">
-                            <?php esc_html_e('Sync Now', 'chubes-docs'); ?>
+                    <div class="docsync-term-actions" style="margin-top: 15px; display: flex; gap: 10px;">
+                        <button type="button" class="button button-primary docsync-term-sync" data-term-id="<?php echo esc_attr($term->term_id); ?>">
+                            <?php esc_html_e('Sync Now', 'docsync'); ?>
                         </button>
-                        <button type="button" class="button button-secondary chubes-docs-term-test" data-repo-url="<?php echo esc_attr($github_url); ?>">
-                            <?php esc_html_e('Test Connection', 'chubes-docs'); ?>
+                        <button type="button" class="button button-secondary docsync-term-test" data-repo-url="<?php echo esc_attr($github_url); ?>">
+                            <?php esc_html_e('Test Connection', 'docsync'); ?>
                         </button>
                     </div>
-                    <div id="chubes-docs-term-results" style="margin-top: 12px;"></div>
+                    <div id="docsync-term-results" style="margin-top: 12px;"></div>
                 </div>
             </td>
         </tr>

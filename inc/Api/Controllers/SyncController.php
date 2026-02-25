@@ -1,11 +1,11 @@
 <?php
 
-namespace ChubesDocs\Api\Controllers;
+namespace DocSync\Api\Controllers;
 
-use ChubesDocs\Core\Project;
-use ChubesDocs\Sync\CronSync;
-use ChubesDocs\Sync\GitHubClient;
-use ChubesDocs\Sync\SyncManager;
+use DocSync\Core\Project;
+use DocSync\Sync\CronSync;
+use DocSync\Sync\GitHubClient;
+use DocSync\Sync\SyncManager;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;

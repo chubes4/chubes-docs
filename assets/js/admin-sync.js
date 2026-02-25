@@ -8,21 +8,21 @@ document.addEventListener( 'DOMContentLoaded', function() {
 	'use strict';
 
 	const headers = {
-		'X-WP-Nonce': chubesDocsSync.nonce,
+		'X-WP-Nonce': docSyncAdmin.nonce,
 		'Content-Type': 'application/json',
 	};
 
 	// Settings Page: Sync All Button
-	const syncAllButton = document.getElementById( 'chubes-docs-sync-all' );
-	const syncAllStatus = document.getElementById( 'chubes-docs-sync-status' );
+	const syncAllButton = document.getElementById( 'docsync-sync-all' );
+	const syncAllStatus = document.getElementById( 'docsync-sync-status' );
 
 	if ( syncAllButton && syncAllStatus ) {
 		syncAllButton.addEventListener( 'click', function() {
 			syncAllButton.disabled = true;
-			syncAllStatus.textContent = chubesDocsSync.strings.syncing;
+			syncAllStatus.textContent = docSyncAdmin.strings.syncing;
 			syncAllStatus.className = '';
 
-			fetch( chubesDocsSync.restUrl + '/abilities/chubes/sync-docs-batch/run', {
+			fetch( docSyncAdmin.restUrl + '/abilities/docsync/sync-docs-batch/run', {
 				method: 'POST',
 				headers: headers,
 				body: JSON.stringify( {} ),
@@ -42,22 +42,22 @@ document.addEventListener( 'DOMContentLoaded', function() {
 				} )
 				.catch( error => {
 					syncAllButton.disabled = false;
-					syncAllStatus.textContent = chubesDocsSync.strings.error + ' ' + error.message;
+					syncAllStatus.textContent = docSyncAdmin.strings.error + ' ' + error.message;
 					syncAllStatus.className = 'sync-error';
 				} );
 		} );
 	}
 
 	// Settings Page: Test Token Button
-	const testTokenButton = document.getElementById( 'chubes-docs-test-token' );
-	const testTokenResults = document.getElementById( 'chubes-docs-test-results' );
+	const testTokenButton = document.getElementById( 'docsync-test-token' );
+	const testTokenResults = document.getElementById( 'docsync-test-results' );
 
 	if ( testTokenButton && testTokenResults ) {
 		testTokenButton.addEventListener( 'click', function() {
 			testTokenButton.disabled = true;
-			testTokenResults.innerHTML = '<span class="spinner is-active" style="float:none; margin:0 5px 0 0;"></span>' + chubesDocsSync.strings.testing;
+			testTokenResults.innerHTML = '<span class="spinner is-active" style="float:none; margin:0 5px 0 0;"></span>' + docSyncAdmin.strings.testing;
 
-			fetch( chubesDocsSync.restUrl + '/sync/test-token', {
+			fetch( docSyncAdmin.restUrl + '/sync/test-token', {
 				method: 'GET',
 				headers: headers,
 				credentials: 'same-origin',
@@ -93,9 +93,9 @@ document.addEventListener( 'DOMContentLoaded', function() {
 	}
 
 	// Term Page: Sync Now Button
-	const termSyncButton = document.querySelector( '.chubes-docs-term-sync' );
-	const termTestButton = document.querySelector( '.chubes-docs-term-test' );
-	const termResults = document.getElementById( 'chubes-docs-term-results' );
+	const termSyncButton = document.querySelector( '.docsync-term-sync' );
+	const termTestButton = document.querySelector( '.docsync-term-test' );
+	const termResults = document.getElementById( 'docsync-term-results' );
 
 	if ( termSyncButton && termResults ) {
 		termSyncButton.addEventListener( 'click', function() {
@@ -107,9 +107,9 @@ document.addEventListener( 'DOMContentLoaded', function() {
 
 			termSyncButton.disabled = true;
 			if ( termTestButton ) termTestButton.disabled = true;
-			termResults.innerHTML = '<span class="spinner is-active" style="float:none; margin:0 5px 0 0;"></span>' + chubesDocsSync.strings.syncing;
+			termResults.innerHTML = '<span class="spinner is-active" style="float:none; margin:0 5px 0 0;"></span>' + docSyncAdmin.strings.syncing;
 
-			fetch( chubesDocsSync.restUrl + '/abilities/chubes/sync-docs/run', {
+			fetch( docSyncAdmin.restUrl + '/abilities/docsync/sync-docs/run', {
 				method: 'POST',
 				headers: headers,
 				body: JSON.stringify( { term_id: parseInt( termId ) } ),
@@ -122,13 +122,13 @@ document.addEventListener( 'DOMContentLoaded', function() {
 
 					if ( data.success ) {
 						let html = '<div style="background:#f0faf0; border-left:4px solid #00a32a; padding:10px; margin-top:10px;">';
-						html += '<p style="color:#00a32a; margin:0 0 8px;"><strong>' + chubesDocsSync.strings.success + '</strong></p>';
+						html += '<p style="color:#00a32a; margin:0 0 8px;"><strong>' + docSyncAdmin.strings.success + '</strong></p>';
 						html += '<p style="margin:0;">Added: ' + data.added.length + ', Updated: ' + data.updated.length + ', Removed: ' + data.removed.length + (data.renamed.length > 0 ? ', Renamed: ' + data.renamed.length : '') + '</p>';
 						html += '</div>';
 						termResults.innerHTML = html;
 					} else if ( data.error ) {
 						let html = '<div style="background:#fcf0f1; border-left:4px solid #d63638; padding:10px; margin-top:10px;">';
-						html += '<p style="color:#d63638; margin:0;"><strong>' + chubesDocsSync.strings.error + '</strong> ' + data.error + '</p>';
+						html += '<p style="color:#d63638; margin:0;"><strong>' + docSyncAdmin.strings.error + '</strong> ' + data.error + '</p>';
 						html += '</div>';
 						termResults.innerHTML = html;
 					}
@@ -152,9 +152,9 @@ document.addEventListener( 'DOMContentLoaded', function() {
 
 			termTestButton.disabled = true;
 			if ( termSyncButton ) termSyncButton.disabled = true;
-			termResults.innerHTML = '<span class="spinner is-active" style="float:none; margin:0 5px 0 0;"></span>' + chubesDocsSync.strings.testingRepo;
+			termResults.innerHTML = '<span class="spinner is-active" style="float:none; margin:0 5px 0 0;"></span>' + docSyncAdmin.strings.testingRepo;
 
-			fetch( chubesDocsSync.restUrl + '/sync/test-repo', {
+			fetch( docSyncAdmin.restUrl + '/sync/test-repo', {
 				method: 'POST',
 				headers: headers,
 				credentials: 'same-origin',

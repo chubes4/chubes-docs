@@ -6,10 +6,10 @@
  * and project taxonomy cleanup. Enables documentation reset via WP-CLI, REST, or MCP.
  */
 
-namespace ChubesDocs\Abilities;
+namespace DocSync\Abilities;
 
-use ChubesDocs\Core\Documentation;
-use ChubesDocs\Core\Project;
+use DocSync\Core\Documentation;
+use DocSync\Core\Project;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -23,10 +23,10 @@ class DocsAbilities {
 	}
 
 	private static function register_get_doc(): void {
-		wp_register_ability( 'chubes/get-doc', [
-			'label'               => __( 'Get Documentation', 'chubes-docs' ),
-			'description'         => __( 'Fetch a single documentation post by ID or slug', 'chubes-docs' ),
-			'category'            => 'chubes',
+		wp_register_ability( 'docsync/get-doc', [
+			'label'               => __( 'Get Documentation', 'docsync' ),
+			'description'         => __( 'Fetch a single documentation post by ID or slug', 'docsync' ),
+			'category'            => 'docsync',
 			'input_schema'        => [
 				'type'       => 'object',
 				'properties' => [
@@ -137,10 +137,10 @@ class DocsAbilities {
 	}
 
 	private static function register_reset_documentation(): void {
-		wp_register_ability( 'chubes/reset-documentation', [
-			'label'               => __( 'Reset Documentation', 'chubes-docs' ),
-			'description'         => __( 'Deletes all documentation posts and child terms, preserving top-level projects with GitHub URLs', 'chubes-docs' ),
-			'category'            => 'chubes',
+		wp_register_ability( 'docsync/reset-documentation', [
+			'label'               => __( 'Reset Documentation', 'docsync' ),
+			'description'         => __( 'Deletes all documentation posts and child terms, preserving top-level projects with GitHub URLs', 'docsync' ),
+			'category'            => 'docsync',
 			'input_schema'        => [
 				'type'       => 'object',
 				'properties' => [],

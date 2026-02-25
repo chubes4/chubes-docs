@@ -1,8 +1,8 @@
 <?php
 
-namespace ChubesDocs\Api\Controllers;
+namespace DocSync\Api\Controllers;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_Error;

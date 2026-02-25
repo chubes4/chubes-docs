@@ -6,7 +6,7 @@
  * repository data, commit information, and file contents.
  */
 
-namespace ChubesDocs\Sync;
+namespace DocSync\Sync;
 
 class GitHubClient {
 
@@ -346,7 +346,7 @@ class GitHubClient {
 				'Accept'               => 'application/vnd.github+json',
 				'Authorization'        => 'Bearer ' . $this->pat,
 				'X-GitHub-Api-Version' => '2022-11-28',
-				'User-Agent'           => 'ChubesDocs/1.0',
+				'User-Agent'           => 'DocSync/1.0',
 			],
 		];
 

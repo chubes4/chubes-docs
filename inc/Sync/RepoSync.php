@@ -6,9 +6,9 @@
  * including fetching files, processing content, and updating WordPress.
  */
 
-namespace ChubesDocs\Sync;
+namespace DocSync\Sync;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 
 class RepoSync {
 

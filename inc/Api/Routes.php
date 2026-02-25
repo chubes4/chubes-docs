@@ -1,14 +1,14 @@
 <?php
 
-namespace ChubesDocs\Api;
+namespace DocSync\Api;
 
-use ChubesDocs\Api\Controllers\DocsController;
-use ChubesDocs\Api\Controllers\ProjectController;
-use ChubesDocs\Api\Controllers\SyncController;
+use DocSync\Api\Controllers\DocsController;
+use DocSync\Api\Controllers\ProjectController;
+use DocSync\Api\Controllers\SyncController;
 
 class Routes {
 
-    public const NAMESPACE = 'chubes/v1';
+    public const NAMESPACE = 'docsync/v1';
 
     public static function register(): void {
         self::register_docs_routes();

@@ -10,7 +10,7 @@
  * - /docs/{category}/{project}/{sub-hierarchy}/{post-slug}/ → Documentation post
  */
 
-namespace ChubesDocs\Core;
+namespace DocSync\Core;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -31,7 +31,7 @@ class RewriteRules {
 	 * Register custom query vars
 	 */
 	public static function register_query_vars( $vars ) {
-		$vars[] = 'chubes_docs_path';
+		$vars[] = 'docsync_path';
 		return $vars;
 	}
 
@@ -50,7 +50,7 @@ class RewriteRules {
 		// /docs/{path}/ → catch-all for projects and deeper hierarchy
 		add_rewrite_rule(
 			'^docs/(.+)/?$',
-			'index.php?chubes_docs_path=$matches[1]',
+			'index.php?docsync_path=$matches[1]',
 			'top'
 		);
 	}
@@ -63,11 +63,11 @@ class RewriteRules {
 	 * @param \WP $wp The WordPress environment instance
 	 */
 	public static function resolve_docs_path( $wp ) {
-		if ( empty( $wp->query_vars['chubes_docs_path'] ) ) {
+		if ( empty( $wp->query_vars['docsync_path'] ) ) {
 			return;
 		}
 
-		$path = trim( $wp->query_vars['chubes_docs_path'], '/' );
+		$path = trim( $wp->query_vars['docsync_path'], '/' );
 		$segments = array_filter( explode( '/', $path ) );
 
 		if ( empty( $segments ) ) {
@@ -85,7 +85,7 @@ class RewriteRules {
 
 		// Single segment - category archive
 		if ( count( $segments ) === 1 ) {
-			unset( $wp->query_vars['chubes_docs_path'] );
+			unset( $wp->query_vars['docsync_path'] );
 			$wp->query_vars['project'] = $current_term->slug;
 			return;
 		}
@@ -105,7 +105,7 @@ class RewriteRules {
 				if ( $is_last_segment ) {
 					$post = self::find_documentation_post( $slug, $current_term );
 					if ( $post ) {
-						unset( $wp->query_vars['chubes_docs_path'] );
+						unset( $wp->query_vars['docsync_path'] );
 						$wp->query_vars['post_type'] = Documentation::POST_TYPE;
 						$wp->query_vars['name'] = $post->post_name;
 						return;
@@ -118,7 +118,7 @@ class RewriteRules {
 		}
 
 		// All segments matched terms - show deepest term archive
-		unset( $wp->query_vars['chubes_docs_path'] );
+		unset( $wp->query_vars['docsync_path'] );
 		$wp->query_vars['project'] = $current_term->slug;
 	}
 

@@ -6,9 +6,9 @@
  * using hierarchical project taxonomy relationships.
  */
 
-namespace ChubesDocs\Templates;
+namespace DocSync\Templates;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 
 class RelatedPosts {
 

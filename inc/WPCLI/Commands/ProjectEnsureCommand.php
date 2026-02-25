@@ -1,8 +1,8 @@
 <?php
 
-namespace ChubesDocs\WPCLI\Commands;
+namespace DocSync\WPCLI\Commands;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 use WP_CLI;
 use WP_CLI\Utils;
 use WP_Error;

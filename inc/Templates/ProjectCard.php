@@ -6,9 +6,9 @@
  * Shows project info, content type buttons, and external links.
  */
 
-namespace ChubesDocs\Templates;
+namespace DocSync\Templates;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 
 class ProjectCard {
 
