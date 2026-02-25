@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: DocSync
- * Plugin URI: https://github.com/chubes4/chubes-docs
+ * Plugin URI: https://github.com/chubes4/docsync
  * Description: GitHub-to-WordPress documentation sync system with REST API, WP-CLI, and hierarchical project organization.
  * Version: 1.0.0
  * Author: Chris Huber
@@ -57,13 +57,28 @@ CronSync::init();
 SettingsPage::init();
 DocumentationColumns::init();
 
-add_action( 'init', function() {
-	RelatedPosts::init();
-	Breadcrumbs::init();
-	Archive::init();
-	Homepage::init();
-	SearchBar::init();
-} );
+/**
+ * Template layer — only loads when the active theme declares support.
+ *
+ * Themes opt in with: add_theme_support( 'docsync-templates' );
+ *
+ * Without theme support, DocSync registers the CPT, taxonomy, sync engine,
+ * REST API, WP-CLI, Abilities, and admin — but produces zero frontend output.
+ * The theme handles all rendering via standard WordPress template hierarchy.
+ */
+add_action( 'after_setup_theme', function() {
+	if ( ! current_theme_supports( 'docsync-templates' ) ) {
+		return;
+	}
+
+	add_action( 'init', function() {
+		RelatedPosts::init();
+		Breadcrumbs::init();
+		Archive::init();
+		Homepage::init();
+		SearchBar::init();
+	} );
+}, 20 );
 
 Abilities::init();
 
