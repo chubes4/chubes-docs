@@ -5,6 +5,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.0] - 2026-02-25
+
+### Added
+- Standalone CSS design tokens (--docsync-*) with light and dark mode defaults
+- TOC sidebar with h2+h3 headings and IntersectionObserver scroll spy
+- Generic sync trigger endpoint POST /docsync/v1/sync with Bearer token and webhook signature auth
+- Project tree sidebar navigation with collapsible sections and current-page highlighting
+- Doc tree API endpoint GET /docsync/v1/project/{slug}/tree
+- DocumentationLayout wraps single docs in CSS Grid with sidebar
+- Collapsible mobile sidebar toggle — navigation panel above content on screens <= 1024px
+- Pagination on project term archives (12 docs/page) with numbered page links
+- Hierarchy sections limited to 6 docs with View all N docs link
+- Settings UI for sync trigger token and webhook secret
+
+### Changed
+- Renamed plugin from chubes-docs to DocSync — new PHP namespace (DocSync\), REST namespace (docsync/v1), CLI (wp docsync), abilities (docsync/*), options (docsync_*), hooks (docsync_*), CSS tokens (--docsync-*)
+- Template layer is now opt-in via add_theme_support('docsync-templates')
+- SVG icons now inline (removed theme sprite dependency)
+- Migration function renames old chubes_docs_* options to docsync_* on activation
+
+### Fixed
+- Mobile overflow — content areas use overflow-wrap, pre/code blocks scroll horizontally, images constrained to 100% width
+- GitHub link inline styles moved to CSS, constrained on mobile
+- Table CSS conflict (duplicate display:block vs display:table) causing overflow
+- Pagination URL routing — page/N in docs path now correctly sets WordPress paged query var
+- docsync_single_sidebar filter was never applied — now renders via DocumentationLayout
+
 ## [0.10.0] - 2026-02-24
 
 ### Added
