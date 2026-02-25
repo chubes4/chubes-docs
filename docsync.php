@@ -37,6 +37,7 @@ use DocSync\Templates\Archive;
 use DocSync\Templates\ProjectCard;
 use DocSync\Templates\Homepage;
 use DocSync\Templates\SearchBar;
+use DocSync\Templates\TableOfContents;
 use DocSync\Sync\CronSync;
 use DocSync\Admin\SettingsPage;
 use DocSync\Admin\ProjectColumns;
@@ -77,6 +78,7 @@ add_action( 'after_setup_theme', function() {
 		Archive::init();
 		Homepage::init();
 		SearchBar::init();
+		TableOfContents::init();
 	} );
 }, 20 );
 
