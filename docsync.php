@@ -32,6 +32,8 @@ use DocSync\Core\RewriteRules;
 use DocSync\Core\Breadcrumbs;
 use DocSync\Fields\RepositoryFields;
 use DocSync\Fields\InstallTracker;
+use DocSync\Templates\DocumentationLayout;
+use DocSync\Templates\ProjectTree;
 use DocSync\Templates\RelatedPosts;
 use DocSync\Templates\Archive;
 use DocSync\Templates\ProjectCard;
@@ -73,6 +75,8 @@ add_action( 'after_setup_theme', function() {
 	}
 
 	add_action( 'init', function() {
+		DocumentationLayout::init();
+		ProjectTree::init();
 		RelatedPosts::init();
 		Breadcrumbs::init();
 		Archive::init();

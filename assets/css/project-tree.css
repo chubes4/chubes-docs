@@ -1,0 +1,127 @@
+/**
+ * DocSync Project Tree Styles
+ *
+ * Hierarchical navigation tree for documentation projects.
+ * Supports collapsible sections, current-page highlighting,
+ * and nested term hierarchies.
+ */
+
+.docsync-project-tree {
+	padding: var(--docsync-space-md, 0.75rem);
+	background: var(--docsync-background-card, #ffffff);
+	border: 1px solid var(--docsync-border-light, #e9ecef);
+	border-radius: 8px;
+}
+
+/* Project title */
+.docsync-tree-title {
+	margin: 0 0 var(--docsync-space-sm, 0.5rem);
+	padding: 0 var(--docsync-space-sm, 0.5rem);
+	font-size: var(--docsync-font-size-sm, 0.875rem);
+	font-weight: 700;
+}
+
+.docsync-tree-title a {
+	color: var(--docsync-heading-color, #212529);
+	text-decoration: none;
+}
+
+.docsync-tree-title a:hover {
+	color: var(--docsync-accent-strong, #0066cc);
+}
+
+/* Tree lists */
+.docsync-tree-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.docsync-tree-children {
+	list-style: none;
+	margin: 0;
+	padding: 0 0 0 0.75rem;
+}
+
+/* Section toggle buttons */
+.docsync-tree-toggle {
+	display: flex;
+	align-items: center;
+	gap: 0.35rem;
+	width: 100%;
+	padding: 0.3rem 0.5rem;
+	margin: 1px 0;
+	border: none;
+	background: none;
+	font-family: inherit;
+	font-size: var(--docsync-font-size-sm, 0.875rem);
+	font-weight: 600;
+	color: var(--docsync-text-secondary, #495057);
+	text-align: left;
+	cursor: pointer;
+	border-radius: 4px;
+	transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.docsync-tree-toggle:hover {
+	background: var(--docsync-accent-subtle, #e6f0fa);
+	color: var(--docsync-accent-strong, #0066cc);
+}
+
+/* Chevron icon */
+.docsync-tree-icon {
+	display: inline-block;
+	width: 12px;
+	height: 12px;
+	flex-shrink: 0;
+	transition: transform 0.15s ease;
+}
+
+.docsync-tree-icon::before {
+	content: '';
+	display: block;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 4px 0 4px 6px;
+	border-color: transparent transparent transparent currentColor;
+	margin: 2px 0 0 2px;
+}
+
+.docsync-tree-expanded > .docsync-tree-toggle .docsync-tree-icon {
+	transform: rotate(90deg);
+}
+
+/* Collapsed sections hide children */
+.docsync-tree-collapsed > .docsync-tree-children {
+	display: none;
+}
+
+.docsync-tree-expanded > .docsync-tree-children {
+	display: block;
+}
+
+/* Doc links */
+.docsync-tree-doc a {
+	display: block;
+	padding: 0.25rem 0.5rem;
+	margin: 1px 0;
+	font-size: var(--docsync-font-size-sm, 0.875rem);
+	line-height: 1.4;
+	color: var(--docsync-text-secondary, #495057);
+	text-decoration: none;
+	border-radius: 4px;
+	transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.docsync-tree-doc a:hover {
+	color: var(--docsync-accent-strong, #0066cc);
+	background: var(--docsync-accent-subtle, #e6f0fa);
+}
+
+/* Current page highlight */
+.docsync-tree-current a {
+	color: var(--docsync-accent-strong, #0066cc);
+	font-weight: 500;
+	background: var(--docsync-accent-subtle, #e6f0fa);
+}
