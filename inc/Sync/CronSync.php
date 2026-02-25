@@ -6,20 +6,20 @@
  * Loops through project terms with GitHub URLs and syncs each one.
  */
 
-namespace ChubesDocs\Sync;
+namespace DocSync\Sync;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 
 class CronSync {
 
-	const CRON_HOOK = 'chubes_docs_github_sync';
-	const OPTION_INTERVAL = 'chubes_docs_sync_interval';
-	const OPTION_PAT = 'chubes_docs_github_pat';
+	const CRON_HOOK = 'docsync_github_sync';
+	const OPTION_INTERVAL = 'docsync_sync_interval';
+	const OPTION_PAT = 'docsync_github_pat';
 
 	public static function init(): void {
 		add_action( self::CRON_HOOK, [ __CLASS__, 'run' ] );
 		add_action( 'admin_init', [ __CLASS__, 'schedule' ] );
-		register_deactivation_hook( CHUBES_DOCS_PATH . 'chubes-docs.php', [ __CLASS__, 'unschedule' ] );
+		register_deactivation_hook( DOCSYNC_PATH . 'docsync.php', [ __CLASS__, 'unschedule' ] );
 	}
 
 	/**

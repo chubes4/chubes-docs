@@ -6,9 +6,9 @@
  * Shows GitHub URL, WP.org installs, and sync status.
  */
 
-namespace ChubesDocs\Admin;
+namespace DocSync\Admin;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 
 class ProjectColumns {
 
@@ -33,9 +33,9 @@ class ProjectColumns {
 			$new_columns[ $key ] = $label;
 
 			if ( $key === 'name' ) {
-				$new_columns['github']      = __( 'GitHub', 'chubes-docs' );
-				$new_columns['installs']    = __( 'Installs', 'chubes-docs' );
-				$new_columns['sync_status'] = __( 'Sync', 'chubes-docs' );
+				$new_columns['github']      = __( 'GitHub', 'docsync' );
+				$new_columns['installs']    = __( 'Installs', 'docsync' );
+				$new_columns['sync_status'] = __( 'Sync', 'docsync' );
 			}
 		}
 
@@ -164,25 +164,25 @@ class ProjectColumns {
 				$icon = '<span class="dashicons dashicons-yes-alt" style="color:#46b450;"></span>';
 				$title = sprintf(
 					/* translators: 1: file count, 2: relative time */
-					__( '%1$d files synced %2$s', 'chubes-docs' ),
+					__( '%1$d files synced %2$s', 'docsync' ),
 					(int) $files_synced,
-					human_time_diff( $last_sync ) . ' ' . __( 'ago', 'chubes-docs' )
+					human_time_diff( $last_sync ) . ' ' . __( 'ago', 'docsync' )
 				);
 				break;
 
 			case 'syncing':
 				$icon = '<span class="dashicons dashicons-update" style="color:#0073aa;"></span>';
-				$title = __( 'Syncing...', 'chubes-docs' );
+				$title = __( 'Syncing...', 'docsync' );
 				break;
 
 			case 'failed':
 				$icon = '<span class="dashicons dashicons-warning" style="color:#dc3232;"></span>';
-				$title = $error ?: __( 'Sync failed', 'chubes-docs' );
+				$title = $error ?: __( 'Sync failed', 'docsync' );
 				break;
 
 			default:
 				$icon = '<span class="dashicons dashicons-clock" style="color:#999;"></span>';
-				$title = __( 'Never synced', 'chubes-docs' );
+				$title = __( 'Never synced', 'docsync' );
 				break;
 		}
 
@@ -213,17 +213,17 @@ class ProjectColumns {
 
 		?>
 		<tr class="form-field">
-			<th scope="row"><label for="project_type"><?php esc_html_e( 'Project Type', 'chubes-docs' ); ?></label></th>
+			<th scope="row"><label for="project_type"><?php esc_html_e( 'Project Type', 'docsync' ); ?></label></th>
 			<td>
 				<select name="project_type" id="project_type">
-					<option value=""><?php esc_html_e( 'Select a project type', 'chubes-docs' ); ?></option>
+					<option value=""><?php esc_html_e( 'Select a project type', 'docsync' ); ?></option>
 					<?php foreach ( $project_types as $type_term ) : ?>
 						<option value="<?php echo esc_attr( $type_term->slug ); ?>" <?php selected( $current_type, $type_term->slug ); ?>>
 							<?php echo esc_html( $type_term->name ); ?>
 						</option>
 					<?php endforeach; ?>
 				</select>
-				<p class="description"><?php esc_html_e( 'Select the type of project this is.', 'chubes-docs' ); ?></p>
+				<p class="description"><?php esc_html_e( 'Select the type of project this is.', 'docsync' ); ?></p>
 			</td>
 		</tr>
 		<?php

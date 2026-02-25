@@ -6,7 +6,7 @@
  * Provides static helper methods for term hierarchy resolution.
  */
 
-namespace ChubesDocs\Core;
+namespace DocSync\Core;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -22,17 +22,17 @@ class Project {
 
 	public static function register() {
 		$labels = array(
-			'name'              => _x( 'Projects', 'taxonomy general name', 'chubes-docs' ),
-			'singular_name'     => _x( 'Project', 'taxonomy singular name', 'chubes-docs' ),
-			'search_items'      => __( 'Search Projects', 'chubes-docs' ),
-			'all_items'         => __( 'All Projects', 'chubes-docs' ),
-			'parent_item'       => __( 'Parent Project', 'chubes-docs' ),
-			'parent_item_colon' => __( 'Parent Project:', 'chubes-docs' ),
-			'edit_item'         => __( 'Edit Project', 'chubes-docs' ),
-			'update_item'       => __( 'Update Project', 'chubes-docs' ),
-			'add_new_item'      => __( 'Add New Project', 'chubes-docs' ),
-			'new_item_name'     => __( 'New Project Name', 'chubes-docs' ),
-			'menu_name'         => __( 'Projects', 'chubes-docs' ),
+			'name'              => _x( 'Projects', 'taxonomy general name', 'docsync' ),
+			'singular_name'     => _x( 'Project', 'taxonomy singular name', 'docsync' ),
+			'search_items'      => __( 'Search Projects', 'docsync' ),
+			'all_items'         => __( 'All Projects', 'docsync' ),
+			'parent_item'       => __( 'Parent Project', 'docsync' ),
+			'parent_item_colon' => __( 'Parent Project:', 'docsync' ),
+			'edit_item'         => __( 'Edit Project', 'docsync' ),
+			'update_item'       => __( 'Update Project', 'docsync' ),
+			'add_new_item'      => __( 'Add New Project', 'docsync' ),
+			'new_item_name'     => __( 'New Project Name', 'docsync' ),
+			'menu_name'         => __( 'Projects', 'docsync' ),
 		);
 
 		$args = array(
@@ -45,23 +45,23 @@ class Project {
 			'show_in_rest'      => true,
 		);
 
-		$args = apply_filters( 'chubes_project_args', $args );
+		$args = apply_filters( 'docsync_project_args', $args );
 
 		register_taxonomy( self::TAXONOMY, array( Documentation::POST_TYPE ), $args );
 
 		// Register project_type taxonomy
 		$project_type_labels = array(
-			'name'              => _x( 'Project Types', 'taxonomy general name', 'chubes-docs' ),
-			'singular_name'     => _x( 'Project Type', 'taxonomy singular name', 'chubes-docs' ),
-			'search_items'      => __( 'Search Project Types', 'chubes-docs' ),
-			'all_items'         => __( 'All Project Types', 'chubes-docs' ),
-			'parent_item'       => __( 'Parent Project Type', 'chubes-docs' ),
-			'parent_item_colon' => __( 'Parent Project Type:', 'chubes-docs' ),
-			'edit_item'         => __( 'Edit Project Type', 'chubes-docs' ),
-			'update_item'       => __( 'Update Project Type', 'chubes-docs' ),
-			'add_new_item'      => __( 'Add New Project Type', 'chubes-docs' ),
-			'new_item_name'     => __( 'New Project Type Name', 'chubes-docs' ),
-			'menu_name'         => __( 'Project Types', 'chubes-docs' ),
+			'name'              => _x( 'Project Types', 'taxonomy general name', 'docsync' ),
+			'singular_name'     => _x( 'Project Type', 'taxonomy singular name', 'docsync' ),
+			'search_items'      => __( 'Search Project Types', 'docsync' ),
+			'all_items'         => __( 'All Project Types', 'docsync' ),
+			'parent_item'       => __( 'Parent Project Type', 'docsync' ),
+			'parent_item_colon' => __( 'Parent Project Type:', 'docsync' ),
+			'edit_item'         => __( 'Edit Project Type', 'docsync' ),
+			'update_item'       => __( 'Update Project Type', 'docsync' ),
+			'add_new_item'      => __( 'Add New Project Type', 'docsync' ),
+			'new_item_name'     => __( 'New Project Type Name', 'docsync' ),
+			'menu_name'         => __( 'Project Types', 'docsync' ),
 		);
 
 		$project_type_args = array(
@@ -75,11 +75,11 @@ class Project {
 			'show_in_rest'      => true,
 		);
 
-		$project_type_args = apply_filters( 'chubes_project_type_args', $project_type_args );
+		$project_type_args = apply_filters( 'docsync_project_type_args', $project_type_args );
 
 		register_taxonomy( 'project_type', array( Documentation::POST_TYPE ), $project_type_args );
 
-		do_action( 'chubes_project_registered' );
+		do_action( 'docsync_project_registered' );
 	}
 
 	/**

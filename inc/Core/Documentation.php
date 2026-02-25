@@ -6,7 +6,7 @@
  * Provides hooks for extensibility.
  */
 
-namespace ChubesDocs\Core;
+namespace DocSync\Core;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -23,38 +23,38 @@ class Documentation {
 
 	public static function register() {
 		$labels = array(
-			'name'                  => _x( 'Documentation', 'Post Type General Name', 'chubes-docs' ),
-			'singular_name'         => _x( 'Doc', 'Post Type Singular Name', 'chubes-docs' ),
-			'menu_name'             => __( 'Documentation', 'chubes-docs' ),
-			'name_admin_bar'        => __( 'Documentation', 'chubes-docs' ),
-			'archives'              => __( 'Doc Archives', 'chubes-docs' ),
-			'attributes'            => __( 'Doc Attributes', 'chubes-docs' ),
-			'parent_item_colon'     => __( 'Parent Doc:', 'chubes-docs' ),
-			'all_items'             => __( 'All Docs', 'chubes-docs' ),
-			'add_new_item'          => __( 'Add New Doc', 'chubes-docs' ),
-			'add_new'               => __( 'Add New', 'chubes-docs' ),
-			'new_item'              => __( 'New Doc', 'chubes-docs' ),
-			'edit_item'             => __( 'Edit Doc', 'chubes-docs' ),
-			'update_item'           => __( 'Update Doc', 'chubes-docs' ),
-			'view_item'             => __( 'View Doc', 'chubes-docs' ),
-			'view_items'            => __( 'View Docs', 'chubes-docs' ),
-			'search_items'          => __( 'Search Docs', 'chubes-docs' ),
-			'not_found'             => __( 'Not found', 'chubes-docs' ),
-			'not_found_in_trash'    => __( 'Not found in Trash', 'chubes-docs' ),
-			'featured_image'        => __( 'Featured Image', 'chubes-docs' ),
-			'set_featured_image'    => __( 'Set featured image', 'chubes-docs' ),
-			'remove_featured_image' => __( 'Remove featured image', 'chubes-docs' ),
-			'use_featured_image'    => __( 'Use as featured image', 'chubes-docs' ),
-			'insert_into_item'      => __( 'Insert into doc', 'chubes-docs' ),
-			'uploaded_to_this_item' => __( 'Uploaded to this doc', 'chubes-docs' ),
-			'items_list'            => __( 'Docs list', 'chubes-docs' ),
-			'items_list_navigation' => __( 'Docs list navigation', 'chubes-docs' ),
-			'filter_items_list'     => __( 'Filter docs list', 'chubes-docs' ),
+			'name'                  => _x( 'Documentation', 'Post Type General Name', 'docsync' ),
+			'singular_name'         => _x( 'Doc', 'Post Type Singular Name', 'docsync' ),
+			'menu_name'             => __( 'Documentation', 'docsync' ),
+			'name_admin_bar'        => __( 'Documentation', 'docsync' ),
+			'archives'              => __( 'Doc Archives', 'docsync' ),
+			'attributes'            => __( 'Doc Attributes', 'docsync' ),
+			'parent_item_colon'     => __( 'Parent Doc:', 'docsync' ),
+			'all_items'             => __( 'All Docs', 'docsync' ),
+			'add_new_item'          => __( 'Add New Doc', 'docsync' ),
+			'add_new'               => __( 'Add New', 'docsync' ),
+			'new_item'              => __( 'New Doc', 'docsync' ),
+			'edit_item'             => __( 'Edit Doc', 'docsync' ),
+			'update_item'           => __( 'Update Doc', 'docsync' ),
+			'view_item'             => __( 'View Doc', 'docsync' ),
+			'view_items'            => __( 'View Docs', 'docsync' ),
+			'search_items'          => __( 'Search Docs', 'docsync' ),
+			'not_found'             => __( 'Not found', 'docsync' ),
+			'not_found_in_trash'    => __( 'Not found in Trash', 'docsync' ),
+			'featured_image'        => __( 'Featured Image', 'docsync' ),
+			'set_featured_image'    => __( 'Set featured image', 'docsync' ),
+			'remove_featured_image' => __( 'Remove featured image', 'docsync' ),
+			'use_featured_image'    => __( 'Use as featured image', 'docsync' ),
+			'insert_into_item'      => __( 'Insert into doc', 'docsync' ),
+			'uploaded_to_this_item' => __( 'Uploaded to this doc', 'docsync' ),
+			'items_list'            => __( 'Docs list', 'docsync' ),
+			'items_list_navigation' => __( 'Docs list navigation', 'docsync' ),
+			'filter_items_list'     => __( 'Filter docs list', 'docsync' ),
 		);
 
 		$args = array(
-			'label'               => __( 'Documentation', 'chubes-docs' ),
-			'description'         => __( 'Technical documentation for my coding projects. Automatically synchronized with GitHub repositories.', 'chubes-docs' ),
+			'label'               => __( 'Documentation', 'docsync' ),
+			'description'         => __( 'Technical documentation for my coding projects. Automatically synchronized with GitHub repositories.', 'docsync' ),
 			'labels'              => $labels,
 		'supports'            => array( 'title', 'editor', 'thumbnail', 'excerpt', 'custom-fields', 'revisions', 'post_tag' ),
 		'taxonomies'          => array( 'post_tag' ),
@@ -75,11 +75,11 @@ class Documentation {
 			'rewrite'             => false,
 		);
 
-		$args = apply_filters( 'chubes_documentation_args', $args );
+		$args = apply_filters( 'docsync_documentation_args', $args );
 
 		register_post_type( self::POST_TYPE, $args );
 
-		do_action( 'chubes_documentation_registered' );
+		do_action( 'docsync_documentation_registered' );
 	}
 
 	public static function register_rest_fields() {
@@ -117,7 +117,7 @@ class Documentation {
 		register_rest_field( self::POST_TYPE, 'project_type_info', [
 			'get_callback' => function( $post ) {
 				if ( function_exists( 'wp_abilities_execute' ) ) {
-					$ability_result = wp_abilities_execute( 'chubes/get-projects', [
+					$ability_result = wp_abilities_execute( 'docsync/get-projects', [
 						'post_ids' => [ $post['id'] ],
 					] );
 					

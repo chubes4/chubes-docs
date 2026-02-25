@@ -1,18 +1,18 @@
 <?php
 
-namespace ChubesDocs\Fields;
+namespace DocSync\Fields;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 
 class InstallTracker {
 
     private const CACHE_EXPIRATION = DAY_IN_SECONDS;
 
     public static function init(): void {
-        add_action('chubes_docs_update_installs', [self::class, 'update_all_installs']);
+        add_action('docsync_update_installs', [self::class, 'update_all_installs']);
 
-        if (!wp_next_scheduled('chubes_docs_update_installs')) {
-            wp_schedule_event(time(), 'daily', 'chubes_docs_update_installs');
+        if (!wp_next_scheduled('docsync_update_installs')) {
+            wp_schedule_event(time(), 'daily', 'docsync_update_installs');
         }
     }
 

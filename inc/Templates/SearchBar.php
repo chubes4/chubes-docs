@@ -6,7 +6,7 @@
  * Uses the REST API for live search results.
  */
 
-namespace ChubesDocs\Templates;
+namespace DocSync\Templates;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -24,18 +24,18 @@ class SearchBar {
 		}
 		?>
 		<div class="docs-search-wrapper">
-			<form class="search-form-inline" role="search" aria-label="<?php esc_attr_e( 'Search documentation', 'chubes-docs' ); ?>">
-				<label for="docs-search-input" class="screen-reader-text"><?php esc_html_e( 'Search documentation', 'chubes-docs' ); ?></label>
+			<form class="search-form-inline" role="search" aria-label="<?php esc_attr_e( 'Search documentation', 'docsync' ); ?>">
+				<label for="docs-search-input" class="screen-reader-text"><?php esc_html_e( 'Search documentation', 'docsync' ); ?></label>
 				<input
 					type="search"
 					id="docs-search-input"
 					class="search-input-inline"
-					placeholder="<?php esc_attr_e( 'Search documentation...', 'chubes-docs' ); ?>"
+					placeholder="<?php esc_attr_e( 'Search documentation...', 'docsync' ); ?>"
 					autocomplete="off"
 					aria-controls="docs-search-results"
 					aria-expanded="false"
 				>
-				<button type="submit" class="search-submit-inline"><?php esc_html_e( 'Search', 'chubes-docs' ); ?></button>
+				<button type="submit" class="search-submit-inline"><?php esc_html_e( 'Search', 'docsync' ); ?></button>
 			</form>
 			<div id="docs-search-results" class="docs-search-results" role="listbox" aria-live="polite" hidden></div>
 		</div>

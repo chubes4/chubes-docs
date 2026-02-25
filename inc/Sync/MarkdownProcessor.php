@@ -4,7 +4,7 @@
  * Uses league/commonmark for markdown parsing and resolves .md links to WordPress URLs.
  */
 
-namespace ChubesDocs\Sync;
+namespace DocSync\Sync;
 
 use League\CommonMark\GithubFlavoredMarkdownConverter;
 

@@ -6,9 +6,9 @@
  * Hooks into chubes_homepage_columns action.
  */
 
-namespace ChubesDocs\Templates;
+namespace DocSync\Templates;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 
 class Homepage {
 
@@ -42,7 +42,7 @@ class Homepage {
 				<a class="btn secondary" href="<?php echo esc_url( get_post_type_archive_link( 'documentation' ) ); ?>">View all Docs</a>
 			</div>
 			<p class="docs-api-hint">
-				Also available via API: <code>GET /wp-json/chubes/v1/docs</code>
+				Also available via API: <code>GET /wp-json/docsync/v1/docs</code>
 			</p>
 		</div>
 		<?php

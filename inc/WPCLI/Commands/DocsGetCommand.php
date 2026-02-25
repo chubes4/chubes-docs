@@ -2,12 +2,12 @@
 /**
  * WP-CLI command for retrieving a single documentation post.
  *
- * Delegates to the chubes/get-doc ability.
+ * Delegates to the docsync/get-doc ability.
  *
- * @package ChubesDocs\WPCLI\Commands
+ * @package DocSync\WPCLI\Commands
  */
 
-namespace ChubesDocs\WPCLI\Commands;
+namespace DocSync\WPCLI\Commands;
 
 use WP_CLI;
 use WP_CLI\Utils;
@@ -22,7 +22,7 @@ class DocsGetCommand {
 	 * Get a single documentation post by ID or slug.
 	 *
 	 * Returns markdown content by default, matching the REST API's
-	 * agent-friendly format. Delegates to the chubes/get-doc ability.
+	 * agent-friendly format. Delegates to the docsync/get-doc ability.
 	 *
 	 * ## OPTIONS
 	 *
@@ -45,16 +45,16 @@ class DocsGetCommand {
 	 * ## EXAMPLES
 	 *
 	 *     # Get doc by ID (returns markdown)
-	 *     wp chubes docs get 5288
+	 *     wp docsync docs get 5288
 	 *
 	 *     # Get doc by slug
-	 *     wp chubes docs get basetool-class
+	 *     wp docsync docs get basetool-class
 	 *
 	 *     # Get just the content as markdown
-	 *     wp chubes docs get 5288 --field=content
+	 *     wp docsync docs get 5288 --field=content
 	 *
 	 *     # Get doc metadata as JSON
-	 *     wp chubes docs get 5288 --format=json
+	 *     wp docsync docs get 5288 --format=json
 	 *
 	 * @param array $args       Positional arguments.
 	 * @param array $assoc_args Associative arguments.
@@ -68,9 +68,9 @@ class DocsGetCommand {
 			WP_CLI::error( 'Provide a post ID or slug.' );
 		}
 
-		$ability = wp_get_ability( 'chubes/get-doc' );
+		$ability = wp_get_ability( 'docsync/get-doc' );
 		if ( ! $ability ) {
-			WP_CLI::error( 'chubes/get-doc ability not registered.' );
+			WP_CLI::error( 'docsync/get-doc ability not registered.' );
 		}
 
 		// Build ability input.

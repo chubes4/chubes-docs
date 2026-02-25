@@ -2,11 +2,11 @@
 /**
  * Abilities API Main Entry Point
  *
- * Registers the chubes ability category and coordinates initialization
+ * Registers the docsync ability category and coordinates initialization
  * of all ability domains (sync, codebase inspection, etc.).
  */
 
-namespace ChubesDocs\Abilities;
+namespace DocSync\Abilities;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -23,9 +23,9 @@ class Abilities {
 	}
 
 	public static function register_categories(): void {
-		wp_register_ability_category( 'chubes', [
-			'label'       => __( 'Chubes', 'chubes-docs' ),
-			'description' => __( 'Core abilities for chubes.net documentation system', 'chubes-docs' ),
+		wp_register_ability_category( 'docsync', [
+			'label'       => __( 'DocSync', 'docsync' ),
+			'description' => __( 'Documentation sync and management abilities', 'docsync' ),
 		] );
 	}
 }

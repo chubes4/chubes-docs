@@ -9,11 +9,11 @@
 	const results = document.getElementById( 'docs-search-results' );
 	const form = document.querySelector( '.search-form-inline' );
 
-	if ( ! input || ! results || ! form || ! window.chubesDocsSearch ) {
+	if ( ! input || ! results || ! form || ! window.docSyncSearch ) {
 		return;
 	}
 
-	const { restUrl, strings } = window.chubesDocsSearch;
+	const { restUrl, strings } = window.docSyncSearch;
 	let debounceTimer = null;
 	let abortController = null;
 

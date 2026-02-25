@@ -6,7 +6,7 @@
  * on the documentation post list table.
  */
 
-namespace ChubesDocs\Admin;
+namespace DocSync\Admin;
 
 class DocumentationColumns {
 
@@ -24,7 +24,7 @@ class DocumentationColumns {
 	 */
 	public static function add_columns( array $columns ): array {
 		if ( isset( $columns['date'] ) ) {
-			$columns['date'] = __( 'Updated', 'chubes-docs' );
+			$columns['date'] = __( 'Updated', 'docsync' );
 		}
 
 		return $columns;

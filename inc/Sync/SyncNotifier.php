@@ -6,9 +6,9 @@
  * is synced and changes occur.
  */
 
-namespace ChubesDocs\Sync;
+namespace DocSync\Sync;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 
 class SyncNotifier {
 

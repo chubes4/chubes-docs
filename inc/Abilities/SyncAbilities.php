@@ -6,13 +6,13 @@
  * Supports both single-term and batch sync operations via GitHub.
  */
 
-namespace ChubesDocs\Abilities;
+namespace DocSync\Abilities;
 
-use ChubesDocs\Sync\RepoSync;
-use ChubesDocs\Sync\CronSync;
-use ChubesDocs\Sync\GitHubClient;
-use ChubesDocs\Sync\SyncNotifier;
-use ChubesDocs\Core\Project;
+use DocSync\Sync\RepoSync;
+use DocSync\Sync\CronSync;
+use DocSync\Sync\GitHubClient;
+use DocSync\Sync\SyncNotifier;
+use DocSync\Core\Project;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -26,10 +26,10 @@ class SyncAbilities {
 			return;
 		}
 
-		wp_register_ability( 'chubes/sync-docs', [
-			'label'               => __( 'Sync Documentation', 'chubes-docs' ),
-			'description'         => __( 'Sync documentation from GitHub. Pass term_id for single sync, term_ids for batch, or neither for all syncable terms.', 'chubes-docs' ),
-			'category'            => 'chubes',
+		wp_register_ability( 'docsync/sync-docs', [
+			'label'               => __( 'Sync Documentation', 'docsync' ),
+			'description'         => __( 'Sync documentation from GitHub. Pass term_id for single sync, term_ids for batch, or neither for all syncable terms.', 'docsync' ),
+			'category'            => 'docsync',
 			'input_schema'        => [
 				'type'       => 'object',
 				'properties' => [

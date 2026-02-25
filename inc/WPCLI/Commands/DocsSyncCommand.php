@@ -4,10 +4,10 @@
  * Supports single term sync and batch sync via --all flag.
  */
 
-namespace ChubesDocs\WPCLI\Commands;
+namespace DocSync\WPCLI\Commands;
 
-use ChubesDocs\Abilities\SyncAbilities;
-use ChubesDocs\Sync\CronSync;
+use DocSync\Abilities\SyncAbilities;
+use DocSync\Sync\CronSync;
 use WP_CLI;
 use WP_CLI\Utils;
 
@@ -44,10 +44,10 @@ class DocsSyncCommand {
 	 * ## EXAMPLES
 	 *
 	 *     # Sync single project
-	 *     wp chubes docs sync 42
+	 *     wp docsync docs sync 42
 	 *
 	 *     # Sync all projects
-	 *     wp chubes docs sync --all
+	 *     wp docsync docs sync --all
 	 *
 	 * @param array $args       Positional arguments.
 	 * @param array $assoc_args Associative arguments.
@@ -67,7 +67,7 @@ class DocsSyncCommand {
 
 		$term_id = absint( $args[0] ?? 0 );
 		if ( empty( $term_id ) ) {
-			WP_CLI::error( 'Project term ID required (e.g. wp chubes docs sync 123) or use --all' );
+			WP_CLI::error( 'Project term ID required (e.g. wp docsync docs sync 123) or use --all' );
 		}
 
 		$force = Utils\get_flag_value( $assoc_args, 'force', false );

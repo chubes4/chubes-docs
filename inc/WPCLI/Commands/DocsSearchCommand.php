@@ -2,14 +2,14 @@
 /**
  * WP-CLI command for searching documentation.
  *
- * Delegates to the chubes/search-docs ability.
+ * Delegates to the docsync/search-docs ability.
  *
- * @package ChubesDocs\WPCLI\Commands
+ * @package DocSync\WPCLI\Commands
  */
 
-namespace ChubesDocs\WPCLI\Commands;
+namespace DocSync\WPCLI\Commands;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 use WP_CLI;
 use WP_CLI\Utils;
 
@@ -22,7 +22,7 @@ class DocsSearchCommand {
 	/**
 	 * Search documentation by keyword.
 	 *
-	 * Delegates to the chubes/search-docs ability for full-text search
+	 * Delegates to the docsync/search-docs ability for full-text search
 	 * across doc titles and content.
 	 *
 	 * ## OPTIONS
@@ -53,13 +53,13 @@ class DocsSearchCommand {
 	 * ## EXAMPLES
 	 *
 	 *     # Search all docs
-	 *     wp chubes docs search "abilities API"
+	 *     wp docsync docs search "abilities API"
 	 *
 	 *     # Search within a project
-	 *     wp chubes docs search "webhook" --project=data-machine
+	 *     wp docsync docs search "webhook" --project=data-machine
 	 *
 	 *     # Search with JSON output
-	 *     wp chubes docs search "handler" --format=json
+	 *     wp docsync docs search "handler" --format=json
 	 *
 	 * @param array $args       Positional arguments.
 	 * @param array $assoc_args Associative arguments.
@@ -74,9 +74,9 @@ class DocsSearchCommand {
 			WP_CLI::error( 'Provide a search query.' );
 		}
 
-		$ability = wp_get_ability( 'chubes/search-docs' );
+		$ability = wp_get_ability( 'docsync/search-docs' );
 		if ( ! $ability ) {
-			WP_CLI::error( 'chubes/search-docs ability not registered.' );
+			WP_CLI::error( 'docsync/search-docs ability not registered.' );
 		}
 
 		// Build ability input.

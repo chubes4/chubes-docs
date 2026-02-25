@@ -6,9 +6,9 @@
  * hierarchy and metadata. Enables inspection via WP-CLI, REST, or MCP.
  */
 
-namespace ChubesDocs\Abilities;
+namespace DocSync\Abilities;
 
-use ChubesDocs\Core\Project;
+use DocSync\Core\Project;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -17,10 +17,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ProjectAbilities {
 
 	public static function register(): void {
-		wp_register_ability( 'chubes/get-projects', [
-			'label'               => __( 'Get Projects', 'chubes-docs' ),
-			'description'         => __( 'Returns hierarchical projects with project types and bi-directional associations', 'chubes-docs' ),
-			'category'            => 'chubes',
+		wp_register_ability( 'docsync/get-projects', [
+			'label'               => __( 'Get Projects', 'docsync' ),
+			'description'         => __( 'Returns hierarchical projects with project types and bi-directional associations', 'docsync' ),
+			'category'            => 'docsync',
 			'input_schema'        => [
 				'type'       => 'object',
 				'properties' => [
@@ -85,10 +85,10 @@ class ProjectAbilities {
 			'meta'                => [ 'show_in_rest' => true ],
 		] );
 
-		wp_register_ability( 'chubes/get-project-types', [
-			'label'               => __( 'Get Project Types', 'chubes-docs' ),
-			'description'         => __( 'Returns all project types with associated projects and full metadata', 'chubes-docs' ),
-			'category'            => 'chubes',
+		wp_register_ability( 'docsync/get-project-types', [
+			'label'               => __( 'Get Project Types', 'docsync' ),
+			'description'         => __( 'Returns all project types with associated projects and full metadata', 'docsync' ),
+			'category'            => 'docsync',
 			'input_schema'        => [
 				'type'       => 'object',
 				'properties' => [

@@ -6,7 +6,7 @@
  * breadcrumb rendering with project taxonomy hierarchy.
  */
 
-namespace ChubesDocs\Core;
+namespace DocSync\Core;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;

@@ -2,16 +2,16 @@
 /**
  * WP-CLI command for listing documentation posts.
  *
- * Delegates to the chubes/search-docs ability for filtered listing.
+ * Delegates to the docsync/search-docs ability for filtered listing.
  * Uses direct WP_Query only for unfiltered listing (no search ability needed).
  *
- * @package ChubesDocs\WPCLI\Commands
+ * @package DocSync\WPCLI\Commands
  */
 
-namespace ChubesDocs\WPCLI\Commands;
+namespace DocSync\WPCLI\Commands;
 
-use ChubesDocs\Core\Documentation;
-use ChubesDocs\Core\Project;
+use DocSync\Core\Documentation;
+use DocSync\Core\Project;
 use WP_CLI;
 use WP_CLI\Utils;
 
@@ -61,13 +61,13 @@ class DocsListCommand {
 	 * ## EXAMPLES
 	 *
 	 *     # List all docs
-	 *     wp chubes docs list
+	 *     wp docsync docs list
 	 *
 	 *     # List docs for a specific project
-	 *     wp chubes docs list --project=data-machine
+	 *     wp docsync docs list --project=data-machine
 	 *
 	 *     # List docs as JSON
-	 *     wp chubes docs list --format=json
+	 *     wp docsync docs list --format=json
 	 *
 	 * @param array $args       Positional arguments.
 	 * @param array $assoc_args Associative arguments.
