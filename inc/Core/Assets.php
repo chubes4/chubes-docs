@@ -29,8 +29,30 @@ class Assets {
 			return;
 		}
 
+		self::enqueue_design_tokens();
 		self::enqueue_archive_assets();
 		self::enqueue_single_assets();
+	}
+
+	/**
+	 * Enqueue design token defaults.
+	 *
+	 * Provides standalone CSS custom properties so the plugin works
+	 * on any theme. Themes override by redefining --docsync-* vars.
+	 * Includes automatic dark mode support via prefers-color-scheme.
+	 */
+	private static function enqueue_design_tokens() {
+		$tokens_path = DOCSYNC_PATH . 'assets/css/tokens.css';
+		if ( ! file_exists( $tokens_path ) ) {
+			return;
+		}
+
+		wp_enqueue_style(
+			'docsync-tokens',
+			DOCSYNC_URL . 'assets/css/tokens.css',
+			[],
+			filemtime( $tokens_path )
+		);
 	}
 
 	/**
@@ -98,7 +120,7 @@ class Assets {
 		wp_enqueue_style(
 			'docsync-archives',
 			DOCSYNC_URL . 'assets/css/archives.css',
-			[],
+			[ 'docsync-tokens' ],
 			filemtime( DOCSYNC_PATH . 'assets/css/archives.css' )
 		);
 
@@ -141,7 +163,7 @@ class Assets {
 		wp_enqueue_style(
 			'docsync-related',
 			DOCSYNC_URL . 'assets/css/related-posts.css',
-			[],
+			[ 'docsync-tokens' ],
 			filemtime( DOCSYNC_PATH . 'assets/css/related-posts.css' )
 		);
 	}

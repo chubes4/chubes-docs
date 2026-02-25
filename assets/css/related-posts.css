@@ -3,16 +3,16 @@
 .related-posts {
     margin: 50px 0 30px;
     padding: 30px;
-    background: var(--chubes-background-muted);
-    border: 1px solid var(--chubes-border-default);
+    background: var(--docsync-background-muted);
+    border: 1px solid var(--docsync-border-default);
     border-radius: 8px;
 }
 
 .related-posts h3 {
     margin: 0 0 20px;
-    font-size: var(--chubes-font-size-xl);
-    color: var(--chubes-accent-color-2);
-    border-bottom: 2px solid var(--chubes-accent-medium);
+    font-size: var(--docsync-font-size-xl);
+    color: var(--docsync-accent-color-2);
+    border-bottom: 2px solid var(--docsync-accent-medium);
     padding-bottom: 8px;
 }
 
@@ -22,7 +22,7 @@
     gap: 20px;
     margin-top: 30px;
     padding-top: 20px;
-    border-top: 1px solid var(--chubes-border-faint);
+    border-top: 1px solid var(--docsync-border-faint);
 }
 
 .related-actions .button-1,
@@ -36,47 +36,47 @@
 .related-posts-list {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--chubes-space-lg);
+    gap: var(--docsync-space-lg);
 }
 
 .related-post-item {
-    padding: var(--chubes-space-md);
+    padding: var(--docsync-space-md);
     border-radius: 6px;
-    background: var(--chubes-background-card);
-    border: 1px solid var(--chubes-border-default);
+    background: var(--docsync-background-card);
+    border: 1px solid var(--docsync-border-default);
     transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .related-post-item:hover {
-    background: var(--chubes-accent-subtle);
-    border-color: var(--chubes-accent-color-2);
+    background: var(--docsync-accent-subtle);
+    border-color: var(--docsync-accent-color-2);
 }
 
 .related-post-item h4 {
     margin: 0 0 8px;
-    font-size: var(--chubes-font-size-md);
+    font-size: var(--docsync-font-size-md);
 }
 
 .related-post-item h4 a {
-    color: var(--chubes-text-primary);
+    color: var(--docsync-text-primary);
     text-decoration: none;
 }
 
 .related-post-item h4 a:hover {
-    color: var(--chubes-accent-color-2);
+    color: var(--docsync-accent-color-2);
 }
 
 .related-excerpt {
     margin: 0;
-    color: var(--chubes-text-secondary);
-    font-size: var(--chubes-font-size-sm);
+    color: var(--docsync-text-secondary);
+    font-size: var(--docsync-font-size-sm);
     line-height: 1.5;
 }
 
 .no-related-posts {
     text-align: center;
     padding: 30px 0;
-    color: var(--chubes-muted-text-color);
+    color: var(--docsync-muted-text-color);
 }
 
 @media (max-width: 768px) {

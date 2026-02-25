@@ -1,0 +1,93 @@
+/**
+ * DocSync Design Tokens
+ *
+ * Standalone defaults for all plugin styles. Works on any theme out of the box.
+ * Themes can override by redefining --docsync-* custom properties.
+ *
+ * For the chubes theme, map in your theme CSS:
+ *   :root { --docsync-accent-strong: var(--chubes-accent-strong); }
+ */
+
+:root {
+	/* Spacing */
+	--docsync-space-base: 1rem;
+	--docsync-space-md: 0.75rem;
+	--docsync-space-lg: 1.5rem;
+	--docsync-space-xl: 2rem;
+
+	/* Typography */
+	--docsync-font-size-xs: 0.75rem;
+	--docsync-font-size-sm: 0.875rem;
+	--docsync-font-size-base: 1rem;
+	--docsync-font-size-md: 1.125rem;
+	--docsync-font-size-lg: 1.25rem;
+	--docsync-font-size-xl: 1.5rem;
+	--docsync-font-size-2xl: 2rem;
+
+	/* Surfaces */
+	--docsync-background-primary: #ffffff;
+	--docsync-background-secondary: #f8f9fa;
+	--docsync-background-card: #ffffff;
+	--docsync-background-muted: #f1f3f5;
+	--docsync-background-interactive: #e9ecef;
+
+	/* Borders */
+	--docsync-border-default: #dee2e6;
+	--docsync-border-light: #e9ecef;
+	--docsync-border-faint: #f1f3f5;
+
+	/* Text */
+	--docsync-text-primary: #212529;
+	--docsync-text-secondary: #495057;
+	--docsync-text-contrast: #ffffff;
+	--docsync-body-text-color: #343a40;
+	--docsync-muted-text-color: #868e96;
+	--docsync-link-color: #0066cc;
+
+	/* Accent */
+	--docsync-accent-strong: #0066cc;
+	--docsync-accent-medium: #3385d6;
+	--docsync-accent-subtle: #e6f0fa;
+	--docsync-accent-active: #004d99;
+	--docsync-accent-color-2: #5c7cfa;
+
+	/* Feedback */
+	--docsync-error-color: #e03131;
+
+	/* Elevation */
+	--docsync-shadow-light: 0 1px 3px rgba(0, 0, 0, 0.08);
+	--docsync-shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Dark mode defaults (respects prefers-color-scheme) */
+@media (prefers-color-scheme: dark) {
+	:root {
+		--docsync-background-primary: #1a1b1e;
+		--docsync-background-secondary: #25262b;
+		--docsync-background-card: #2c2e33;
+		--docsync-background-muted: #25262b;
+		--docsync-background-interactive: #373a40;
+
+		--docsync-border-default: #373a40;
+		--docsync-border-light: #2c2e33;
+		--docsync-border-faint: #25262b;
+
+		--docsync-text-primary: #e9ecef;
+		--docsync-text-secondary: #adb5bd;
+		--docsync-text-contrast: #1a1b1e;
+		--docsync-body-text-color: #ced4da;
+		--docsync-muted-text-color: #868e96;
+		--docsync-link-color: #74b3f7;
+
+		--docsync-accent-strong: #74b3f7;
+		--docsync-accent-medium: #5c9ce6;
+		--docsync-accent-subtle: #1c3a5c;
+		--docsync-accent-active: #91c5fa;
+		--docsync-accent-color-2: #8da1f7;
+
+		--docsync-error-color: #ff6b6b;
+
+		--docsync-shadow-light: 0 1px 3px rgba(0, 0, 0, 0.3);
+		--docsync-shadow-medium: 0 4px 12px rgba(0, 0, 0, 0.4);
+	}
+}
