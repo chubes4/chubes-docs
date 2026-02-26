@@ -3,7 +3,7 @@
  * Plugin Name: DocSync
  * Plugin URI: https://github.com/chubes4/docsync
  * Description: GitHub-to-WordPress documentation sync system with REST API, WP-CLI, and hierarchical project organization.
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: Chris Huber
  * Author URI: https://chubes.net
  * License: GPL v2 or later
