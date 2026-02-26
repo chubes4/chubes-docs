@@ -6,14 +6,14 @@
 
 .cards-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(400px, 100%), 1fr));
     gap: var(--docsync-space-xl);
     max-width: 1200px;
     margin: var(--docsync-space-lg) auto;
 }
 
 .cards-grid--narrow {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
 }
 
 /* ==========================================================================
@@ -201,6 +201,7 @@
    ========================================================================== */
 
 .external-buttons,
+.project-actions,
 .card-actions {
     display: flex;
     gap: 10px;
@@ -357,6 +358,14 @@
     padding: 60px 20px;
     max-width: 500px;
     margin: 0 auto;
+}
+
+/* ==========================================================================
+   Overflow Protection
+   ========================================================================== */
+
+.archive-documentation .archive-posts {
+    overflow-x: hidden;
 }
 
 /* ==========================================================================
@@ -537,6 +546,14 @@
     justify-content: center;
 }
 
+/* Override theme .btn to restore icon+text alignment inside project cards */
+.project-info-card .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+
 /* ==========================================================================
    Mobile Responsive
    ========================================================================== */
@@ -595,19 +612,39 @@
         gap: 18px;
     }
 
+    /* Project info card — compact but not stretched */
     .project-info-card {
         padding: 1.25rem;
         gap: 1rem;
     }
 
     .project-info-card .project-actions {
-        flex-direction: column;
-        width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        width: auto;
     }
 
     .project-info-card .btn {
-        width: 100%;
+        width: auto;
         justify-content: center;
+    }
+
+    /* Nested term sections — flatten to left-border accent on mobile
+       instead of heavy background boxes that waste horizontal space */
+    .term-section.depth-2,
+    .term-section.depth-3 {
+        background: transparent;
+        border: none;
+        border-left: 3px solid var(--docsync-accent-medium);
+        border-radius: 0;
+        padding: 0 0 0 1rem;
+        margin-top: 1rem;
+    }
+
+    /* Tighter cards inside nested sections */
+    .term-section.depth-2 .doc-card--compact,
+    .term-section.depth-3 .doc-card--compact {
+        padding: var(--docsync-space-md);
     }
 }
 
